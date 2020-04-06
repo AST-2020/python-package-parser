@@ -37,5 +37,5 @@ if __name__ == '__main__':
     f = open("scikit-learn/SVC.py", mode="r")
     contents = f.read()
 
-    tree = ast.parse(contents, type_comments=True)
+    tree = ast.parse(contents)
     MyNodeVisitor().visit(tree)
