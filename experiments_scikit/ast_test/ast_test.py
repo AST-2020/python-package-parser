@@ -25,7 +25,7 @@ class MyNodeVisitor(ast.NodeVisitor):
 
         self.visit_children(node)
 
-        # assign the name of the class to null after parsing the functions that are in the class
+        # assign the name of the class to null after parsing the functions that are in that class
         my_struct.cls_name = None
 
     def visit_FunctionDef(self, node: ast.FunctionDef) -> Any:
@@ -49,8 +49,10 @@ class MyNodeVisitor(ast.NodeVisitor):
     @staticmethod
     def read_directory(directory):
         for entry in os.scandir(directory):
+
             # to get the full path for our directory
             complete_filepath = directory + "/" + entry.name
+
             # if file is a py file, we parse it
             if complete_filepath.endswith(".py"):
 
@@ -70,6 +72,7 @@ class MyNodeVisitor(ast.NodeVisitor):
 
 
 if __name__ == '__main__':
+
     # save the path of the folder, where the library is
     library = 'scikit-learn-master'
 
@@ -80,7 +83,6 @@ if __name__ == '__main__':
     # print(my_struct.dict)
 
     json_object = my_struct.toJSON()
-
     print("\nthis is the json reprsentation of our data\n")
     print(json_object)
 

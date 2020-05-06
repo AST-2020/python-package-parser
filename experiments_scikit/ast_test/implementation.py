@@ -16,6 +16,7 @@ class Structure:
         else:
             self.dict[cls_name][func_name] = []
 
+    # convert data into Json format
     def toJSON(self):
-        return json.dumps(self, default=lambda o: o.__dict__,
+        return json.dumps(self.dict, default=lambda o: o.__dict__,
                           sort_keys=True, indent=3)
