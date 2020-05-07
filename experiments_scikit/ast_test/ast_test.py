@@ -4,15 +4,22 @@ import os
 from implementation import Structure
 from typing import Any
 
-# weil die Bib riesig ist, habe ich eine kleine Test Ordner heißt: test_directory, um den Logik des Programs zu sehen
-# einfach statt "scikit-learn-master" "test_directory" schreiben
 
-# das Program liest alle Datei in der Bibliothek außer diese beide Dateien:
+# weil die Bib riesig ist, habe ich eine kleine Test Ordner heißt: test_directory, um den Logik des Programs zu sehen
+# einfach statt ("scikit-learn-master" oder "pytorch-master") "test_directory" schreiben
+
+# das Program liest alle Datei in der Sci-kit Bibliothek außer diese beide Dateien:
 # (könnte das lösen, dadurch dass ich den encoding von alle Dateien zu UTF-8 geändert habe)
 # Zeile 57
 #
 # 1- scikit-learn-master/sklearn/feature_extraction/tests/test_text.py
 # 2- scikit-learn-master/sklearn/preprocessing/tests/test_encoders.py
+
+# und das Program liest alle Datei in der pytorch Bibliothek außer diese Datei:
+# 1- pytorch-master/docs/caffe2/process.py
+#
+# weil es ein Fehler in einem Print Befehl in Zeile 35 und wenn wir es korrigieren, oder das Exception fangen,
+# dann funktioniert alles
 
 
 class MyNodeVisitor(ast.NodeVisitor):
@@ -59,10 +66,12 @@ class MyNodeVisitor(ast.NodeVisitor):
                 # had to change encoding to avoid an error asscoiated with encoding
                 # you can see the error by removing the encoding parameter and running the program
                 f = open(complete_filepath, mode="r", encoding='utf-8')
-
-                contents = f.read()
-                tree = ast.parse(contents)
-                MyNodeVisitor().visit(tree)
+                try:
+                    contents = f.read()
+                    tree = ast.parse(contents)
+                    MyNodeVisitor().visit(tree)
+                except:
+                    print("")
                 continue
 
             # if file is not a py file, then test if it's a directory, if so
@@ -72,7 +81,6 @@ class MyNodeVisitor(ast.NodeVisitor):
 
 
 if __name__ == '__main__':
-
     # save the path of the folder, where the library is
     library = 'scikit-learn-master'
 
@@ -80,12 +88,12 @@ if __name__ == '__main__':
     MyNodeVisitor.read_directory(library)
 
     # to print our results in python format
-    # print(my_struct.dict)
+    print(my_struct.dict)
 
     json_object = my_struct.toJSON()
-    print("\nthis is the json reprsentation of our data\n")
+    # print("\nthis is the json reprsentation of our data\n")
     print(json_object)
 
     # to write our json data to a txt file
     # with open('results.txt', 'w') as outfile:
-    # json.dump(json_object, outfile)
+    #    json.dump(json_object, outfile)
