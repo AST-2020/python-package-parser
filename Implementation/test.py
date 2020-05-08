@@ -2,6 +2,8 @@ import ast
 from typing import Any
 from dict import *
 
+import sklearn.kernel_ridge
+
 
 class MyNodeVisitor(ast.NodeVisitor):
     indent = 0
@@ -54,7 +56,6 @@ class MyNodeVisitor(ast.NodeVisitor):
         return self.dict
 
 
-
 if __name__ == '__main__':
     f = open("SVC.py", mode="r")
     contents = f.read()
@@ -62,9 +63,7 @@ if __name__ == '__main__':
     tree = ast.parse(contents)
     visitor = MyNodeVisitor()
     visitor.visit(tree)
-    
+
     # get dict and print it out
     dict = visitor.getDict()
     print(dict.classes)
-
-
