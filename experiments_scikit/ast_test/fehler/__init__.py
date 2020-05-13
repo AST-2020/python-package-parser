@@ -1,5 +1,6 @@
 class Fehler:
 
+    #Daten werden gespeichert.
     dateipfad = ''
     zeilennummer = 0
     description = ''
@@ -10,10 +11,17 @@ class Fehler:
         self.zeilennummer = zeilennummer
         self.description = description
 
+    def printFehler(self, Fehler):
+        print(self.dateipfad)
+        print(self.description)
+        print(self.zeilennummer)
+
 class FehlerManager:
 #Fehler Manager -> Hier muessen alle Fehler die mit der Klasse Fehler registriert werden
 
-    fehler = []
+    def __init__(self, fehler = []):
+
+        self.fehler = fehler
 
     #Fehler wird der Liste hinzugefuegt
     def fehlerHinzufuegen(self, Fehler):
@@ -24,17 +32,16 @@ class FehlerManager:
         self.fehler.remove(Fehler)
         print("Fehler wurde entfernt")
 
-    def printFehler(self):
+    def printFehlerList(self):
         for f in self.fehler:
             print(f.dateipfad)
             print(f.zeilennummer)
             print(f.description)
 
-    def main(self):
-        fehler1 = Fehler("test", 12, "test2")
-        self.fehlerHinzufuegen(fehler1)
-        self.printFehler()
-        self.fehlerLoeschen(fehler1)
 
-    if __name__ == '__main__':
-        main()
+if __name__ == '__main__':
+    fm = FehlerManager()
+    fehler1 = Fehler("test", 12, "test2")
+    fm.fehlerHinzufuegen(fehler1)
+    fm.printFehlerList()
+    fm.fehlerLoeschen(fehler1)
