@@ -86,6 +86,8 @@ if __name__ == '__main__':
         # then it means we have imported a package and we should look at what is specified in the __all__ list in
         # the __init__ file
         else:
+            # all_string represent the name of the package, which we will need to access the imported modules, class
+            # and functions which will be saved under the ["package__all__list"][all_string]
             all_string = package[0] + "." + package[1]
             all_string = all_string.replace(".*", "")
             # to get the imported modules, classes and fucntions that are specified in the __all__ list
