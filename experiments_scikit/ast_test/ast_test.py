@@ -51,6 +51,7 @@ class MyNodeVisitor(ast.NodeVisitor):
             my_struct.add_method(my_struct.module_path, my_struct.cls_name, node.name, args)
 
     # to parse the import statements in the __init__.py in the package, if it exists
+    # so that i can use it in visit_List
     def visit_ImportFrom(self, node: ast.ImportFrom) -> Any:
         if "__init__" not in my_struct.module_path:
             return
@@ -71,12 +72,17 @@ class MyNodeVisitor(ast.NodeVisitor):
         # to get all the names of the modules in the __all__ list
         modules = [obj.s for obj in node.elts]
         # to get the relative paths of the modules
+        # in case it is a fucntion or method we have to get its path using the list of imports we have from the
+        # visit_ImportFrom method
         for i in range(len(modules)):
             for j in range(len(my_struct.import_list)):
+                # if we are importing a function or class, then the part after the import in (from .. import ..)
+                # will be same as the name in the __all__ list
                 if modules[i] in my_struct.import_list[j][1]:
                     modules[i] = [my_struct.import_list[j][0], my_struct.import_list[j][1]]
                     break
             else:
+                # otherwise it means that it is a .py file will be imported, which is in the same package
                 modules[i] = ["", modules[i]]
         # add the list of modules under the keys ['package__all__list']['the_package_name']
         my_struct.add__all__(my_struct.module_path.replace(".__init__", ""), modules)
