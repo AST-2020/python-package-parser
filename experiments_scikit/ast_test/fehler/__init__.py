@@ -12,9 +12,8 @@ class Fehler:
         self.description = description
 
     def printFehler(self, Fehler):
-        print(self.dateipfad)
-        print(self.description)
-        print(self.zeilennummer)
+        print(self.dateipfad + "in Zeile " + self.zeilennummer + " folgender Fehler: " + self.description)
+        print("----")
 
 class FehlerManager:
 #Fehler Manager -> Hier muessen alle Fehler die mit der Klasse Fehler registriert werden
@@ -34,9 +33,8 @@ class FehlerManager:
 
     def printFehlerList(self):
         for f in self.fehler:
-            print(f.dateipfad)
-            print(f.zeilennummer)
-            print(f.description)
+            print(self.dateipfad + "in Zeile " + self.zeilennummer + " folgender Fehler: " + self.description)
+            print("----")
 
 
 if __name__ == '__main__':
