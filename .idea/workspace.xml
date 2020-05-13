@@ -20,7 +20,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e70765f0-b3f7-4e7e-81a0-17451a53e854" name="Default Changelist" comment="Grundgeruest final geupdatet">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/experiments_scikit/ast_test/fehler/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/experiments_scikit/ast_test/fehler/__init__.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -150,11 +149,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.__init__" />
-        <item itemvalue="Python tests.Unittests for test___init__.Test_init_" />
         <item itemvalue="Python tests.Unittests in test___init__.py" />
-        <item itemvalue="Python tests.pytest for test___init__.test_fehler_hinzufuegen (1)" />
+        <item itemvalue="Python tests.Unittests for test___init__.Test_init_" />
         <item itemvalue="Python tests.pytest in test" />
+        <item itemvalue="Python tests.pytest for test___init__.test_fehler_hinzufuegen (1)" />
+        <item itemvalue="Python.__init__" />
       </list>
     </recent_temporary>
   </component>
@@ -265,6 +264,10 @@
       <screen x="72" y="27" width="1848" height="948" />
     </state>
     <state x="767" y="416" width="448" height="184" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/72.27.1848.948@72.27.1848.948" timestamp="1589373867714" />
+    <state x="717" y="195" width="547" height="619" key="git4idea.branch.GitSmartOperationDialog" timestamp="1589380212886">
+      <screen x="72" y="27" width="1848" height="948" />
+    </state>
+    <state x="717" y="195" width="547" height="619" key="git4idea.branch.GitSmartOperationDialog/72.27.1848.948@72.27.1848.948" timestamp="1589380212886" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/pgast2020$pytest_for_test___init___test_print_fehler.coverage" NAME="pytest for test___init__.test_print_fehler Coverage Results" MODIFIED="1589205588124" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/experiments_scikit/ast_test/sklearn/decomposition/tests" />
