@@ -1,6 +1,7 @@
 class testFile1():
     def __init__(self, name):
-        print("nvjfdk")
+        pass
+
 
 def testFunc1(num):
-    print("nvjfdk")
+    pass

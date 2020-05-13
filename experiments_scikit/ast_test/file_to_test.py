@@ -53,6 +53,10 @@ from TestDirectory import PackageInside
 #          "testClass3": {
 #             "__init__": [
 #                "self"
+#             ],
+#             "methode3": [
+#                "self",
+#                "args"
 #             ]
 #          }
 #       },

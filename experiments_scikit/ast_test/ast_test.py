@@ -96,7 +96,7 @@ class MyNodeVisitor(ast.NodeVisitor):
 
 if __name__ == '__main__':
     # save the name of the folder, where the library is
-    library = 'sklearn'
+    library = 'TestDirectory'
     my_struct = Structure()
     read_directory(library)
 
@@ -108,5 +108,5 @@ if __name__ == '__main__':
     # print(my_struct.dict)
 
     # to write our json data to a txt file
-    with open('resultsSciKit.txt', 'w') as outfile:
+    with open('testTesxtFile.txt', 'w') as outfile:
         json.dump(json_object, outfile)
