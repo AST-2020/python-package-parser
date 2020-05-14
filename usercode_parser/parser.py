@@ -1,20 +1,10 @@
 import ast as ast
 from typing import Any
-import comparator
+from comparator import Comparator
 
 import torch
 
-'''
-// atacans implementierenung benoetigt keine ganze klasse sondern nur name, line, args und kann somit 
-// in dem NodeVisitor einfach aufgerufen werden.
 
-@atacan: siehe FunctionVisitor.visit_Call, line 75 wie ich den Comparator aufrufen wuerde
-    
-ToDo
-    - unittests auf funktionalitaet fehlen noch
-    - zerlegen dieser datei in kleinere und umsetzung als package
-
-'''
 
 class ImportVisitor(ast.NodeVisitor):
 
@@ -67,7 +57,6 @@ class FunctionVisitor(ast.NodeVisitor):
 
         # note that name contains class obj name as well if method
         name = self.get_name(node)
-
         line = node.lineno
         keywords = self.get_keywords(node)
 
@@ -89,16 +78,12 @@ class FunctionVisitor(ast.NodeVisitor):
 
 
     def get_name(self, node):
-        #get functionname as called in code
-        # if multiple attributes
+        name = ''
         if type(node.func) == ast.Name:
-            if type(node.func.id) is type(''):
+            if type(node.func.id) == type(' '):
                 name = node.func.id
-            else:
-                name = '.'.join(node.func.id)
-        # else, if only one name
-        else:
-            name = self.visit(node.func)
+        if type(node.func) == ast.Attribute:
+                name = '.'.join(self.visit(node.func))
         return name
 
 
@@ -143,12 +128,12 @@ if __name__ == '__main__':
     tree = ast.parse(contents)
     FunctionVisitor().visit(tree)
 
-    
+
     file = open('example2.py', mode='r')
     contents = file.read()
     tree = ast.parse(contents)
     FunctionVisitor().visit(tree)
-    
+
 
 
     if find_module('torch', tree):
@@ -159,4 +144,3 @@ if __name__ == '__main__':
     #FunctionVisitor().visit(ast.parse("print('text')"))
     #FunctionVisitor().visit(ast.parse("randn(a,b)"))
 '''
-
