@@ -20,7 +20,7 @@ def factorial(n: int):
     for i in range(1, n + 1):
         result *= i
 
-    print(result)
+    return result
 
 
 def collatz(n: int) -> List[int]:
@@ -30,9 +30,13 @@ def collatz(n: int) -> List[int]:
     result = [n]
     current = n
     while current != 1:
-        following = current // 2 if current % 2 == 0 else 3 * current + 1
+        following = collatz_next(current)
 
         result.append(following)
         current = following
 
     return result
+
+
+def collatz_next(n):
+    return n // 2 if n % 2 == 0 else 3 * n + 1
