@@ -26,23 +26,23 @@ def get_module(output_file, data, path):
     return output_file
 
 
-def get_func(output_file, data, path, func_name=None):
+def get_func(output_file, data, path, func_name=None, in_file=False):
     if func_name is None:
-        for func in data['function'][path]:
-            output_file["function"][path + "." + func] = data['function'][path][func]
+        for func in data["function"][path]:
+            output_file["file"][path + "." + func] = data["function"][path][func]
             # print(output_file)
     else:
-        output_file["function"][path + "." + func_name] = data['function'][path][func_name]
+        output_file["function"][path + "." + func_name] = data["function"][path][func_name]
         # print(output_file)
     return output_file
 
 
-def get_class(output_file, data, path, cls_name=None):
+def get_class(output_file, data, path, cls_name=None, in_file=False):
     if cls_name is None:
-        for cls in data['method'][path]:
-            output_file["method"][path + "." + cls] = data['method'][path][cls]
+        for cls in data["method"][path]:
+            output_file["file"][path + "." + cls] = data["method"][path][cls]
     else:
-        output_file["method"][path + "." + cls_name] = data['method'][path][cls_name]
+        output_file["method"][path + "." + cls_name] = data["method"][path][cls_name]
     return output_file
 
 
@@ -73,7 +73,7 @@ class MyNodeVisitor(ast.NodeVisitor):
 
 
 def parse_imports(file_path):
-    results = {"method": {}, "function": {}}
+    results = {"method": {}, "function": {}, "file": {}}
     f = open(file_path, mode="r", encoding='utf-8')
     contents = f.read()
     tree = ast.parse(contents)
@@ -151,3 +151,11 @@ if __name__ == '__main__':
     file = 'file_to_test.py'
     output = parse_imports(file)
     print(output)
+
+    # {'method': {'TestDirectory.__init__.cls_in_init': {'__init__': ['self'], 'method_in_init': ['self', 'really_cool']},
+    #             'TestDirectory.file1.testFile1': {'__init__': ['self', 'name']}},
+    #  'function': {'TestDirectory.__init__.func_in_init': ['init_args', 'cool'],
+    #               'TestDirectory.file1.testFunc1': ['num'],
+    #               'TestDirectory.PackageInside.InsidePackageInside.__init__.extreme_case': ['really_extreme']},
+    #  'file': {'TestDirectory.PackageInside.file3.testClass3': {'__init__': ['self'], 'methode3': ['self', 'args']},
+    #           'TestDirectory.PackageInside.file3.testFunc3': ['num']}}

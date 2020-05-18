@@ -58,7 +58,7 @@ def read_directory(directory, local_path, struct):
 # to parse the torch package
 def parse_torch():
     library_local_path = torch.__file__
-    library_local_path = library_local_path.replace("\\__init__.py", '')
+    library_local_path = library_local_path.replace("__init__.py", '')
     # (local_path_to_delete) will be passed to further functions and methods
     # and this is the part of the path that we should delete
     local_path_to_delete = library_local_path.rsplit('torch', 1)[0]
@@ -78,7 +78,7 @@ def parse_torch():
 # to parse the sklearn package
 def parse_sklearn():
     library_local_path = sklearn.__file__
-    library_local_path = library_local_path.replace("\\__init__.py", '')
+    library_local_path = library_local_path.replace("__init__.py", '')
     # (local_path_to_delete) will be passed to further functions and methods
     # and this is the part of the path that we should delete
     local_path_to_delete = library_local_path.rsplit('sklearn', 1)[0]
@@ -195,7 +195,7 @@ if __name__ == '__main__':
     #
     # TestDirectory as a test
     library = TestDirectory.__file__
-    library = library.replace("\\__init__.py", '')
+    library = library.replace("__init__.py", '')
     path_to_delete = library.rsplit('TestDirectory', 1)[0]
     struct = Structure()
     read_directory(library, path_to_delete, struct)
