@@ -29,6 +29,6 @@ class Structure:
         self.dict['package__all__list'][module_path] = modules
 
     # convert data into Json format
-    def toJSON(self):
-        return json.dumps(self.dict, default=lambda o: o.__dict__,
+    def toJSON(self, structure):
+        return json.dumps(structure, default=lambda o: o.__dict__,
                           sort_keys=True, indent=3)
