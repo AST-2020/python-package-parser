@@ -1,3 +1,8 @@
+"""
+the here included function 'parse_code' combines all of the python files to first
+visit the user code 'file' for imports, then variables, then functions and methods
+"""
+
 import json
 import ast
 
@@ -12,18 +17,22 @@ def parse_code(file, module):
     contents = f.read()
     tree = ast.parse(contents)
 
-    # get souce structure
+    # decide for which module the code should be inspected
     source_file = ''
     if module == 'torch':
         source_file = 'resultsPytorch.txt'
+
     elif module == 'sklearn':
         source_file = 'resultsSKlearn.txt'
 
+    # if none of the two is selected stop function
+    else:
+        return False
+
+    # get souce structure depending on torch or sklearn selected
     with open(source_file) as json_file:
         json_obj = json.load(json_file)
     source = json.loads(json_obj)
-
-    # print(source['method']['Tensor'])
 
     # get imports
     imp = ImportVisitor(module, source)

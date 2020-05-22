@@ -1,3 +1,9 @@
+"""
+this visitor scans for function and method calls. functions and methods, which can be assigned to the module
+will be further analysed to gather informations about its position in the module, name, line, arguments.
+These informations are then used to call a comparator method to evaluate its correctness.
+"""
+
 import ast
 from typing import Any
 
@@ -14,9 +20,8 @@ class FunctionVisitor(ast.NodeVisitor):
         self.vars: UsedVariables = variables
         self.package_dict = dict
 
+    # collect relevant information about call of function or method
     def visit_Call(self, node: ast.Call) -> Any:
-        # collect relevant information about call
-
         # note that name contains class obj name as well if method
         prefix, name = self.get_name(node)
         line = node.lineno
@@ -26,7 +31,7 @@ class FunctionVisitor(ast.NodeVisitor):
         # hand information over to comparator
         if (type is 'function') or (type is 'method'):
             print(line, name, path, sub, type, keywords)
-        # Comparator().compare(self.package_dict, path, name, keywords, line, sub, type)
+            Comparator().compare(self.package_dict, path, name, keywords, line, sub, type)
 
     def visit_Attribute(self, node: ast.Attribute):
         attrs = []
@@ -38,6 +43,7 @@ class FunctionVisitor(ast.NodeVisitor):
             attrs.append(node.attr)
         return attrs
 
+    # get the function name and prefix
     def get_name(self, node):
         name = ''
         prefix = ''
@@ -59,17 +65,23 @@ class FunctionVisitor(ast.NodeVisitor):
     def get_path(self, prefix, fkt, type, cls=''):
         if type == 'function':
             for module in self.package_dict['function']:
+                # if prefix is partial path
                 if prefix in module:
+                    if fkt in self.package_dict['function'][module]:
+                        return module
+
+                # if prefix contains whole path till function
+                if module in prefix:
                     if fkt in self.package_dict['function'][module]:
                         return module
         if type == 'method':
             for module in self.package_dict['method']:
-                # print(self.package_dict['method'][module])
                 if cls in self.package_dict['method'][module]:
-                    # if fkt in self.package_dict['method'][module][cls]:
                     return module
         return ''
 
+    # further expand the functions prefix, to get path in package, and wheter it's a function or method
+    # returns path: the path inside the package, cls: class name if its a method, name: the function name
     def expand_prefix(self, prefix, line, name):
         path = ''
         type = ''
@@ -103,9 +115,8 @@ class FunctionVisitor(ast.NodeVisitor):
         return path, '', type
 
     @staticmethod
+    # get keywords of function, keywords are the names of named args
     def get_keywords(node):
-        # get keywords of function
-        # keywords are the names of named args
         list = []
         for keyword in node.keywords:
             list.append(keyword.arg)
