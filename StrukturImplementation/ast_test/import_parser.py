@@ -17,7 +17,7 @@ class Simple_Structure:
 
 
 # where the imports from the user's code are saved
-struct = Simple_Structure()
+parsed_data = Simple_Structure()
 
 
 def get_module(output_file, data, path):
@@ -53,13 +53,13 @@ class MyNodeVisitor(ast.NodeVisitor):
     def visit_ImportFrom(self, node: ast.ImportFrom) -> Any:
         for obj in node.names:
             # print(node.module + "." + obj.name)
-            struct.to_test_packages.append(node.module + "." + obj.name)
+            parsed_data.to_test_packages.append(node.module + "." + obj.name)
 
     # to parse the import statements
     def visit_Import(self, node: ast.Import) -> Any:
         for obj in node.names:
             # print(obj.name)
-            struct.to_test_packages.append(obj.name)
+            parsed_data.to_test_packages.append(obj.name)
 
     def print_indented(self, s):
         indentation = " " * self.indent
@@ -83,7 +83,7 @@ def parse_imports(file_path):
         # print(json_obj)
     data = json.loads(json_obj)
     # print(data)
-    for complete_path in struct.to_test_packages:
+    for complete_path in parsed_data.to_test_packages:
         # print(struct.to_test_packages)
         # to obtain the path up to the module level in case a function or class are imported(used in 2nd and 3rd (elif))
         path_till_module_level = complete_path.rsplit('.', 1)[0]
@@ -135,7 +135,7 @@ def parse_imports(file_path):
                 # sub-package as a part of it to the list of imports (struct.to_test_packages)
                 # (same idea as a recursive function)
                 else:
-                    struct.to_test_packages.append(complete_path + "." + realtive_path)
+                    parsed_data.to_test_packages.append(complete_path + "." + realtive_path)
 
     for key in results["method"].keys():
         if "__init__." in key:

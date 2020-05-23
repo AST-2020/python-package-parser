@@ -1,10 +1,9 @@
-from .file1 import testFunc1
-from .file1 import testFile1
-from .PackageInside import file3
-
-
-__all__ = ["testFunc1", "testFile1", "func_in_init", "cls_in_init", "file3", "PackageInside"]
-
+# from .file1 import testFunc1
+# from .file1 import testFile1
+# from .PackageInside import file3
+#
+# __all__ = ["testFunc1", "testFile1", "func_in_init", "cls_in_init", "file3", "PackageInside"]
+#
 
 def func_in_init(init_args, cool):
     pass
