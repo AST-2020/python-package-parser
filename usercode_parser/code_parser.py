@@ -9,7 +9,6 @@ from typing import Any
 
 from variables import UsedVariables
 from imports import Imports
-
 # from comparator import Comparator
 
 
@@ -19,6 +18,7 @@ class FunctionVisitor(ast.NodeVisitor):
         self.imports: Imports = imports
         self.vars: UsedVariables = variables
         self.package_dict = dict
+        # self.comp = Comparator()
 
     # collect relevant information about call of function or method
     def visit_Call(self, node: ast.Call) -> Any:
@@ -31,7 +31,7 @@ class FunctionVisitor(ast.NodeVisitor):
         # hand information over to comparator
         if (type is 'function') or (type is 'method'):
             print(line, name, path, sub, type, keywords)
-            Comparator().compare(self.package_dict, path, name, keywords, line, sub, type)
+            # self.comp.compare(self.package_dict, path, name, keywords, line, sub, type)
 
     def visit_Attribute(self, node: ast.Attribute):
         attrs = []
@@ -70,10 +70,13 @@ class FunctionVisitor(ast.NodeVisitor):
                     if fkt in self.package_dict['function'][module]:
                         return module
 
-                # if prefix contains whole path till function
-                if module in prefix:
-                    if fkt in self.package_dict['function'][module]:
-                        return module
+            # if prefix contains whole path till function
+            list = prefix.split('.')
+            for i in range(len(list)-1):
+                pre = '.'.join(list[:(-i)])
+                if pre in self.package_dict['function'].keys():
+                    return pre
+
         if type == 'method':
             for module in self.package_dict['method']:
                 if cls in self.package_dict['method'][module]:
