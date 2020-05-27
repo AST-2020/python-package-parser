@@ -13,8 +13,6 @@ If the parameter was not found in the list, a message will get printed.
 
 How to use it: In Marwin's code, right after the print function print("Function call::......."), this method can be called and the parameter given.
 
-To test: Use json_test or the unittest files. In json_test, change the strings at line 17 and 18 to simulate a function name, and the parameters in line 20. Then run the file.
-
 Returns:
 	If no function was found: 1
 	Else: 0

@@ -1,5 +1,6 @@
 import ast as ast
 from typing import Any
+import comparator as comp
 
 class ImportVisitor(ast.NodeVisitor):
     # to get imported modules
@@ -48,7 +49,9 @@ class FunctionVisitor(ast.NodeVisitor):
         line = node.lineno
         path = ''
         # have to findout how to get the package path
-        print('FUNCTION CALL::: in line ', line, ' of function ', name, ' with named args ', keywords)
+        #print('FUNCTION CALL::: in line ', line, ' of function ', name, ' with named args ', keywords)
+        com = comp.Comparator()
+        com.compare(name, keywords, line, "test_dir/functions_and_methods.json")
 
 
     def get_name(self, node):
