@@ -1,21 +1,23 @@
 import comparator
 import unittest
-import json
 
 class TestComparator(unittest.TestCase):
 
+
+
+    # With this assertion, the comparison should be true
+    # That means, all functions, methods, parameters etc. must be found
     def test_compare(self):
         # Testing the compare method
         comp = comparator.Comparator()
+        f_names = ["car.Car", "myCar.get_info", "myCar.drive", "car.play_music"]
+        p_names = [[], [], ['speed'], ['song_name', 'artist']]
 
-        with open("resultsTorch.txt") as json_file:
-            json_file = json.load(json_file)
-        json_file = json.loads(json_file)
+        for f in range(len(f_names)):
+            result = comp.compare(f_names[f], p_names[f], "test_dir/functions_and_methods.json")
+            self.assertEqual(0, result)
 
-        test1 = comp.compare(json_file, "torch.__config__", "parallel_info", [], 30)
-        test2 = comp.compare(json_file, "torch.__con2312313fig__", "parallexxl_info", [], 30)
-        self.assertEqual(0, test1)
-        self.assertEqual(1, test2)
+
 
 
 if __name__ == "__main__":
