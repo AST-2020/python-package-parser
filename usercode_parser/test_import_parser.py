@@ -8,13 +8,13 @@ import ast
 class ImportParserTestCase(unittest.TestCase):
     def test_get_package_from_content(self):
         imp = Imports()
-        imp.add_unnamed_import('x')
+        imp.add_unnamed_import('x', 1)
         imp.set_package_content('x', ['a'])
 
         # check if package is found for content
-        self.assertEqual('x', imp.get_package_from_content('a'))
+        self.assertEqual('x', imp.get_package_from_content('a',2))
         # check if not inclouded name returns None
-        self.assertIs(None, imp.get_package_from_content('b'))
+        self.assertIs(imp.get_package_from_content('b',2), None)
 
     def test_visit_Import(self):
         test_code1 = 'import torch'

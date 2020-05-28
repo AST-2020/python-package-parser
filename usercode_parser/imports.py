@@ -11,24 +11,28 @@ class Imports:
         self.unknown = {}
 
     # add a import with alias/ asname and the package path to named
-    def add_named_import(self, package, asname):
-        self.named[asname] = package
+    def add_named_import(self, package, line, asname):
+        self.named[asname] = (package, line)
 
     # add a import without alias/ asname and the package path to unknown
-    def add_unnamed_import(self, package):
-        self.unknown[package] = []
+    def add_unnamed_import(self, package, line):
+        self.unknown[package] = ([], line)
 
     # fill valid contents to unknown for a package
     def set_package_content(self, package, contents):
-        self.unknown[package] = contents
+        self.unknown[package] = (contents, self.unknown[package][1])
 
-    def get_package_from_asname(self, asname):
-        return self.named[asname]
+    def get_package_from_asname(self, asname, line):
+        if line >= self.named[asname][1]:
+            return self.named[asname][0]
+        else:
+            return None
 
     # get package for a content item without prefix from unknown
-    def get_package_from_content(self, caller):
+    def get_package_from_content(self, caller, line):
         for package in self.unknown:
-            for content in self.unknown[package]:
-                if caller == content:
-                    return package
+            if line >= self.unknown[package][1]:
+                for content in self.unknown[package][0]:
+                    if caller == content:
+                        return package
         return None

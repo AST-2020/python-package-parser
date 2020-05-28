@@ -89,33 +89,47 @@ class FunctionVisitor(ast.NodeVisitor):
         path = ''
         type = ''
         if prefix is not None:
-            # if function
+            # if function with prefix
             if prefix in self.imports.named:
-                path = self.imports.named[prefix]
+                path = self.imports.get_package_from_asname(prefix, line)
                 path = self.get_path(path, name, 'function')
-                return path, '', 'function'
+                if path != '':
+                    return path, '', 'function'
 
-            # if method
+            # if Constructor with prefix
+            if prefix in self.imports.named:
+                path = self.imports.get_package_from_asname(prefix, line)
+                path = self.get_path(path, '__init__', 'method', name)
+                if path != '':
+                    return path, name, 'method'
+
+            # if method with class object as prefix
             cls = self.vars.get_var_type(prefix, line)
             if cls is not None:
                 list = cls.split('.')
-                # if Constructor with alias up front
+                # if object created with Constructor with alias up front
                 if len(list) == 2:
-                    path = self.imports.get_package_from_asname(list[0])
+                    path = self.imports.get_package_from_asname(list[0], line)
                     cls = list[-1]
                     if path is not None:
                         path = self.get_path(path, name, 'method', cls)
                         return path, cls, 'method'
-                # if Constructor only
+                # if object created without alias in front of Constructor
                 else:
                     # search for path
-                    path = self.imports.get_package_from_content(cls)
+                    path = self.imports.get_package_from_content(cls, line)
                     if path is not None:
                         cls = list[-1]
                         path = self.get_path(path, name, 'method', cls)
                         return path, cls, 'method'
 
-        return path, '', type
+        if name != '':
+            # if Constructor without prefix
+            path = self.get_path('', name, 'method', name)
+            if path is not None:
+                return path, name, 'method'
+
+        return '', '', type
 
     @staticmethod
     # get keywords of function, keywords are the names of named args

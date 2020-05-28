@@ -4,7 +4,6 @@ import ast
 
 from variables import UsedVariables
 from imports import Imports
-from variable_parser import VariableVisitor
 from code_parser import FunctionVisitor
 
 
@@ -47,14 +46,40 @@ class UserCodeCase(unittest.TestCase):
         self.assertEqual(fv.get_path(None, '', ''), '')
 
     def test_expand_prefix(self):
-        # get souce structure depending on torch or sklearn selected
+        # get souce structure
         with open('resultsPytorch.txt') as json_file:
             json_obj = json.load(json_file)
         source = json.loads(json_obj)
 
-        fv = FunctionVisitor(source)
+        # if prefix is None
+        fv1 = FunctionVisitor(source)
+        self.assertEqual(('', '', ''), fv1.expand_prefix(None, 1, ''))
 
+        # if is function
+        imp = Imports()
+        imp.add_named_import(package='torch', asname='t', line=0)
+        fv2 = FunctionVisitor(source, imp)
+        self.assertEqual(('torch.onnx.symbolic_opset9', '', 'function'), fv2.expand_prefix('t', 1, 'randn'))
 
+        # if is method
+        imp = Imports()
+        imp.add_named_import(package='torch', asname='torch', line=0)
+        vars = UsedVariables()
+        vars.add_usage('tensor', 1, 'torch.Tensor')
+        fv3 = FunctionVisitor(source, imp, vars)
+        self.assertEqual(('torch.tensor', 'Tensor', 'method'), fv3.expand_prefix('tensor', 1, 'norm'))
+
+        # if is Constructor with alias
+        imp = Imports()
+        imp.add_named_import(package='torch', asname='torch', line=0)
+        fv4 = FunctionVisitor(source, imp)
+        self.assertEqual(('torch.tensor', 'Tensor', 'method'), fv4.expand_prefix('torch', 1, 'Tensor'))
+
+        # if Constructor without alias
+        imp = Imports()
+        imp.add_unnamed_import(package='torch', line=0)
+        fv4 = FunctionVisitor(source, imp)
+        self.assertEqual(('torch.tensor', 'Tensor', 'method'), fv4.expand_prefix('', 2, 'Tensor'))
 
     def test_get_keywords(self):
         text1 = "func(a=1, b=2)"

@@ -43,12 +43,8 @@ class VariableVisitor(ast.NodeVisitor):
                     self.vars.add_usage(var=name, type=type, line=line)
 
             # if constructor imported with *
-            for package in self.imports.unknown:
-                for touple in self.imports.unknown[package]:
-                    for item in touple:
-                        # print(item)
-                        if type == item:
-                            self.vars.add_usage(var=name, type=type, line=line)
+            if self.imports.get_package_from_content(type, line) is not None:
+                self.vars.add_usage(var=name, type=type, line=line)
 
     def get_vars(self):
         return self.vars
