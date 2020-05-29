@@ -71,15 +71,8 @@ class Structure:
         self.dict['package__all__list'][module_path] = []
         self.dict['package__all__list'][module_path] = modules
 
-    def get_paths(self, function_or_method):
-
-        if function_or_method is "function":
-            return self.__get(self.dict, ["function"])
-        elif function_or_method is "method":
-            return self.__get(self.dict, ["method"])
-
-    def get_classes(self, path_till_file):
-        return self.__get(self.dict, ["method", path_till_file])
+    def get_classes(self, path_till_file) -> List:
+        return self.__get(self.dict, ["method", path_till_file]).keys()
 
     def get_functions_or_methods(self, path_till_file, cls_name=None):
         if cls_name is None:

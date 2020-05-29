@@ -5,6 +5,9 @@ from typing import Any
 import TestDirectory
 
 # VIP: now we don't have self as parameter in method parameters
+# this doesn't mean that the library is imported != from numpy import *
+# this i not allowed --> import numpy.*
+# import numpy
 
 
 # to use file as main: uncomment: parse_package("torch") and  parse_package("sklearn")
