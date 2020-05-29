@@ -4,16 +4,18 @@ class Fehler:
     dateipfad = ''
     zeilennummer = 0
     description = ''
+    dateiname = ''
 
     # Konstruktur initialisieren
-    def __init__(self, dateipfad, zeilennummer, description):
+    def __init__(self, dateipfad, zeilennummer, description, dateiname):
         self.dateipfad = dateipfad
         self.zeilennummer = zeilennummer
         self.description = description
+        self.dateiname = dateiname
 
     #Einzelne Fehler printen
     def printFehler(self, Fehler):
-        print(self.dateipfad + "in Zeile " + self.zeilennummer + " folgender Fehler: " + self.description)
+        print(self.dateipfad + " in Datei" + self.dateiname + "in Zeile " + self.zeilennummer + " folgender Fehler: " + self.description)
         print("----")
 
 class FehlerManager:
@@ -40,4 +42,4 @@ class FehlerManager:
             print("----")
 
     def printHelp(f):
-        return "[" + f.dateipfad + "] in Zeile " + str(f.zeilennummer) + " folgender Fehler: " + f.description
+        return "[" + f.dateipfad + " in Datei " + f.dateiname + "] in Zeile " + str(f.zeilennummer) + " folgender Fehler: " + f.description

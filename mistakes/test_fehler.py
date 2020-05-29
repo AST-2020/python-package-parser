@@ -1,12 +1,13 @@
 import unittest
 from unittest import TestCase
-from usercode_parser.fehler import Fehler, FehlerManager
+
+from mistakes.fehler import Fehler, FehlerManager
 
 
 class TestFehlerManager(TestCase):
     def test_print_help(self):
-        f1 = Fehler("test1", 2, "test2")
-        result = "[test1] in Zeile 2 folgender Fehler: test2"
+        f1 = Fehler("Pfad", 2, "Beschreibung", "Datei")
+        result = "[Pfad in Datei Datei] in Zeile 2 folgender Fehler: Beschreibung"
 
         self.assertEqual(FehlerManager.printHelp(f1), result)
 

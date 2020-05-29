@@ -1,5 +1,4 @@
-import json
-import fehler.fehler as error
+from mistakes.old_things import fehler as error
 
 
 class Comparator():

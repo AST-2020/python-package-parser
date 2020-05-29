@@ -1,5 +1,5 @@
 import json
-import fehler as error
+import mistakes as error
 
 
 class Comparator():
