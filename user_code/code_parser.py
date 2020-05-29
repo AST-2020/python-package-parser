@@ -26,11 +26,14 @@ class FunctionVisitor(ast.NodeVisitor):
         prefix, name = self.get_name(node)
         line = node.lineno
         keywords = self.get_keywords(node)
+        args = self.get_args(node)
+        print(args, keywords)
         cls, package = self.get_package(prefix, name, line)
         if cls == '':
             cls = None
         if package != '':
-            self.comp.compare_arg_names(line, package, name, keywords, cls)
+            pass
+            # self.comp.compare_arg_names(line, package, name, keywords, cls)
         """
         # if function
         package = self.imports.get_package_from_asname(prefix, line)
@@ -204,3 +207,11 @@ class FunctionVisitor(ast.NodeVisitor):
         for keyword in node.keywords:
             list.append(keyword.arg)
         return list
+
+    @ staticmethod
+    def get_args(node):
+        args = []
+        raw_args = node.args
+        for arg in raw_args:
+            args.append(arg.id)
+        return args
