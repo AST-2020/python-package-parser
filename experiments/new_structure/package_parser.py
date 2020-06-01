@@ -2,11 +2,21 @@ import ast
 import os
 from typing import Any, Optional, List
 
-from experiments.new_structure.library_model import Library, Module, Class, Function, Parameter
+# bugs in:
+# 1. sklearn.compose._column_transformer._transformers (2 methods with same name but one is using @property decorator)
+#   (solved)
+# 2. sklearn.externals.six.get_unbound_function (2 functions)(function definition in if-else-statemant,
+# but both functions have same parameters) (solved)
+#
+# 3. torch.backends.cudnn.__init__._init (2 functions)(function definition in if-else-statemant,
+# but they have different parameters)
+
+# from experiments.new_structure.library_model import Library, Module, Class, Function, Parameter
+from library_model import Library, Module, Class, Function, Parameter
 
 import TestDirectory
 
-# VIP: now we don't have self as parameter in method parameters
+# VIP: now we don't have "self" as parameter in method parameters
 
 
 # to use file as main: uncomment: parse_package("torch") and  parse_package("sklearn")
@@ -75,7 +85,7 @@ def read_directory(directory, local_path, struct: Library):
             read_directory(path, local_path, struct)
 
 
-def is_package_installed(package_name):
+def has_package_installed(package_name):
     if package_name is "torch":
         if torch_installed:
             return True
@@ -96,7 +106,7 @@ def is_package_installed(package_name):
 def parse_package(package_name):
     parsed_data = Library([])
     # package_name = torch or sklearn
-    if not is_package_installed(package_name):
+    if not has_package_installed(package_name):
         return
     if package_name is "torch":
         library_local_path = torch.__file__
@@ -112,6 +122,7 @@ def parse_package(package_name):
     read_directory(library_local_path, local_path_to_delete, parsed_data)
 
     # to write our json data to a txt file
+    # print(parsed_data.get_top_level_function("sklearn.externals.six", "get_unbound_function").get_parameters())
     parsed_data.convert_to_json(package_name)
 
 
@@ -124,21 +135,27 @@ class MyNodeVisitor(ast.NodeVisitor):
     def visit_ClassDef(self, node: ast.ClassDef) -> Any:
         self.__current_class = Class(node.name, [])
         self.generic_visit(node)
-        self.__current_module.add_class(self.__current_class)
+        if self.__current_class is not None:
+            self.__current_module.add_class(self.__current_class)
         self.__current_class = None  # Exit the class scope
 
     def visit_FunctionDef(self, node: ast.FunctionDef) -> Any:
+        for decorator in node.decorator_list:
+            if "id" in decorator.__dir__() and decorator.id is "property":
+                return
         parameters = self.__create_parameter_list(node)
-        function = Function(node.name, parameters)
 
         if self.__current_class is None:
+            function = Function(node.name, parameters)
             self.__current_module.add_top_level_function(function)
         else:
+            parameters = parameters[1:]
+            function = Function(node.name, parameters)
             self.__current_class.add_method(function)
 
     def __create_parameter_list(self, node: ast.FunctionDef) -> List[Parameter]:
         parameter_names: List[str] = [arg.arg for arg in node.args.args]
-        parameter_defaults: List[Any] = [self.__get_default_value(default) for default in node.args.defaults]
+        parameter_defaults: List[Any] = [getattr(default, default.__dir__()[0])for default in node.args.defaults]
 
         result: List[Parameter] = []
         for i in range(len(parameter_names)):
@@ -149,9 +166,6 @@ class MyNodeVisitor(ast.NodeVisitor):
                 result.append(Parameter(parameter_names[i], True, parameter_defaults[default_index]))
 
         return result
-
-    def __get_default_value(self, node: ast.AST) -> Any:
-        return node.__dir__()[0]
 
 
 if __name__ == '__main__':
