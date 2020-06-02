@@ -1,14 +1,8 @@
+from experiments.star_import_problems.package.scalar import add as scalar_add
+from experiments.star_import_problems.package.vec import add as vec_add
 import random
 
 
-def a():
-    return 1
+add = scalar_add if random.random() < 0.5 else vec_add
 
-
-def b():
-    return 2
-
-
-exported = "a" if random.random() < 0.5 else "b"
-
-__all__ = [exported]
+__all__ = ["add"]
