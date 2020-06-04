@@ -51,12 +51,12 @@ if __name__ == '__main__':
 
         # parse torch and sklearn library
         parse_package('torch')
-        # parse_package('sklearn')
+        parse_package('sklearn')
 
 
         # parse code for both libraries
         parse_code(file_path, 'torch')
-        # parse_code(file_path, 'sklearn')
+        parse_code(file_path, 'sklearn')
 
     else:
         print('programm expects only the file to check as an argument.')
