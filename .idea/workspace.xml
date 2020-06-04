@@ -19,16 +19,7 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e70765f0-b3f7-4e7e-81a0-17451a53e854" name="Default Changelist" comment="Grundgeruest final geupdatet">
-      <change afterPath="$PROJECT_DIR$/mistakes/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/mistakes/test_fehler.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/comparator/comparator.py" beforeDir="false" afterPath="$PROJECT_DIR$/comparator/comparator.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/comparator/folder/comparator.py" beforeDir="false" afterPath="$PROJECT_DIR$/comparator/folder/comparator.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fehler/fehler.py" beforeDir="false" afterPath="$PROJECT_DIR$/mistakes/old_things/fehler.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user_code/folder/fehler.py" beforeDir="false" afterPath="$PROJECT_DIR$/mistakes/fehler.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user_code/folder/test_fehler.py" beforeDir="false" />
-    </list>
+    <list default="true" id="e70765f0-b3f7-4e7e-81a0-17451a53e854" name="Default Changelist" comment="Feature Fehler Done" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -177,6 +168,7 @@
       <workItem from="1589373753470" duration="3033000" />
       <workItem from="1589378696462" duration="691000" />
       <workItem from="1590156221319" duration="398000" />
+      <workItem from="1591302462353" duration="117000" />
     </task>
     <task id="LOCAL-00001" summary="Grundgeruest fertig">
       <created>1589205676516</created>
@@ -283,10 +275,10 @@
       <screen x="72" y="27" width="1848" height="948" />
     </state>
     <state x="591" y="223" width="800" height="563" key="Vcs.Push.Dialog.v2/72.27.1848.948@72.27.1848.948" timestamp="1589377038433" />
-    <state x="767" y="416" width="458" height="184" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1590751056717">
+    <state x="767" y="416" width="458" height="184" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1591302514561">
       <screen x="72" y="27" width="1848" height="948" />
     </state>
-    <state x="767" y="416" width="458" height="184" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/72.27.1848.948@72.27.1848.948" timestamp="1590751056717" />
+    <state x="767" y="416" width="458" height="184" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/72.27.1848.948@72.27.1848.948" timestamp="1591302514561" />
     <state x="717" y="195" width="547" height="619" key="git4idea.branch.GitSmartOperationDialog" timestamp="1589380212886">
       <screen x="72" y="27" width="1848" height="948" />
     </state>
