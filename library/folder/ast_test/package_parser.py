@@ -2,8 +2,6 @@ import ast
 import os
 from typing import Any, Optional, List
 
-
-
 # bugs in:
 # 1. sklearn.compose._column_transformer._transformers (2 methods with same name but one is using @property decorator)
 #
@@ -109,7 +107,6 @@ def has_package_installed(package_name):
 
 def parse_package(package_name):
     parsed_data = Library([])
-    # parsed_data.convert_to_python("results_TestDirectory.json")
     # package_name = torch or sklearn
     if not has_package_installed(package_name):
         return

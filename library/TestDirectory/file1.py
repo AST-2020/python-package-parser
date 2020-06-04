@@ -1,6 +1,6 @@
 class testFile1:
     def __init__(self, name, nachname="yoyoyo"):
-        print(64486)
+        pass
 
 
 class testFile2:
@@ -11,7 +11,7 @@ class testFile2:
 obj1 = testFile1()
 
 
-def testFunc1(num, my_list=[], my_bool=True, my_double=1.4, my_obj=obj1):
+def testFunc1(num, my_list=[], my_bool=True, my_double=1.4, my_obj=obj1) -> int:
     print("hello")
 
 
