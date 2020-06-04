@@ -1,0 +1,124 @@
+Protokolle der Treffen der zweiten Integration
+============================================== 
+
+Treffen am 15.5. [Beginn der zweiten Iteration]
+
+Ablauf
+  - Kundenpraesentation
+  - Vorstellung neuer Stories
+  - Planung der naechsten Iteration in Jira
+    - wurde nicht vollstaendig abgeschlossen und am Montag (18.5.) abgeschlossen
+
+
+Kritik/ Verbesserungsvorschlaege fuer das Arbeiten
+  - Schaetzungen waren nicht gut
+  - Abhaengigkeiten
+  - Funktionalitaet mit allen Bibliotheksversionen
+
+Vorstellung neuer Stories
+  Story 2
+    Es soll ueberprueft werden, ob die Anzahl der Argumente gueltig ist,
+    oder ob mehr/ weniger Argumente, als in der Definition verwendet werden.
+
+    Idee zur Umsetzung
+      - Betrachtung aller Argumente aus der Definition
+      - #Parameter ohne default-values ist Minimum
+      - #aller Parameter ist Maximum
+
+      -> UserCodeParser muss auch unbenannte Argumente herausfiltern
+      -> Comparator braucht eine Methode, um das zu vergleichen
+      -> neue Fehlerausgabe
+
+    Bearbeitung in 2. Iteration
+
+
+  Story 3
+    Werte sollen mit den default-values abgeglichen werden. Falls einem
+    Parameter der Defaultwert zugewiesen wird, soll mittels Warning darauf
+    hingewiesen werden.
+
+    Umsetzung
+      steht noch aus
+
+    Bearbeitung ab 3. Iteration moeglich. Bis jetzt unbearbeitet
+
+Die Kunden legen Wert auf die Moeglichkeit einer spaeteren IDE Einbindung,
+sind aber vorerst auch mit einem Konsolenprogramm/ -ausgabe einverstanden.
+
+
+
+Montag 18.5.
+
+  Ablauf
+    - Aufbereitung 1. Story, und formulieren bisher ungeloester Aufgaben
+    - Storypoint Zuweisungen zu den drei Stories
+    - Schaetzung des Arbeitspensums, bzw welche Stories sinnvoll
+      bearbeitet werden koennen
+    - Entscheidung nur die ersten beiden zu behandeln
+
+
+
+Freitag 22.5.
+
+    Ablauf
+      - Begruessung und Zwischenstaende
+      - Probleme klaeren
+      - Selbstaendiges Arbeiten an den Aufgaben
+
+
+    Getroffene Einschraenkungen
+      - .pyi-Dateien werden erstmal ignoriert
+      - all imports, also import von ganzen Packages werden erstmal ignoriert
+
+
+
+Freitag 29.5.
+
+    Ablauf
+    - Begruessung
+    - Kundengespraech (Vorstellung der ersten Story)
+    - einfuegen des Feedbacks in Jira (mit Schaetzungen)
+    - Selbstaendiges Arbeiten an den Aufgaben
+    - Starke Veraenderung der Library Struktur (Hady und Lars)
+
+    Feedback
+      - IDE Integration gewuenscht
+        -> viel Aufwand, da Einlesen in JavaScript notwendig ist
+        -> Umfang einer eigenen Story, siehe Jira
+        -> verschoben auf spaeter (Ueberlegung IDE, vs Funktionalitaeten)
+      - Kunden war unklar, dass wir den Code statisch analysieren
+      - zu pruefendes Modul soll nicht angegeben werden. es sollen immer beide
+        geprueft werden
+      - Einschraenkungen waren unvollstaendig
+
+      - bei eventuellem Themenwechsel soll der Code entsprechend gut kommen-
+        tiert sein, damit sich auch Leute, die den code nicht geschrieben haben
+        darin zurecht finden und ihn weiter bearbeiten koennen
+
+      Umsetzung
+        - IDE Integrierung wurde als Story in Jira vorformuliert
+        - Modulangaben, sollen weg fallen -> Aenderung in code_analyser
+        - Protokolle von Treffen genauer machen und auf git laden, damit
+          Man einen besseren Eindruck der aktuellen Situation und den
+          getroffenen/ abgemachten Einschraenkungen hat
+
+      Sonstiges
+        Git
+          - Im Develop-Branch werden nur Zwischenversionen gesammelt
+          - fuer die Bearbeitung sind eigene Unterbranches zu erstellen
+          - darin sollen sich auch die entsprechenden Unittests befinden
+          - der Code ist so zu schreiben/ integrieren, dass sich alles
+            nach mergen in Develop Problemfrei ausfuehren laesst
+
+
+
+Einschraenkungen
+
+  - Typenangabe von Variablen
+    [laesst sich beheben sobald man von den Definitionen auch
+    return values ausliest]
+  - keine Imports ganzen Paketen
+    [manche Sonderfaelle lassen sich nicht ueberpruefen/ bearbeiten]
+  - .pyi-Datein werden ignoriert
+    [viel Zeitaufwand das umzusetzen]
+  -
