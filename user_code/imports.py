@@ -13,7 +13,6 @@ class Imports:
     def add_named_import(self, package, line, asname):
         self.named[asname] = (package, line)
 
-    """
     # add a import without alias/ asname and the package path to unknown
     def add_unnamed_import(self, package, line):
         self.unknown[package] = ([], line)
@@ -21,7 +20,7 @@ class Imports:
     # fill valid contents to unknown for a package
     def set_package_content(self, package, contents):
         self.unknown[package] = (contents, self.unknown[package][1])
-    """
+
     def get_package_from_asname(self, asname, line):
         if asname in self.named:
             if line >= self.named[asname][1]:

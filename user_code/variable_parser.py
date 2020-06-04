@@ -18,7 +18,7 @@ class VariableVisitor(ast.NodeVisitor):
         self.vars: UsedVariables = UsedVariables()
         self.imports: Imports = imports
 
-    # becuase we assume that all varables need to have type annotations
+    # because we assume that all variables need to have type annotations
     # we only need to pay attention to ast.AnnAssign nodes
     def visit_AnnAssign(self, node: ast.AnnAssign) -> Any:
         # var name and line
