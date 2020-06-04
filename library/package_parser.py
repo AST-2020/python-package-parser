@@ -23,7 +23,7 @@ from typing import Any, Optional, List
 # 2- if parameters are not same for the multiple versions of the functions and methods, then they will be removed from
 # the structure, as the version that will be run is normally decided at run time. (classes are always removed)
 
-from library_model import Library, Module, Class, Function, Parameter
+from library.library_model import Library, Module, Class, Function, Parameter
 
 # import TestDirectory
 

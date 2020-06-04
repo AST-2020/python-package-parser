@@ -25,8 +25,10 @@ def parse_code(file, module):
 
     # get souce structure depending on torch or sklearn selected
     source = library_model.Library([])
-    source.convert_to_python(source_file_torch)
-    source.convert_to_python(source_file_sklearn)
+    if module == 'torch':
+        source.convert_to_python(source_file_torch)
+    else:
+        source.convert_to_python(source_file_sklearn)
 
     # get imports
     imp = ImportVisitor(module, source)
@@ -39,7 +41,7 @@ def parse_code(file, module):
     vars = var.get_vars()
 
     # inspect functions
-    fp = FunctionVisitor(source, imps, vars)
+    fp = FunctionVisitor(file_path, source, imps, vars)
     fp.visit(tree)
 
 
@@ -49,12 +51,12 @@ if __name__ == '__main__':
 
         # parse torch and sklearn library
         parse_package('torch')
-        parse_package('sklearn')
+        # parse_package('sklearn')
 
 
         # parse code for both libraries
         parse_code(file_path, 'torch')
-        parse_code(file_path, 'sklearn')
+        # parse_code(file_path, 'sklearn')
 
     else:
         print('programm expects only the file to check as an argument.')

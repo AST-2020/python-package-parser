@@ -41,5 +41,6 @@ class FehlerManager:
             print(error)
             print("----")
 
+    @staticmethod
     def printHelp(f):
         return "[" + f.dateipfad + " in Datei " + f.dateiname + "] in Zeile " + str(f.zeilennummer) + " folgender Fehler: " + f.description

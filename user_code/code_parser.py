@@ -13,12 +13,13 @@ from comparator.comparator import Comparator
 
 
 class FunctionVisitor(ast.NodeVisitor):
-    def __init__(self, dict, imports, variables: UsedVariables = UsedVariables()):
+    def __init__(self, file, dict, imports, variables: UsedVariables = UsedVariables()):
         ast.NodeVisitor.__init__(self)
         self.imports: Imports = imports
         self.vars: UsedVariables = variables
         self.package_dict = dict
         self.comp = Comparator(self.package_dict)
+        self.file = file
 
     # collect relevant information about call of function or method
     def visit_Call(self, node: ast.Call) -> Any:
@@ -27,15 +28,15 @@ class FunctionVisitor(ast.NodeVisitor):
         line = node.lineno
         keywords = self.get_keywords(node)
         args = self.get_args(node)
-        print(args, keywords)
         cls, package = self.get_package(prefix, name, line)
         if cls == '':
             cls = None
-        if package != '':
+        print(name, prefix, line, keywords, args, cls, package)
+        if package is not None:
             # compare names of named args
-            self.comp.compare_arg_names(line, package, name, keywords, cls)
+            self.comp.compare_arg_names(self.file, line, package, keywords, name, cls)
             # compare arg count
-            self.comp.compare_arg_amount(line, package, name, keywords, args, cls)
+            self.comp.compare_arg_amount(self.file, line, package, name, keywords, args, cls)
         """
         # if function
         package = self.imports.get_package_from_asname(prefix, line)
@@ -71,21 +72,20 @@ class FunctionVisitor(ast.NodeVisitor):
 
     # find the package and class if method, the function is defined at
     def get_package(self, prefix, name, line):
-        if prefix is not None:
+        if prefix is None:
             if self.imports.get_package_from_asname(name, line) is not None:
-                return None, self.get_function_package(None, name, line)
+                return '', self.get_function_package('', name, line)
 
         else:
             if self.imports.get_package_from_asname(prefix, line) is not None:
-                return None, self.get_function_package(prefix, name, line)
+                return '', self.get_function_package(prefix, name, line)
             cls = self.vars.get_var_type(prefix, line)
             if cls is not None:
                 return cls, self.get_method_package(cls, name, line)
-        return None, None
+        return '', ''
 
-    # find the package, the function is defined at
     def get_function_package(self, prefix, name, line):
-        if prefix is None:
+        if prefix == '':
             package = self.imports.get_package_from_asname(name, line).split('.')
             if name == package[-1]:
                 package = package[:-1]
@@ -94,9 +94,8 @@ class FunctionVisitor(ast.NodeVisitor):
         else:
             return self.imports.get_package_from_asname(prefix, line)
 
-    # find the package and class, the method is defined at
     def get_method_package(self, cls, name, line):
-        if cls is not None:
+        if cls != '':
             cls = cls.split('.')
             package = self.imports.get_package_from_asname(cls[0], line).split('.')
             cls = '.'.join(cls)
@@ -104,7 +103,7 @@ class FunctionVisitor(ast.NodeVisitor):
                 package = package[:-1]
             package = '.'.join(package)
             return package
-        return None
+        return ''
 
     # helper function for get_name to get the full name with all prefixes
     def visit_Attribute(self, node: ast.Attribute):
@@ -217,8 +216,12 @@ class FunctionVisitor(ast.NodeVisitor):
     @ staticmethod
     # get unnamed arguments of the function
     def get_args(node):
+        # print(ast.dump(node))
         args = []
         raw_args = node.args
         for arg in raw_args:
-            args.append(arg.id)
+            if type(arg) == ast.Str:
+                args.append(arg.s)
+            else:
+                args.append(arg.id)
         return args
