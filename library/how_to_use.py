@@ -7,7 +7,7 @@ if __name__ == '__main__':
     # to get the parsed data (VIP)
     package = Library([])
     package.convert_to_python("results_TestDirectory.json")
-    # print(package)
+    print(package)
 
     # to show how does the new structure looks
     json_object = json.dumps(package, default=lambda o: o.__dict__, sort_keys=True, indent=3)
