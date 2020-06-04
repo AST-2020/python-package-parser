@@ -175,8 +175,8 @@ class MyNodeVisitor(ast.NodeVisitor):
 
 if __name__ == '__main__':
     # will create a text file with parsed data for library Pytorch & sklearn
-    parse_package("torch")
-    parse_package("sklearn")
+    # parse_package("torch")
+    # parse_package("sklearn")
 
     # to create parsed data for TestDirectory
     library = TestDirectory.__file__

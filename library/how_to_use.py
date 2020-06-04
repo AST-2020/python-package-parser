@@ -1,11 +1,17 @@
+import json
+
 from library_model import Library, Module, Class, Function
 
 if __name__ == '__main__':
 
-    # um zu die geparsete Daten zu erhalten (VIP)
+    # to get the parsed data (VIP)
     package = Library([])
     package.convert_to_python("results_TestDirectory.json")
     # print(package)
+
+    # to show how does the new structure looks
+    json_object = json.dumps(package, default=lambda o: o.__dict__, sort_keys=True, indent=3)
+    print(json_object)
 
     print("one way to get information about the parameters of a function:\n")
     # function = package.get_top_level_function("TestDirectory.file1", "testFunc1")

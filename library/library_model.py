@@ -208,7 +208,7 @@ class Library:
     def convert_to_json(self, package_name):
         # print(self.__modules)
         json_object = json.dumps(self.__modules, default=lambda o: o.__dict__, sort_keys=True, indent=3)
-        # print(json_object)
+        print(json_object)
         with open("results_" + package_name + ".json", 'w') as outfile:
             json.dump(json_object, outfile)
         print("Package " + package_name + " has been successfully parsed")
