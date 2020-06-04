@@ -32,9 +32,11 @@ class ImportVisitor(ast.NodeVisitor):
         self.imports = Imports()
         self.source = source
 
+    # return found imports
     def get_imports(self):
         return self.imports
 
+    # reset imports
     def del_imports(self):
         self.imports = Imports()
 
