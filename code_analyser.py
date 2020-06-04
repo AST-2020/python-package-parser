@@ -7,37 +7,26 @@ import json
 import ast
 import sys
 
-import sklearn
-import torch
+from library import library_model
+from library.package_parser import parse_package
 
-from library import package_parser, struktur_implementation
 from user_code.import_parser import ImportVisitor
 from user_code.variable_parser import VariableVisitor
 from user_code.code_parser import FunctionVisitor
 
 
 def parse_code(file, module):
+    source_file_torch = 'library/results_torch.json'
+    source_file_sklearn = 'library/results_sklearn.json'
     # open file
     f = open(file, mode='r')
     contents = f.read()
     tree = ast.parse(contents)
 
-    # decide for which module the code should be inspected
-    source_file = ''
-    if module == 'torch':
-        source_file = 'library/results_torch.txt'
-
-    elif module == 'sklearn':
-        source_file = 'library/results_sklearn.txt'
-
-    # if none of the two is selected stop function
-    else:
-        return False
-
     # get souce structure depending on torch or sklearn selected
-    with open(source_file) as json_file:
-        json_obj = json.load(json_file)
-    source = json.loads(json_obj)
+    source = library_model.Library([])
+    source.convert_to_python(source_file_torch)
+    source.convert_to_python(source_file_sklearn)
 
     # get imports
     imp = ImportVisitor(module, source)
@@ -55,20 +44,18 @@ def parse_code(file, module):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) == 3:
+    if len(sys.argv) == 2:
         file_path = sys.argv[1]
-        bib = sys.argv[2]
 
-        if (bib == 'torch') or (bib == 'sklearn'):
-            # parse library
-            package_parser.parse_package(bib)
+        # parse torch and sklearn library
+        parse_package('torch')
+        parse_package('sklearn')
 
-            # parse code
-            parse_code(file_path, bib)
 
-        else:
-            print('your libray is not supported. choose between pytorch and scikit')
+        # parse code for both libraries
+        parse_code(file_path, 'torch')
+        parse_code(file_path, 'sklearn')
 
     else:
-        print('programm expects two arguments. firstly the destination path and secondly the library to check for.')
+        print('programm expects only the file to check as an argument.')
 
