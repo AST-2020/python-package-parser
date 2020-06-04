@@ -58,7 +58,10 @@ class Function:
         return self.__name
 
     def get_parameter(self, parameter_name: str) -> Parameter:
-        return self.__parameters[parameter_name]
+        if parameter_name in self.__parameters:
+            return self.__parameters[parameter_name]
+        else:
+            return None
 
     def get_parameters(self) -> List[Parameter]:
         return _dict_to_list(self.__parameters)
@@ -100,7 +103,10 @@ class Class:
                 self.add_to_ignore(method.get_name())
 
     def get_method(self, method_name: str) -> Optional[Function]:
-        return self.__methods[method_name]
+        if method_name in self.__methods:
+            return self.__methods[method_name]
+        else:
+            return None
 
     def get_methods(self) -> List[Function]:
         return _dict_to_list(self.__methods)
@@ -146,7 +152,10 @@ class Module:
                 self.add_to_ignore(klass.get_name())
 
     def get_class(self, class_name: str) -> Optional[Class]:
-        return self.__classes[class_name]
+        if class_name in self.__classes:
+            return self.__classes[class_name]
+        else:
+            return None
 
     def get_classes(self) -> List[Class]:
         return _dict_to_list(self.__classes)
@@ -157,7 +166,10 @@ class Module:
                 self.add_to_ignore(function.get_name())
 
     def get_top_level_function(self, function_name: str) -> Optional[Function]:
-        return self.__top_level_functions.get(function_name)
+        if self.__top_level_functions.get(function_name) is not None:
+            return self.__top_level_functions.get(function_name)
+        else:
+            return None
 
     def get_top_level_functions(self) -> List[Function]:
         return _dict_to_list(self.__top_level_functions)
@@ -178,7 +190,10 @@ class Library:
         _add_module_to_dict(self.__modules, module)
 
     def get_module(self, module_path: str) -> Module:
-        return self.__modules[module_path]
+        if module_path in self.__modules:
+            return self.__modules[module_path]
+        else:
+            return None
 
     def get_modules(self) -> List[Module]:
         return _dict_to_list(self.__modules)
@@ -189,26 +204,34 @@ class Library:
         module = self.get_module(module_path)
         if module is None:
             return None
-
-        return module.get_class(class_name)
+        if module.get_class(class_name) is not None:
+            return module.get_class(class_name)
+        else:
+            None
 
     def get_method(self, module_path: str, class_name: str, method_name: str) -> Optional[Function]:
         klass = self.get_class(module_path, class_name)
         if klass is None:
             return None
-        return klass.get_method(method_name)
+        if klass.get_method(method_name) is not None:
+            return klass.get_method(method_name)
+        else:
+            return None
 
     def get_top_level_function(self, module_path: str, function_name: str) -> Function:
         module = self.get_module(module_path)
         if module is None:
             return None
-        return module.get_top_level_function(function_name)
+        if module.get_top_level_function(function_name) is not None:
+            return module.get_top_level_function(function_name)
+        else:
+            return None
 
     # convert data into Json format
     def convert_to_json(self, package_name):
         # print(self.__modules)
         json_object = json.dumps(self.__modules, default=lambda o: o.__dict__, sort_keys=True, indent=3)
-        print(json_object)
+        # print(json_object)
         with open("results_" + package_name + ".json", 'w') as outfile:
             json.dump(json_object, outfile)
         print("Package " + package_name + " has been successfully parsed")

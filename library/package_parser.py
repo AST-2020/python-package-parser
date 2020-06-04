@@ -109,7 +109,7 @@ def has_package_installed(package_name):
 
 def parse_package(package_name):
     parsed_data = Library([])
-    parsed_data.convert_to_python("results_TestDirectory.json")
+    # parsed_data.convert_to_python("results_TestDirectory.json")
     # package_name = torch or sklearn
     if not has_package_installed(package_name):
         return
@@ -175,8 +175,8 @@ class MyNodeVisitor(ast.NodeVisitor):
 
 if __name__ == '__main__':
     # will create a text file with parsed data for library Pytorch & sklearn
-    # parse_package("torch")
-    # parse_package("sklearn")
+    parse_package("torch")
+    parse_package("sklearn")
 
     # to create parsed data for TestDirectory
     library = TestDirectory.__file__
