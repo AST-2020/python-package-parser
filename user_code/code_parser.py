@@ -32,8 +32,10 @@ class FunctionVisitor(ast.NodeVisitor):
         if cls == '':
             cls = None
         if package != '':
-            pass
-            # self.comp.compare_arg_names(line, package, name, keywords, cls)
+            # compare names of named args
+            self.comp.compare_arg_names(line, package, name, keywords, cls)
+            # compare arg count
+            self.comp.compare_arg_count(line, package, name, keywords, args, cls)
         """
         # if function
         package = self.imports.get_package_from_asname(prefix, line)
@@ -67,6 +69,7 @@ class FunctionVisitor(ast.NodeVisitor):
             # self.comp.compare(self.package_dict, path, name, keywords, line, sub)
         """
 
+    # find the package and class if method, the function is defined at
     def get_package(self, prefix, name, line):
         if prefix == '':
             if self.imports.get_package_from_asname(name, line) is not None:
@@ -80,6 +83,7 @@ class FunctionVisitor(ast.NodeVisitor):
                 return cls, self.get_method_package(cls, name, line)
         return '', ''
 
+    # find the package, the function is defined at
     def get_function_package(self, prefix, name, line):
         if prefix == '':
             package = self.imports.get_package_from_asname(name, line).split('.')
@@ -90,6 +94,7 @@ class FunctionVisitor(ast.NodeVisitor):
         else:
             return self.imports.get_package_from_asname(prefix, line)
 
+    # find the package and class, the method is defined at
     def get_method_package(self, cls, name, line):
         if cls != '':
             cls = cls.split('.')
@@ -101,6 +106,7 @@ class FunctionVisitor(ast.NodeVisitor):
             return package
         return ''
 
+    # helper function for get_name to get the full name with all prefixes
     def visit_Attribute(self, node: ast.Attribute):
         attrs = []
         if type(node.value) is ast.Name:
@@ -201,7 +207,7 @@ class FunctionVisitor(ast.NodeVisitor):
     """
 
     @staticmethod
-    # get keywords of function, keywords are the names of named args
+    # get keywords/ named argument names of the function
     def get_keywords(node):
         list = []
         for keyword in node.keywords:
@@ -209,6 +215,7 @@ class FunctionVisitor(ast.NodeVisitor):
         return list
 
     @ staticmethod
+    # get unnamed arguments of the function
     def get_args(node):
         args = []
         raw_args = node.args
