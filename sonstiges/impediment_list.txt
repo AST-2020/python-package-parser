@@ -1,0 +1,29 @@
+Impediments
+____________________________________________________
+ - Unfaire Aufgabenzuteilung
+ ++ Kleinere Tasks
+ ++ Festhalten wer welche Aufgabe macht aber es dynamisch neu verteilen
+   --> wenn man merkt die Aufgabe ist zu gross: Hilfe erbitten!
+   --> wenn man merkt die Aufgabe ist zu klein: Hilfe anbieten!
+                 --> und es ist wichtig, auch Hilfe anzunehmen
+ ++ Zentral festhalten, wer gerade Zeit hat, damit man
+    die Personen gezielt ansprechen kann <-- Dummy-Task in Jira (selbst eintragen, falls Kapazitaet)
+
+ ++ Systematische Neueinschätzung der Tasks und neu aufteilen
+   --> feste Intervalle (team-intern, werden bei Aufagebenstellung formuliert)
+       wann man den Stand der Dinge wieder gemeinsam bespricht
+   - schwer wieder alle zusammenzubekommen
+   + nicht alle zusammen sondern nur die die betroffen sind
+     und die die evtl. nicht ausgelastet sind, damit die mit
+         informiert sind und übernehmen können
+
+
+
+ ++ Auch während der Woche per Zoom zusammenarbeiten!
+   (so wie an den letzten beiden Freitagen in den Breakout-Goups)
+
+ ++ Zeiterfassung nutzen (von Jira, und PyCharm moeglich fuer Erfassung)
+ ++ Laufend in Jira auch den Burndown eintragen
+    - Kunden koennen nicht auf Jira zugreifen und die Stories weiter schieben
+    + Teamleiter koennen das simulieren (auf Ruecksprache mit den Kunden)
+
