@@ -43,4 +43,4 @@ class FehlerManager:
 
     @staticmethod
     def printHelp(f):
-        return "[" + f.dateipfad + " in Datei " + f.dateiname + "] in Zeile " + str(f.zeilennummer) + " folgender Fehler: " + f.description
+        return "error occured  in [" + f.dateipfad + " in file " + f.dateiname + "] in line " + str(f.zeilennummer) + ": " + f.description

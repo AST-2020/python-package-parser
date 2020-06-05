@@ -79,7 +79,7 @@ class Comparator:
             func_or_method_args = func_or_method.get_parameters()
 
         if func_or_method_args is None:
-            new_error = error.Fehler("", line, "Function/method " + func_name + " not found.", file)
+            new_error = error.Fehler(path + "." + func_name, line, "Function/method " + func_name + " not found.", file)
             self.FehlerManager.fehlerHinzufuegen(new_error)
             self.FehlerManager.printFehlerList()
             return
@@ -94,7 +94,7 @@ class Comparator:
 
         # If a function is found AND the number of given arguments is lower than min or greater than max, add error
         if user_total_args < min or user_total_args > max:
-            new_error = error.Fehler("", line,
+            new_error = error.Fehler(path + "." + func_name, line,
                                      "Wrong number of parameters (" + str(user_total_args) + "). Max: " + str(max)
                                      + " Min: " + str(min), file)
             self.FehlerManager.fehlerHinzufuegen(new_error)
