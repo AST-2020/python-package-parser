@@ -3,7 +3,6 @@ import os
 from typing import Any, Optional, List
 
 
-
 # bugs in:
 # 1. sklearn.compose._column_transformer._transformers (2 methods with same name but one is using @property decorator)
 #
@@ -62,7 +61,7 @@ def read_directory(directory, local_path, struct: Library):
     for entry in os.scandir(directory):
         # we need (path) to have the path to the modules of the library on the device
         path = directory + "/" + entry.name
-        # print(path)
+        print(path)
 
         # (my_struct.module_path) is the path that will saved in the structure
         # and it represents the path, that we would get when we parse the imports in the user's code
@@ -150,6 +149,16 @@ class MyNodeVisitor(ast.NodeVisitor):
                 return
         parameters = self.__create_parameter_list(node)
 
+        # should know how ast works:
+        # 1- get type hints from package (ast)
+        # 2- decide if we parse pyi or not (ast)
+        # 3- get doc-string from package (ast)
+
+        # 3- call--->  4- send forward to function to decide where is the part that has parameters (string
+        # manipulation & Fall Betrachtung)
+
+        # 4 call-----> 5- type hints in parameters (string manipulation & Fall Betrachtung)
+
         if self.__current_class is None:
             function = Function(node.name, parameters)
             self.__current_module.add_top_level_function(function)
@@ -175,8 +184,8 @@ class MyNodeVisitor(ast.NodeVisitor):
 
 if __name__ == '__main__':
     # will create a text file with parsed data for library Pytorch & sklearn
-    parse_package("torch")
-    parse_package("sklearn")
+    # parse_package("torch")
+    # parse_package("sklearn")
 
     # to create parsed data for TestDirectory
     library = TestDirectory.__file__

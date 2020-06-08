@@ -17,10 +17,11 @@ def convert_parameter_to_python(parameter: Dict):
 
 
 class Parameter:
-    def __init__(self, name: str, has_default: bool = False, default: Any = None):
+    def __init__(self, name: str, type_hint=None, has_default: bool = False, default: Any = None):
         self.__name = name
         self.__has_default = has_default
         self.__default = default
+        self.__type_hint__ = type_hint
 
     def get_name(self) -> str:
         return self.__name
@@ -31,11 +32,18 @@ class Parameter:
     def get_default(self) -> Any:
         return self.__default
 
+    def get_type_hint(self) -> Any:
+        return self.__type_hint__
+
     def __str__(self) -> str:
-        if self.__has_default:
+        if self.__has_default and self.__type_hint__ is not None:
+            return f"{self.__name} : {self.__type_hint__ }= {self.__default}"
+        elif self.__has_default:
             return f"{self.__name} = {self.__default}"
+        elif self.__type_hint__ is not None:
+            return f"{self.__name} : {self.__type_hint__ }"
         else:
-            return self.__name
+            return f"{self.__name}"
 
 
 def convert_function_to_python(function: Dict):

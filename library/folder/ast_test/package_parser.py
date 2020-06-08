@@ -1,6 +1,10 @@
 import ast
 import os
-from typing import Any, Optional, List
+from typing import Any, Optional, List, Dict
+from parse_pyi_file import MyPiFileNodeVisitor
+from library_model import Library, Module, Class, Function, Parameter
+
+import TestDirectory
 
 # bugs in:
 # 1. sklearn.compose._column_transformer._transformers (2 methods with same name but one is using @property decorator)
@@ -21,9 +25,6 @@ from typing import Any, Optional, List
 # 2- if parameters are not same for the multiple versions of the functions and methods, then they will be removed from
 # the structure, as the version that will be run is normally decided at run time. (classes are always removed)
 
-from library_model import Library, Module, Class, Function, Parameter
-
-import TestDirectory
 
 # VIP: now we don't have "self" as parameter in method parameters
 #
@@ -51,38 +52,39 @@ else:
     torch_installed = True
 
 
-# to have a better understanding  of the program a smaller Directory called "TestDirectory" has been created
-# and the program was used to parse that directory and the results were saved in testTextFile.txt
-# and to show we can retrieve data from  the structure refer to files ("import_parser.py" & "file_to_test")
-
-
 def read_directory(directory, local_path, struct: Library):
     for entry in os.scandir(directory):
         # we need (path) to have the path to the modules of the library on the device
         path = directory + "/" + entry.name
-        # print(path)
-
         # (my_struct.module_path) is the path that will saved in the structure
         # and it represents the path, that we would get when we parse the imports in the user's code
 
         # in our implementation, we only parse files that end with .py
-        if path.endswith(".py"):
+        if path.endswith(".py") or path.endswith(".pyi"):
+            parsed_pi_file = None
             module_path = path \
                 .replace("/", ".") \
                 .replace(local_path, "") \
                 .replace(".py", "")
-            current_module = Module(module_path, [], [])
+            if entry.name.replace(".py", ".pyi") in os.listdir(directory):
+                f = open(path.replace(".py", ".pyi"), mode="r", encoding='utf-8')
+                contents = f.read()
+                tree = ast.parse(contents)
+                parsed_pi_file = MyPiFileNodeVisitor()
+                parsed_pi_file.visit(tree)
 
+            current_module = Module(module_path, [], [])
             # had to ensure encoding is UTF-8 to avoid an error
             f = open(path, mode="r", encoding='utf-8')
             contents = f.read()
             tree = ast.parse(contents)
-            MyNodeVisitor(current_module).visit(tree)
+            if parsed_pi_file is not None:
+                MyNodeVisitor(current_module, pyi_file=parsed_pi_file.get_structure()).visit(tree)
+            else:
+                MyNodeVisitor(current_module)
 
             struct.add_module(current_module)
 
-        # if file is not a py file, then test if it's a directory, if so
-        # then call the read_directory recursively on that directory passing its complete (path)
         elif not entry.name.startswith('.') and entry.is_dir():
             read_directory(path, local_path, struct)
 
@@ -119,20 +121,16 @@ def parse_package(package_name):
     # (local_path_to_delete) needed to access functions and methods from the local library
     # but will not be saved in the parsed data files
     local_path_to_delete = library_local_path.rsplit(package_name, 1)[0].replace("/", ".")
-    # print(local_path_to_delete)
 
     read_directory(library_local_path, local_path_to_delete, parsed_data)
-
-    # to write our json data to a txt file
-    # print(parsed_data.get_top_level_function("sklearn.externals.six", "get_unbound_function").get_parameters())
     parsed_data.convert_to_json(package_name)
 
 
 class MyNodeVisitor(ast.NodeVisitor):
-    __current_class: Optional[Class] = None
-
-    def __init__(self, current_module: Module):
+    def __init__(self, current_module: Module, pyi_file: Dict = None):
         self.__current_module = current_module
+        self.__pyi_file = pyi_file
+        self.__current_class: Optional[Class] = None
 
     def visit_ClassDef(self, node: ast.ClassDef) -> Any:
         self.__current_class = Class(node.name, [])
@@ -156,24 +154,62 @@ class MyNodeVisitor(ast.NodeVisitor):
             self.__current_class.add_method(function)
 
     def __create_parameter_list(self, node: ast.FunctionDef) -> List[Parameter]:
-        parameter_names: List[str] = [arg.arg for arg in node.args.args]
-        parameter_defaults: List[Any] = [getattr(default, default.__dir__()[0])for default in node.args.defaults]
+        param_name_and_hint = {}
+        found_hint_in_definition = False
+        for arg in node.args.args:
+            if arg.annotation is not None:
+                found_hint_in_definition = True
+                param_name_and_hint[arg.arg] = arg.annotation.id
+            else:
+                param_name_and_hint[arg.arg] = None
+
+        if not found_hint_in_definition and self.__pyi_file is not None:
+            if self.__current_class is not None and self.__current_class.get_name() in self.__pyi_file \
+                    and node.name in self.__pyi_file[self.__current_class.get_name()]:
+                args_list = self.__pyi_file[self.__current_class.get_name()][node.name]
+            elif node.name in self.__pyi_file:
+                args_list = self.__pyi_file[node.name]
+            for element in args_list:
+                if len(element) is 1:
+                    param_name_and_hint[element[0]] = None
+                else:
+                    param_name_and_hint[element[0]] = element[1]
+
+        elif not found_hint_in_definition:
+            doc_string = ast.get_docstring(node)
+            # call find_paramter_hint_in_doc_string()
+
+        # end format before entering the values in the structure --> List(tuple)
+        param_name_and_hint = [(name, type) for name, type in param_name_and_hint.items()]
+        # print(node.name, "  ",param_name_and_hint)
+
+        parameter_defaults: List[Any] = [getattr(default, default.__dir__()[0]) for default in node.args.defaults]
 
         result: List[Parameter] = []
-        for i in range(len(parameter_names)):
-            default_index = i + len(parameter_defaults) - len(parameter_names)
+        for i in range(len(param_name_and_hint)):
+            default_index = i + len(parameter_defaults) - len(param_name_and_hint)
             if default_index < 0:  # Parameter has no default value
-                result.append(Parameter(parameter_names[i]))
+                if len(param_name_and_hint[i]) == 1:
+                    result.append(Parameter(param_name_and_hint[i][0]))
+                else:
+                    result.append(Parameter(param_name_and_hint[i][0], type_hint=param_name_and_hint[i][1]))
             else:
-                result.append(Parameter(parameter_names[i], True, parameter_defaults[default_index]))
-
+                if len(param_name_and_hint[i]) == 1:
+                    result.append(Parameter(param_name_and_hint[i][0], True, parameter_defaults[default_index]))
+                else:
+                    result.append(Parameter(param_name_and_hint[i][0], type_hint=param_name_and_hint[i][1],
+                                            has_default=True, default=parameter_defaults[default_index]))
         return result
+
+    # Extract Docstring if it exists
+    def get_doc_string(self, node: ast.FunctionDef) -> Optional[str]:
+        return ast.get_docstring(node)
 
 
 if __name__ == '__main__':
     # will create a text file with parsed data for library Pytorch & sklearn
-    parse_package("torch")
-    parse_package("sklearn")
+    # parse_package("torch")
+    # parse_package("sklearn")
 
     # to create parsed data for TestDirectory
     library = TestDirectory.__file__

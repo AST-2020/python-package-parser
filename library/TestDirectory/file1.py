@@ -1,3 +1,6 @@
+from typing import List
+
+
 class testFile1:
     def __init__(self, name, nachname="yoyoyo"):
         pass
@@ -11,7 +14,11 @@ class testFile2:
 obj1 = testFile1()
 
 
-def testFunc1(num, my_list=[], my_bool=True, my_double=1.4, my_obj=obj1) -> int:
+def testFunc1(num, my_list: List, my_bool: bool=True, my_double: float=1.4, my_obj: testFile1=obj1) -> int:
+    '''
+    :arguidsbvfsdkj
+        nvjodfvnfdsl
+    '''
     print("hello")
 
 
