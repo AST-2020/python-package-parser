@@ -132,6 +132,7 @@ def convert_module_to_python(module: Dict):
                   functions.values(),
                   module["_Module__to_ignore"])
 
+
 class Module:
     def __init__(self, name: str, classes: List[Class], top_level_functions: List[Function], to_ignore=[]):
         self.__name = name

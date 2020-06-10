@@ -6,24 +6,13 @@ from library_model import Library, Module, Class, Function, Parameter
 
 import TestDirectory
 
-# bugs in:
-# 1. sklearn.compose._column_transformer._transformers (2 methods with same name but one is using @property decorator)
+
+# new limitations(example):
+# 1- type hints from functions that are defined outside the class (example (defined in "autograd" i think ))
+# torch\autograd\__init__.pyi
 #
-# 2. sklearn.externals.six.get_unbound_function (2 functions)(function definition in if-else-statemant,
-# but both functions have same parameters)
-#
-# 3. torch.backends.cudnn.__init__._init (2 functions)(function definition in if-else-statemant,
-# but they have different parameters)
-#
-# solutions:
-# functions, classes that are repeated within the same file and same for methods within a class
-# and are not decorators fall into one of two classes:
-#
-# 1- if parameters are same for functions and methods, then the second versions will be ignored and they will still
-# be included in the parsed data, as 1 function or method
-#
-# 2- if parameters are not same for the multiple versions of the functions and methods, then they will be removed from
-# the structure, as the version that will be run is normally decided at run time. (classes are always removed)
+# 2- function Overload is not supported
+# torch/__init__.pyi
 
 
 # VIP: now we don't have "self" as parameter in method parameters
@@ -70,7 +59,7 @@ def read_directory(directory, local_path, struct: Library):
                 f = open(path.replace(".py", ".pyi"), mode="r", encoding='utf-8')
                 contents = f.read()
                 tree = ast.parse(contents)
-                parsed_pi_file = MyPiFileNodeVisitor()
+                parsed_pi_file = MyPiFileNodeVisitor(path)
                 parsed_pi_file.visit(tree)
 
             current_module = Module(module_path, [], [])
@@ -78,10 +67,10 @@ def read_directory(directory, local_path, struct: Library):
             f = open(path, mode="r", encoding='utf-8')
             contents = f.read()
             tree = ast.parse(contents)
-            if parsed_pi_file is not None:
-                MyNodeVisitor(current_module, pyi_file=parsed_pi_file.get_structure()).visit(tree)
-            else:
-                MyNodeVisitor(current_module)
+            # if parsed_pi_file is not None:
+            #     MyNodeVisitor(current_module, pyi_file=parsed_pi_file.get_structure()).visit(tree)
+            # else:
+            MyNodeVisitor(current_module)
 
             struct.add_module(current_module)
 
@@ -118,6 +107,7 @@ def parse_package(package_name):
         library_local_path = sklearn.__file__
     library_local_path = library_local_path.replace("__init__.py", '')
     library_local_path = library_local_path[0:-1]
+
     # (local_path_to_delete) needed to access functions and methods from the local library
     # but will not be saved in the parsed data files
     local_path_to_delete = library_local_path.rsplit(package_name, 1)[0].replace("/", ".")
@@ -163,19 +153,20 @@ class MyNodeVisitor(ast.NodeVisitor):
             else:
                 param_name_and_hint[arg.arg] = None
 
-        if not found_hint_in_definition and self.__pyi_file is not None:
-            if self.__current_class is not None and self.__current_class.get_name() in self.__pyi_file \
-                    and node.name in self.__pyi_file[self.__current_class.get_name()]:
-                args_list = self.__pyi_file[self.__current_class.get_name()][node.name]
-            elif node.name in self.__pyi_file:
-                args_list = self.__pyi_file[node.name]
-            for element in args_list:
-                if len(element) is 1:
-                    param_name_and_hint[element[0]] = None
-                else:
-                    param_name_and_hint[element[0]] = element[1]
+        # if not found_hint_in_definition and self.__pyi_file is not None:
+        #     args_list = []
+        #     if self.__current_class is not None and self.__current_class.get_name() in self.__pyi_file \
+        #             and node.name in self.__pyi_file[self.__current_class.get_name()]:
+        #         args_list = self.__pyi_file[self.__current_class.get_name()][node.name]
+        #     elif node.name in self.__pyi_file:
+        #         args_list = self.__pyi_file[node.name]
+        #     for element in args_list:
+        #         if len(element) is 1:
+        #             param_name_and_hint[element[0]] = None
+        #         else:
+        #             param_name_and_hint[element[0]] = element[1]
 
-        elif not found_hint_in_definition:
+        if not found_hint_in_definition:
             doc_string = ast.get_docstring(node)
             # call find_paramter_hint_in_doc_string()
 
@@ -201,15 +192,11 @@ class MyNodeVisitor(ast.NodeVisitor):
                                             has_default=True, default=parameter_defaults[default_index]))
         return result
 
-    # Extract Docstring if it exists
-    def get_doc_string(self, node: ast.FunctionDef) -> Optional[str]:
-        return ast.get_docstring(node)
-
 
 if __name__ == '__main__':
     # will create a text file with parsed data for library Pytorch & sklearn
-    # parse_package("torch")
-    # parse_package("sklearn")
+    parse_package("torch")
+    parse_package("sklearn")
 
     # to create parsed data for TestDirectory
     library = TestDirectory.__file__
