@@ -1,0 +1,19 @@
+Protokolle der Treffen der dritten Iteratrion
+==============================================
+Meetings Ablauf
+---------------
+Freitag 05.06
+....
+
+
+Montag 08.06
+	-Ablauf:
+	 	- Beschreibung und Spezifikation von Aufgaben.
+		- Schätzung von Aufgaben.
+		- Zuweisung von nicht voneinandergehängte Aufgaben.
+	-Kritik/ Verbesserungsvorschläge.
+	-Bemerkungen:
+		
+
+Impediments & Lösungen.
+----------------------- 
