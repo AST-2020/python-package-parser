@@ -1,7 +1,7 @@
 import ast
 import os
 from typing import Any, Optional, List, Dict
-#from parse_pyi_file import MyPiFileNodeVisitor
+# from parse_pyi_file import MyPiFileNodeVisitor
 from library.library_model import Library, Module, Class, Function, Parameter
 
 # new limitations(example):
@@ -13,9 +13,6 @@ from library.library_model import Library, Module, Class, Function, Parameter
 
 
 # VIP: now we don't have "self" as parameter in method parameters
-#
-# to use file as main: uncomment: parse_package("torch") and  parse_package("sklearn")
-# to run example in main: uncomment: parsed_data.convert_to_json("testTextFile") and enjoy ;)
 #
 # to use file as import: import the function (parse_package(package_name)) and input the name
 # of the library you want to parse either (sklearn) or (torch)
@@ -67,7 +64,7 @@ def read_directory(directory, local_path, struct: Library):
             # if parsed_pi_file is not None:
             #     MyNodeVisitor(current_module, pyi_file=parsed_pi_file.get_structure()).visit(tree)
             # else:
-            MyNodeVisitor(current_module)
+            MyNodeVisitor(current_module).visit(tree)
 
             struct.add_module(current_module)
 
@@ -110,7 +107,8 @@ def parse_package(package_name):
     local_path_to_delete = library_local_path.rsplit(package_name, 1)[0].replace("/", ".")
 
     read_directory(library_local_path, local_path_to_delete, parsed_data)
-    parsed_data.convert_to_json(package_name)
+
+    return parsed_data
 
 
 class MyNodeVisitor(ast.NodeVisitor):
@@ -127,6 +125,8 @@ class MyNodeVisitor(ast.NodeVisitor):
         self.__current_class = None  # Exit the class scope
 
     def visit_FunctionDef(self, node: ast.FunctionDef) -> Any:
+        if node.name == "device":
+            print(self.__current_module, " ", self.__current_class)
         for decorator in node.decorator_list:
             if "id" in decorator.__dir__() and decorator.id is "property":
                 return
@@ -144,7 +144,7 @@ class MyNodeVisitor(ast.NodeVisitor):
         param_name_and_hint = {}
         found_hint_in_definition = False
         for arg in node.args.args:
-            if arg.annotation is not None:
+            if arg.annotation is not None and "id" in arg.annotation.__dir__():
                 found_hint_in_definition = True
                 param_name_and_hint[arg.arg] = arg.annotation.id
             else:
@@ -191,18 +191,8 @@ class MyNodeVisitor(ast.NodeVisitor):
 
 
 if __name__ == '__main__':
+    # pass
     # will create a text file with parsed data for library Pytorch & sklearn
     parse_package("torch")
     parse_package("sklearn")
 
-    # to create parsed data for TestDirectory
-    # library = TestDirectory.__file__
-    # library = library.replace("__init__.py", '')
-    # library = library[0:-1]
-    # path_to_delete = library.rsplit('TestDirectory', 1)[0]
-    # parsed_data = Library([])
-    # read_directory(library, path_to_delete, parsed_data)
-    # test_json_object = parsed_data.convert_to_json("TestDirectory")
-
-    # to write our json data to a txt file
-    # parsed_data.convert_to_python("results_testTextFile.txt")
