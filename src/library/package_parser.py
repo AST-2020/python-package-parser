@@ -144,7 +144,7 @@ class MyNodeVisitor(ast.NodeVisitor):
         param_name_and_hint = {}
         found_hint_in_definition = False
         for arg in node.args.args:
-            if arg.annotation is not None:
+            if arg.annotation is not None and "id" in arg.annotation.__dir__():
                 found_hint_in_definition = True
                 param_name_and_hint[arg.arg] = arg.annotation.id
             else:
@@ -191,10 +191,10 @@ class MyNodeVisitor(ast.NodeVisitor):
 
 
 if __name__ == '__main__':
-    pass
+    # pass
     # will create a text file with parsed data for library Pytorch & sklearn
-    # parse_package("torch")
-    # parse_package("sklearn")
+    parse_package("torch")
+    parse_package("sklearn")
 
     # to create parsed data for TestDirectory
 
