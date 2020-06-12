@@ -19,49 +19,7 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e70765f0-b3f7-4e7e-81a0-17451a53e854" name="Default Changelist" comment="Feature Fehler Done">
-      <change beforePath="$PROJECT_DIR$/comparator/folder/comparator.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/comparator/folder/comparator_unittest.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/comparator/folder/fehler.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/comparator/folder/json_test.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/comparator/folder/parser.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/comparator/folder/test_dir/car.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/comparator/folder/test_dir/custom_test.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/comparator/folder/test_dir/example.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/library/TestDirectory/PackageInside/InsidePackageInside/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/library/TestDirectory/PackageInside/InsidePackageInside/file5.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/library/TestDirectory/PackageInside/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/library/TestDirectory/PackageInside/file3.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/library/TestDirectory/PackageInside/file4.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/library/TestDirectory/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/library/TestDirectory/file1.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/library/TestDirectory/file2.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/library/folder/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/library/folder/ast_test/TestDirectory/PackageInside/InsidePackageInside/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/library/folder/ast_test/TestDirectory/PackageInside/InsidePackageInside/file5.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/library/folder/ast_test/TestDirectory/PackageInside/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/library/folder/ast_test/TestDirectory/PackageInside/file3.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/library/folder/ast_test/TestDirectory/PackageInside/file4.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/library/folder/ast_test/TestDirectory/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/library/folder/ast_test/TestDirectory/file1.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/library/folder/ast_test/TestDirectory/file2.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/library/folder/ast_test/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/library/folder/ast_test/fehler/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/library/folder/ast_test/file_to_test.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/library/folder/ast_test/how_to_use.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/library/folder/ast_test/library_model.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/library/folder/ast_test/package_parser.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/library/folder/ast_test/test_struktur_implementation.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/library/folder/ast_test/usercode_parser/caller.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/library/folder/ast_test/usercode_parser/code_parser.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/library/folder/ast_test/usercode_parser/example.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/library/folder/ast_test/usercode_parser/import_parser.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/library/folder/ast_test/usercode_parser/imports.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/library/folder/ast_test/usercode_parser/resultsSciKit.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/library/folder/ast_test/usercode_parser/variable_parser.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/library/folder/ast_test/usercode_parser/variables.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/mistakes/test_fehler.py" beforeDir="false" />
-    </list>
+    <list default="true" id="e70765f0-b3f7-4e7e-81a0-17451a53e854" name="Default Changelist" comment="Added changed Files" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -212,6 +170,7 @@
       <workItem from="1589378696462" duration="691000" />
       <workItem from="1590156221319" duration="398000" />
       <workItem from="1591302462353" duration="117000" />
+      <workItem from="1591961867193" duration="93000" />
     </task>
     <task id="LOCAL-00001" summary="Grundgeruest fertig">
       <created>1589205676516</created>
@@ -241,7 +200,14 @@
       <option name="project" value="LOCAL" />
       <updated>1589377036050</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Added changed Files">
+      <created>1591961911983</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1591961911983</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <option name="searchClosedTasks" value="true" />
     <servers>
       <JIRA url="https://projectgruppe2.atlassian.net">
@@ -271,7 +237,8 @@
     <MESSAGE value="Grundgeruest fertig" />
     <MESSAGE value="Grundgeruest geupdatet" />
     <MESSAGE value="Grundgeruest final geupdatet" />
-    <option name="LAST_COMMIT_MESSAGE" value="Grundgeruest final geupdatet" />
+    <MESSAGE value="Added changed Files" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added changed Files" />
   </component>
   <component name="WindowStateProjectService">
     <state x="476" y="168" key="#Servers" timestamp="1591473088296">
