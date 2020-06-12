@@ -35,7 +35,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="Develop" />
+        <entry key="$PROJECT_DIR$" value="Feature_library" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -171,6 +171,7 @@
       <workItem from="1590156221319" duration="398000" />
       <workItem from="1591302462353" duration="117000" />
       <workItem from="1591961867193" duration="93000" />
+      <workItem from="1591961980455" duration="309000" />
     </task>
     <task id="LOCAL-00001" summary="Grundgeruest fertig">
       <created>1589205676516</created>
@@ -207,7 +208,21 @@
       <option name="project" value="LOCAL" />
       <updated>1591961911983</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Added Changed Files">
+      <created>1591961993804</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1591961993804</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Added Changed Files">
+      <created>1591962102142</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1591962102142</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <option name="searchClosedTasks" value="true" />
     <servers>
       <JIRA url="https://projectgruppe2.atlassian.net">
@@ -238,7 +253,8 @@
     <MESSAGE value="Grundgeruest geupdatet" />
     <MESSAGE value="Grundgeruest final geupdatet" />
     <MESSAGE value="Added changed Files" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added changed Files" />
+    <MESSAGE value="Added Changed Files" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added Changed Files" />
   </component>
   <component name="WindowStateProjectService">
     <state x="476" y="168" key="#Servers" timestamp="1591473088296">
