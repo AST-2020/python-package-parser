@@ -7,12 +7,12 @@ import json
 import ast
 import sys
 
-from library import library_model
-from library.package_parser import parse_package
+from src.library import library_model
+from src.library.package_parser import parse_package
 
-from user_code.import_parser import ImportVisitor
-from user_code.variable_parser import VariableVisitor
-from user_code.code_parser import FunctionVisitor
+from src.user_code.import_parser import ImportVisitor
+from src.user_code.variable_parser import VariableVisitor
+from src.user_code.code_parser import FunctionVisitor
 
 
 def parse_code(file, module):

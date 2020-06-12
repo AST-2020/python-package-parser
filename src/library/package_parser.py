@@ -1,11 +1,8 @@
 import ast
 import os
 from typing import Any, Optional, List, Dict
-from parse_pyi_file import MyPiFileNodeVisitor
-from library_model import Library, Module, Class, Function, Parameter
-
-import TestDirectory
-
+#from parse_pyi_file import MyPiFileNodeVisitor
+from src.library.library_model import Library, Module, Class, Function, Parameter
 
 # new limitations(example):
 # 1- type hints from functions that are defined outside the class (example (defined in "autograd" i think ))
@@ -199,13 +196,13 @@ if __name__ == '__main__':
     parse_package("sklearn")
 
     # to create parsed data for TestDirectory
-    library = TestDirectory.__file__
-    library = library.replace("__init__.py", '')
-    library = library[0:-1]
-    path_to_delete = library.rsplit('TestDirectory', 1)[0]
-    parsed_data = Library([])
-    read_directory(library, path_to_delete, parsed_data)
-    test_json_object = parsed_data.convert_to_json("TestDirectory")
+    # library = TestDirectory.__file__
+    # library = library.replace("__init__.py", '')
+    # library = library[0:-1]
+    # path_to_delete = library.rsplit('TestDirectory', 1)[0]
+    # parsed_data = Library([])
+    # read_directory(library, path_to_delete, parsed_data)
+    # test_json_object = parsed_data.convert_to_json("TestDirectory")
 
     # to write our json data to a txt file
     # parsed_data.convert_to_python("results_testTextFile.txt")
