@@ -1,7 +1,7 @@
 import ast
 import os
 from typing import Any, Optional, List, Dict
-#from parse_pyi_file import MyPiFileNodeVisitor
+# from parse_pyi_file import MyPiFileNodeVisitor
 from library.library_model import Library, Module, Class, Function, Parameter
 
 # new limitations(example):
@@ -67,7 +67,7 @@ def read_directory(directory, local_path, struct: Library):
             # if parsed_pi_file is not None:
             #     MyNodeVisitor(current_module, pyi_file=parsed_pi_file.get_structure()).visit(tree)
             # else:
-            MyNodeVisitor(current_module)
+            MyNodeVisitor(current_module).visit(tree)
 
             struct.add_module(current_module)
 
@@ -191,18 +191,12 @@ class MyNodeVisitor(ast.NodeVisitor):
 
 
 if __name__ == '__main__':
+    pass
     # will create a text file with parsed data for library Pytorch & sklearn
-    parse_package("torch")
-    parse_package("sklearn")
+    # parse_package("torch")
+    # parse_package("sklearn")
 
     # to create parsed data for TestDirectory
-    # library = TestDirectory.__file__
-    # library = library.replace("__init__.py", '')
-    # library = library[0:-1]
-    # path_to_delete = library.rsplit('TestDirectory', 1)[0]
-    # parsed_data = Library([])
-    # read_directory(library, path_to_delete, parsed_data)
-    # test_json_object = parsed_data.convert_to_json("TestDirectory")
 
     # to write our json data to a txt file
     # parsed_data.convert_to_python("results_testTextFile.txt")

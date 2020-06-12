@@ -16,8 +16,8 @@ from user_code.code_parser import FunctionVisitor
 
 
 def parse_code(file, module):
-    source_file_torch = 'library/results_torch.json'
-    source_file_sklearn = 'library/results_sklearn.json'
+    source_file_torch = 'results_torch.json'
+    source_file_sklearn = 'results_sklearn.json'
     # open file
     f = open(file, mode='r')
     contents = f.read()
