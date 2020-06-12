@@ -2,7 +2,7 @@ import ast
 import os
 from typing import Any, Optional, List, Dict
 #from parse_pyi_file import MyPiFileNodeVisitor
-from src.library.library_model import Library, Module, Class, Function, Parameter
+from library.library_model import Library, Module, Class, Function, Parameter
 
 # new limitations(example):
 # 1- type hints from functions that are defined outside the class (example (defined in "autograd" i think ))
@@ -52,12 +52,12 @@ def read_directory(directory, local_path, struct: Library):
                 .replace("/", ".") \
                 .replace(local_path, "") \
                 .replace(".py", "")
-            if entry.name.replace(".py", ".pyi") in os.listdir(directory):
-                f = open(path.replace(".py", ".pyi"), mode="r", encoding='utf-8')
-                contents = f.read()
-                tree = ast.parse(contents)
-                parsed_pi_file = MyPiFileNodeVisitor(path)
-                parsed_pi_file.visit(tree)
+            # if entry.name.replace(".py", ".pyi") in os.listdir(directory):
+            #     f = open(path.replace(".py", ".pyi"), mode="r", encoding='utf-8')
+            #     contents = f.read()
+            #     tree = ast.parse(contents)
+            #     parsed_pi_file = MyPiFileNodeVisitor(path)
+            #     parsed_pi_file.visit(tree)
 
             current_module = Module(module_path, [], [])
             # had to ensure encoding is UTF-8 to avoid an error

@@ -155,7 +155,7 @@ class Module:
                 self.add_to_ignore(klass.get_name())
 
     def get_class(self, class_name: str) -> Optional[Class]:
-        return self.__classes[class_name]
+        return self.__classes.get(class_name)
 
     def get_classes(self) -> List[Class]:
         return _dict_to_list(self.__classes)
@@ -187,7 +187,7 @@ class Library:
         _add_module_to_dict(self.__modules, module)
 
     def get_module(self, module_path: str) -> Module:
-        return self.__modules[module_path]
+        return self.__modules.get(module_path)
 
     def get_modules(self) -> List[Module]:
         return _dict_to_list(self.__modules)
