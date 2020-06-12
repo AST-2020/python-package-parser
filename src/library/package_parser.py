@@ -125,6 +125,8 @@ class MyNodeVisitor(ast.NodeVisitor):
         self.__current_class = None  # Exit the class scope
 
     def visit_FunctionDef(self, node: ast.FunctionDef) -> Any:
+        if node.name == "device":
+            print(self.__current_module, " ", self.__current_class)
         for decorator in node.decorator_list:
             if "id" in decorator.__dir__() and decorator.id is "property":
                 return

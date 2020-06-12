@@ -54,7 +54,7 @@ def convert_function_to_python(function: Dict):
         parameters[parameter_name] = convert_parameter_to_python(parameters[parameter_name])
 
     return Function(function["_Function__name"],
-                    parameters.values())
+                    list(parameters.values()))
 
 
 class Function:
@@ -83,12 +83,14 @@ def convert_class_to_python(klass: Dict):
     for method_name in method_names:
         methods[method_name] = convert_function_to_python(methods[method_name])
     return Class(klass["_Class__name"],
-                 methods.values(),
+                 list(methods.values()),
                  klass["_Class__to_ignore"])
 
 
 class Class:
-    def __init__(self, name: str, methods: List[Function], to_ignore=[]):
+    def __init__(self, name: str, methods: List[Function], to_ignore=None):
+        if to_ignore is None:
+            to_ignore = []
         self.__name = name
         self.__methods: Dict[str: Function] = _list_to_dict(methods)
         self.__to_ignore = to_ignore
@@ -128,13 +130,15 @@ def convert_module_to_python(module: Dict):
         classes[class_name] = convert_class_to_python(classes[class_name])
 
     return Module(module["_Module__name"],
-                  classes.values(),
-                  functions.values(),
+                  list(classes.values()),
+                  list(functions.values()),
                   module["_Module__to_ignore"])
 
 
 class Module:
-    def __init__(self, name: str, classes: List[Class], top_level_functions: List[Function], to_ignore=[]):
+    def __init__(self, name: str, classes: List[Class], top_level_functions: List[Function], to_ignore=None):
+        if to_ignore is None:
+            to_ignore = []
         self.__name = name
         self.__classes: Dict[str: Class] = _list_to_dict(classes)
         self.__top_level_functions: Dict[str: Function] = _list_to_dict(top_level_functions)
@@ -207,7 +211,7 @@ class Library:
             return None
         return klass.get_method(method_name)
 
-    def get_top_level_function(self, module_path: str, function_name: str) -> Function:
+    def get_top_level_function(self, module_path: str, function_name: str) -> Optional[Function]:
         module = self.get_module(module_path)
         if module is None:
             return None
