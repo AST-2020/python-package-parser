@@ -11,4 +11,3 @@ if __name__ == '__main__':
     path_to_delete = library.rsplit('TestDirectory', 1)[0]
     parsed_data = Library([])
     read_directory(library, path_to_delete, parsed_data)
-    test_json_object = parsed_data.convert_to_json("TestDirectory")

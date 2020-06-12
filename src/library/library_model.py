@@ -213,25 +213,6 @@ class Library:
             return None
         return module.get_top_level_function(function_name)
 
-    # convert data into Json format
-    def convert_to_json(self, package_name):
-        # print(self.__modules)
-        json_object = json.dumps(self.__modules, default=lambda o: o.__dict__, sort_keys=True, indent=3)
-        # print(json_object)
-        with open("results_" + package_name + ".json", 'w') as outfile:
-            json.dump(json_object, outfile)
-        print("Package " + package_name + " has been successfully parsed")
-
-    # ex: data_file_path = 'testTextFile.txt'
-    def convert_to_python(self, data_file_path):
-        with open(data_file_path) as json_file:
-            python_data = json.load(json_file)
-        modules: Dict = json.loads(python_data)
-        module_names = modules.keys()
-        for module_name in module_names:
-            modules[module_name] = convert_module_to_python(modules[module_name])
-        self.__modules = modules
-
 
 T = TypeVar('T')
 

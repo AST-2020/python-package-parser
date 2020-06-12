@@ -14,9 +14,6 @@ from library.library_model import Library, Module, Class, Function, Parameter
 
 # VIP: now we don't have "self" as parameter in method parameters
 #
-# to use file as main: uncomment: parse_package("torch") and  parse_package("sklearn")
-# to run example in main: uncomment: parsed_data.convert_to_json("testTextFile") and enjoy ;)
-#
 # to use file as import: import the function (parse_package(package_name)) and input the name
 # of the library you want to parse either (sklearn) or (torch)
 # to parse both libraries, function must be used twice
@@ -110,7 +107,8 @@ def parse_package(package_name):
     local_path_to_delete = library_local_path.rsplit(package_name, 1)[0].replace("/", ".")
 
     read_directory(library_local_path, local_path_to_delete, parsed_data)
-    parsed_data.convert_to_json(package_name)
+
+    return parsed_data
 
 
 class MyNodeVisitor(ast.NodeVisitor):
@@ -196,7 +194,3 @@ if __name__ == '__main__':
     parse_package("torch")
     parse_package("sklearn")
 
-    # to create parsed data for TestDirectory
-
-    # to write our json data to a txt file
-    # parsed_data.convert_to_python("results_testTextFile.txt")
