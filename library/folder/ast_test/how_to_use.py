@@ -3,15 +3,10 @@ import json
 from library_model import Library, Module, Class, Function
 
 if __name__ == '__main__':
-
     # to get the parsed data (VIP)
     package = Library([])
     package.convert_to_python("results_TestDirectory.json")
-<<<<<<< HEAD
-    print(package)
-=======
     # print(package)
->>>>>>> origin/Feature_library
 
     # to show how does the new structure looks
     json_object = json.dumps(package, default=lambda o: o.__dict__, sort_keys=True, indent=3)
@@ -26,8 +21,8 @@ if __name__ == '__main__':
     #           function.get_parameter(parameter).get_default())
 
     print("one way to get information about the parameters of a method: (more details)\n")
-    method = package.get_method("TestDirectory.file1", "testFile1", "__init__")
-    print(method)
+    # method = package.get_method("TestDirectory.file1", "testFile1", "__init__")
+    # print(method)
     #
     # method_parameters = method.get_parameters()
     # # wir brauchen den Keys, weil die Parameter Objekten sind unter keys gespeichert
@@ -54,7 +49,7 @@ if __name__ == '__main__':
 # vom Modul
     # module: Module = package.get_module(modules[6])
     # # print(module)
-    module: Module = package.get_module("TestDirectory.file1")
+    # module: Module = package.get_module("TestDirectory.file1")
     # # print(module)
 
 # um alle klassen in einem Modul zu bekommen (die reste sind ähnlich wie beim Modul
@@ -62,18 +57,18 @@ if __name__ == '__main__':
     # print(classes)
 
 # (die geliche für Funktionen)
-    functions = module.get_top_level_functions()
+    # functions = module.get_top_level_functions()
     # # print(functions)
     #
     # function: Function = module.get_top_level_function("testFunc1")
     # # print(function)
     #
-    function: Function = module.get_top_level_function(functions[0])
+    # function: Function = module.get_top_level_function(functions[0])
     # # print(function)
 
 # die gleiche für Pararmetern
-    function_parameters = function.get_parameters()
-    print(function_parameters, "\n")
+    # function_parameters = function.get_parameters()
+    # # print(function_parameters, "\n")
     #
 
 ##### VIP ########

@@ -2,48 +2,35 @@ import ast
 import os
 from typing import Any, Optional, List
 
-
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/Feature_library
 # bugs in:
 # 1. sklearn.compose._column_transformer._transformers (2 methods with same name but one is using @property decorator)
-#
+#   (solved)
 # 2. sklearn.externals.six.get_unbound_function (2 functions)(function definition in if-else-statemant,
-# but both functions have same parameters)
+# but both functions have same parameters) (solved)
 #
 # 3. torch.backends.cudnn.__init__._init (2 functions)(function definition in if-else-statemant,
 # but they have different parameters)
-#
-# solutions:
-# functions, classes that are repeated within the same file and same for methods within a class
-# and are not decorators fall into one of two classes:
-#
-# 1- if parameters are same for functions and methods, then the second versions will be ignored and they will still
-# be included in the parsed data, as 1 function or method
-#
-# 2- if parameters are not same for the multiple versions of the functions and methods, then they will be removed from
-# the structure, as the version that will be run is normally decided at run time. (classes are always removed)
 
-<<<<<<< HEAD
-from library.library_model import Library, Module, Class, Function, Parameter
-
-# import TestDirectory
-=======
+# from experiments.new_structure.library_model import Library, Module, Class, Function, Parameter
 from library_model import Library, Module, Class, Function, Parameter
 
 import TestDirectory
->>>>>>> origin/Feature_library
 
 # VIP: now we don't have "self" as parameter in method parameters
-#
+
+
 # to use file as main: uncomment: parse_package("torch") and  parse_package("sklearn")
 # to run example in main: uncomment: parsed_data.convert_to_json("testTextFile") and enjoy ;)
+# and to print any of the results refer to the (library_model.py) and uncomment what you want to print
 #
 # to use file as import: import the function (parse_package(package_name)) and input the name
 # of the library you want to parse either (sklearn) or (torch)
 # to parse both libraries, function must be used twice
+#
+# also refer to (library_model.py) for slight changes in structure
+
+
+# to test if the (sklearn) package is installed on the user's device, if not, then a warning will be issued
 
 
 try:
@@ -71,11 +58,7 @@ def read_directory(directory, local_path, struct: Library):
     for entry in os.scandir(directory):
         # we need (path) to have the path to the modules of the library on the device
         path = directory + "/" + entry.name
-<<<<<<< HEAD
         # print(path)
-=======
-        print(path)
->>>>>>> origin/Feature_library
 
         # (my_struct.module_path) is the path that will saved in the structure
         # and it represents the path, that we would get when we parse the imports in the user's code
@@ -122,7 +105,6 @@ def has_package_installed(package_name):
 
 def parse_package(package_name):
     parsed_data = Library([])
-    # parsed_data.convert_to_python("results_TestDirectory.json")
     # package_name = torch or sklearn
     if not has_package_installed(package_name):
         return
@@ -163,19 +145,6 @@ class MyNodeVisitor(ast.NodeVisitor):
                 return
         parameters = self.__create_parameter_list(node)
 
-<<<<<<< HEAD
-=======
-        # should know how ast works:
-        # 1- get type hints from package (ast)
-        # 2- decide if we parse pyi or not (ast)
-        # 3- get doc-string from package (ast)
-
-        # 3- call--->  4- send forward to function to decide where is the part that has parameters (string
-        # manipulation & Fall Betrachtung)
-
-        # 4 call-----> 5- type hints in parameters (string manipulation & Fall Betrachtung)
-
->>>>>>> origin/Feature_library
         if self.__current_class is None:
             function = Function(node.name, parameters)
             self.__current_module.add_top_level_function(function)
@@ -201,22 +170,6 @@ class MyNodeVisitor(ast.NodeVisitor):
 
 if __name__ == '__main__':
     # will create a text file with parsed data for library Pytorch & sklearn
-<<<<<<< HEAD
-    parse_package("torch")
-    parse_package("sklearn")
-
-    # to create parsed data for TestDirectory
-    # library = TestDirectory.__file__
-    # library = library.replace("__init__.py", '')
-    # library = library[0:-1]
-    # path_to_delete = library.rsplit('TestDirectory', 1)[0]
-    # parsed_data = Library([])
-    # read_directory(library, path_to_delete, parsed_data)
-    # test_json_object = parsed_data.convert_to_json("TestDirectory")
-
-    # to write our json data to a txt file
-    # parsed_data.convert_to_python("results_TestDirectory.json")
-=======
     # parse_package("torch")
     # parse_package("sklearn")
 
@@ -231,4 +184,3 @@ if __name__ == '__main__':
 
     # to write our json data to a txt file
     # parsed_data.convert_to_python("results_testTextFile.txt")
->>>>>>> origin/Feature_library
