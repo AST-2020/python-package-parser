@@ -13,11 +13,6 @@ class Fehler:
         self.description = description
         self.dateiname = dateiname
 
-    #Einzelne Fehler printen
-    def printFehler(self, Fehler):
-        print(self.dateipfad + " in Datei" + self.dateiname + "in Zeile " + self.zeilennummer + " folgender Fehler: " + self.description)
-        print("----")
-
 class FehlerManager:
 #Fehler Manager -> Hier muessen alle Fehler die mit der Klasse Fehler registriert werden
 

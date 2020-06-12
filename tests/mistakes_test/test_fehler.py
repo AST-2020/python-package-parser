@@ -7,7 +7,7 @@ from mistakes.fehler import Fehler, FehlerManager
 class TestFehlerManager(TestCase):
     def test_print_help(self):
         f1 = Fehler("Pfad", 2, "Beschreibung", "Datei")
-        result = "[Pfad in Datei Datei] in Zeile 2 folgender Fehler: Beschreibung"
+        result = "error occured  in [Pfad in file Datei] in line 2: Beschreibung"
 
         self.assertEqual(FehlerManager.printHelp(f1), result)
 
