@@ -55,7 +55,8 @@ class _PythonFileVisitor(ast.NodeVisitor):
             function = Function(node.name, parameters)
             self.__current_class.add_method(function)
 
-    def __create_parameter_list(self, node: ast.FunctionDef) -> List[Parameter]:
+    @staticmethod
+    def __create_parameter_list(node: ast.FunctionDef) -> List[Parameter]:
         param_name_and_hint = {}
         found_hint_in_definition = False
         for arg in node.args.args:
