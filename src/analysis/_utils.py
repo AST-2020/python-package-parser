@@ -1,6 +1,6 @@
 from typing import Optional, List
 
-from analyses.messages import Message
+from analysis.message import Message
 from library.model import Package, Parameter, Function
 
 

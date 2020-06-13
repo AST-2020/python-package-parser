@@ -1,7 +1,7 @@
 from typing import List
 
-from analyses._utils import get_parameters, function_not_found_error, qualified_name
-from analyses.messages import MessageManager, Message
+from analysis._utils import get_parameters, function_not_found_error, qualified_name
+from analysis.message import MessageManager, Message
 from library.model import Package, Parameter
 
 

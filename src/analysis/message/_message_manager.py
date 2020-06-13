@@ -1,6 +1,6 @@
 from typing import List
 
-from analyses.messages import Message
+from analysis.message import Message
 
 
 class MessageManager:

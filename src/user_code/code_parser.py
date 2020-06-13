@@ -1,8 +1,8 @@
 import ast
 from typing import Any
 
-from analyses.compare_argument_number import compare_arg_amount
-from analyses.compare_argument_names import compare_arg_names
+from analysis.compare_argument_number import compare_arg_amount
+from analysis.compare_argument_names import compare_arg_names
 from library.model import Package
 from user_code.imports import Imports
 from user_code.variables import UsedVariables

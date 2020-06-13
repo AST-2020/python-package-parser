@@ -1,4 +1,4 @@
-import analyses
+import analysis
 import unittest
 import json
 
@@ -6,7 +6,7 @@ class TestComparator(unittest.TestCase):
 
     def test_compare(self):
         # Testing the compare method
-        comp = analyses.Comparator()
+        comp = analysis.Comparator()
 
         with open("resultsTorch.txt") as json_file:
             json_file = json.load(json_file)
