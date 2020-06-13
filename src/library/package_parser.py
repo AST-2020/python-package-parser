@@ -73,7 +73,7 @@ def read_directory(directory, local_path, struct: Library):
 
 
 def has_package_installed(package_name):
-    if package_name is "torch":
+    if package_name == "torch":
         if torch_installed:
             return True
         else:
@@ -95,9 +95,9 @@ def parse_package(package_name):
     # package_name = torch or sklearn
     if not has_package_installed(package_name):
         return
-    if package_name is "torch":
+    if package_name == "torch":
         library_local_path = torch.__file__
-    elif package_name is "sklearn":
+    elif package_name == "sklearn":
         library_local_path = sklearn.__file__
     library_local_path = library_local_path.replace("__init__.py", '')
     library_local_path = library_local_path[0:-1]
@@ -128,7 +128,7 @@ class MyNodeVisitor(ast.NodeVisitor):
         if node.name == "device":
             print(self.__current_module, " ", self.__current_class)
         for decorator in node.decorator_list:
-            if "id" in decorator.__dir__() and decorator.id is "property":
+            if "id" in decorator.__dir__() and decorator.id == "property":
                 return
         parameters = self.__create_parameter_list(node)
 
