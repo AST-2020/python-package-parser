@@ -29,14 +29,12 @@ class Parameter:
         return self.__type_hint__
 
     def __str__(self) -> str:
-        if self.__has_default and self.__type_hint__ is not None:
-            return f"{self.__name} : {self.__type_hint__}= {self.__default}"
-        elif self.__has_default:
-            return f"{self.__name} = {self.__default}"
-        elif self.__type_hint__ is not None:
-            return f"{self.__name} : {self.__type_hint__}"
-        else:
-            return f"{self.__name}"
+        result = self.__name
+        if self.__type_hint__ is not None:
+            result += f": {self.__type_hint__}"
+        if self.__has_default:
+            result += f" = {self.__default}"
+        return result
 
 
 class Function:
