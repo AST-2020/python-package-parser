@@ -1,71 +1,64 @@
-from typing import List
+from typing import List, Optional
 
-import messages.fehler as error
-from library.model import Package
+from library.model import Package, Parameter
+from messages import MessageManager, Message
 
 
 class Comparator:
 
     def __init__(self, package):
         self.package: Package = package
-        self.FehlerManager = error.FehlerManager()
+        self.messageManager = MessageManager()
 
-    def compare_arg_names(self, file: str, line: int, import_path: str, keyword_arguments: List[str], func_name, cls_name=None):
-        self.FehlerManager.fehler = []
-        # get args from source dict
-        function_found = False
-        args = []
+    def compare_arg_names(self, file: str, line: int, import_path: str, keyword_arguments: List[str], func_name,
+                          cls_name=None):
+        self.messageManager.clear()
 
-        if len(self.package.get_classes_with_name(import_path, func_name)) == 1: # func_name ???
+        parameters = self.get_parameters(import_path, func_name, cls_name)
+        if parameters is None:
+            function_not_found_error = Message("", line,
+                                               "The function [" + func_name + "] or the path [" + import_path + "] does not exist.",
+                                               file)
+            self.messageManager.addMessage(function_not_found_error)
+            self.messageManager.printMessages()
+            return 1
+
+        param_names = [parameter.get_name() for parameter in parameters]
+
+        for key in keyword_arguments:
+            if key not in param_names:
+                new_error = Message(import_path + "." + func_name, line, "Parameter [" + key + "] not found.", file)
+                self.messageManager.addMessage(new_error)
+
+        self.messageManager.printMessages()
+
+    def get_parameters(self, import_path, func_name, cls_name) -> Optional[List[Parameter]]:
+        if len(self.package.get_classes_with_name(import_path, func_name)) == 1:  # func_name ???
             if len(self.package.get_methods_with_name(import_path, func_name, "__init__")) == 1:
                 method = self.package.get_methods_with_name(import_path, func_name, "__init__")[0]
-                function_found = True
-                args = method.get_parameters()
+                return method.get_parameters()
             else:
-                function_found = True
-                args = []
+                return []  # TODO Should this not be None?
         elif cls_name is not None:
             if func_name == cls_name:
                 cls_name = func_name
-                method = self.package.get_methods_with_name(import_path, cls_name, "__init__")  # to get the object (type(Function)) back
+                method = self.package.get_methods_with_name(import_path, cls_name, "__init__")
                 if len(method) == 1:
-                    function_found = True
-                    args = method[0].get_parameters()
+                    return method[0].get_parameters()
                 else:
-                    return
+                    return None
             else:
-                method = self.package.get_methods_with_name(import_path, cls_name, func_name)  # to get the object (type(Function)) back
+                method = self.package.get_methods_with_name(import_path, cls_name, func_name)
                 if len(method) == 1:
-                    function_found = True
-                    args = method[0].get_parameters()
-
-        # def get_top_level_function(self, module_path: str, function_name: str) -> Function:
-        else:  # if function(parameters)
-            function = self.package.get_top_level_functions_with_name(import_path, func_name)  # to get the object (type(Function)) back
-            if len(function) == 1:
-                function_found = True
-                args = function[0].get_parameters()
-
-        # compare keywords
-        if function_found:
-            for key in keyword_arguments:
-                if key not in args:
-                    new_error = error.Fehler(import_path + "." + func_name, line, "Parameter [" + key + "] not found.", file)
-                    self.FehlerManager.fehlerHinzufuegen(new_error)
+                    return method[0].get_parameters()
 
         else:
-            function_not_found_error = error.Fehler("", line,
-                                                    "The function [" + func_name + "] or the path [" + import_path + "] does not exist.",
-                                                    file)
-            self.FehlerManager.fehlerHinzufuegen(function_not_found_error)
-            self.FehlerManager.printFehlerList()
-            return 1
-
-        if not self.FehlerManager.fehler == []:
-            self.FehlerManager.printFehlerList()
+            function = self.package.get_top_level_functions_with_name(import_path, func_name)
+            if len(function) == 1:
+                return function[0].get_parameters()
 
     def compare_arg_amount(self, file, line, path, func_name, keywords, arg_values, cls_name):
-        self.FehlerManager.fehler = []  # Create empty error list
+        self.messageManager.clear()
         # user_total_args: arguments given by the user
         user_total_args = len(keywords) + len(arg_values)  # Save total number of arguments given by the user
 
@@ -85,9 +78,9 @@ class Comparator:
                 func_or_method_args = func_or_method[0].get_parameters()
 
         if func_or_method_args is None:
-            new_error = error.Fehler(path + "." + func_name, line, "Function/method " + func_name + " not found.", file)
-            self.FehlerManager.fehlerHinzufuegen(new_error)
-            self.FehlerManager.printFehlerList()
+            new_error = Message(path + "." + func_name, line, "Function/method " + func_name + " not found.", file)
+            self.messageManager.addMessage(new_error)
+            self.messageManager.printMessages()
             return
 
         max = len(func_or_method_args)
@@ -100,12 +93,12 @@ class Comparator:
 
         # If a function is found AND the number of given arguments is lower than min or greater than max, add error
         if user_total_args < min or user_total_args > max:
-            new_error = error.Fehler(path + "." + func_name, line,
-                                     "Wrong number of parameters (" + str(user_total_args) + "). Max: " + str(max)
-                                     + " Min: " + str(min), file)
-            self.FehlerManager.fehlerHinzufuegen(new_error)
+            new_error = Message(path + "." + func_name, line,
+                                "Wrong number of parameters (" + str(user_total_args) + "). Max: " + str(max)
+                                + " Min: " + str(min), file)
+            self.messageManager.addMessage(new_error)
 
         # Print errors.
-        if not self.FehlerManager.fehler == []:
-            self.FehlerManager.printFehlerList()
+        if not self.messageManager.fehler == []:
+            self.messageManager.printMessages()
         return 0

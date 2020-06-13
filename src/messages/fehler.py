@@ -1,4 +1,4 @@
-class Fehler:
+class Message:
     def __init__(self, dateipfad, zeilennummer, description, dateiname):
         self.dateipfad = dateipfad
         self.zeilennummer = zeilennummer
@@ -10,7 +10,7 @@ class Fehler:
             self.zeilennummer) + ": " + self.description
 
 
-class FehlerManager:
+class MessageManager:
     # Fehler Manager -> Hier muessen alle Fehler die mit der Klasse Fehler registriert werden
 
     # Wenn man moechte, kann man eine Liste mit fehlern uebergeben, ansonsten wird eine erzeugt.
@@ -20,8 +20,11 @@ class FehlerManager:
 
         self.fehler = fehler
 
+    def clear(self):
+        self.fehler = []
+
     # Fehler wird der Liste hinzugefuegt
-    def fehlerHinzufuegen(self, Fehler):
+    def addMessage(self, Fehler):
         self.fehler.append(Fehler)
         # print("Fehler wurde hinzugefuegt")
 
@@ -29,7 +32,7 @@ class FehlerManager:
         self.fehler.remove(Fehler)
         print("Fehler wurde entfernt")
 
-    def printFehlerList(self):
+    def printMessages(self):
         for f in self.fehler:
             print(f)
             print("----")
