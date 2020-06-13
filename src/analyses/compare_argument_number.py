@@ -1,46 +1,55 @@
 from typing import List
 
-from analyses._utils import get_parameters
+from analyses._utils import get_parameters, function_not_found_error, qualified_name
 from analyses.messages import MessageManager, Message
-from library.model import Package
+from library.model import Package, Parameter
 
 
 def compare_arg_amount(package: Package, file: str, line: int, import_path: str, keyword_arguments: List[str],
                        arg_values: List, func_name: str, receiver_class_name: str):
     message_manager = MessageManager()
 
-    # user_total_args: arguments given by the user
-    user_total_args = len(keyword_arguments) + len(arg_values)  # Save total number of arguments given by the user
-
-    # This case is for when class name is not present
-    # That means we are working with a function, so the program calls related methods from Hady's code.
-    func_or_method_args = get_parameters(package, import_path, func_name, receiver_class_name)
-
-    if func_or_method_args is None:
-        new_error = Message(import_path + "." + func_name, line, "Function/method " + func_name + " not found.",
-                            file)
-        message_manager.add_message(new_error)
+    parameters = get_parameters(package, import_path, func_name, receiver_class_name)
+    if parameters is None:
+        message_manager.add_message(function_not_found_error(func_name, file, line))
         message_manager.print_messages()
         return
 
-    maximum, minimum = get_expected_number_of_arguments(func_or_method_args)
-
-    if not minimum <= user_total_args <= maximum:
-        new_error = Message(import_path + "." + func_name, line,
-                            "Wrong number of parameters (" + str(user_total_args) + "). Max: " + str(maximum)
-                            + " Min: " + str(minimum), file)
+    # Actual comparison
+    given_args = _given_number_of_arguments(arg_values, keyword_arguments)
+    min_expected_args, max_expected_args = _expected_number_of_arguments(parameters)
+    if not min_expected_args <= given_args <= max_expected_args:
+        new_error = _wrong_number_of_arguments_error(file, line, import_path, func_name, min_expected_args,
+                                                     max_expected_args, given_args)
         message_manager.add_message(new_error)
 
     message_manager.print_messages()
 
 
-def get_expected_number_of_arguments(func_or_method_args):
-    maximum = len(func_or_method_args)
+def _given_number_of_arguments(arg_values: List, keyword_arguments: List):
+    return len(arg_values) + len(keyword_arguments)
+
+
+def _expected_number_of_arguments(parameters: List[Parameter]) -> (int, int):
     minimum = 0
+    maximum = len(parameters)
 
-    # Total number of parameters
-    for p in func_or_method_args:
+    for p in parameters:
         if not p.has_default():
-            minimum += 1  # For every parameter that does NOT have a default value, minimum increased by 1
+            minimum += 1
 
-    return maximum, minimum
+    return minimum, maximum
+
+
+def _wrong_number_of_arguments_error(file: str, line: int, import_path: str, func_name: str, min_expected_args: int,
+                                     max_expected_args: int, given_args: int):
+    if min_expected_args == max_expected_args:
+        expected = f"exactly {min_expected_args}"
+    else:
+        expected = f"between {min_expected_args} and {max_expected_args}"
+
+    return Message(
+        file,
+        line,
+        f"{qualified_name(import_path, func_name)} expects {expected} arguments but got {given_args}."
+    )

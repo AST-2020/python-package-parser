@@ -1,6 +1,6 @@
 from typing import List
 
-from analyses._utils import get_parameters
+from analyses._utils import get_parameters, function_not_found_error, qualified_name
 from analyses.messages import MessageManager, Message
 from library.model import Package
 
@@ -11,18 +11,19 @@ def compare_arg_names(package: Package, file: str, line: int, import_path: str, 
 
     parameters = get_parameters(package, import_path, func_name, receiver_class_name)
     if parameters is None:
-        function_not_found_error = Message("", line,
-                                           "The function [" + func_name + "] or the path [" + import_path + "] does not exist.",
-                                           file)
-        message_manager.add_message(function_not_found_error)
+        message_manager.add_message(function_not_found_error(func_name, file, line))
         message_manager.print_messages()
-        return 1
-
+        return
     param_names = [parameter.get_name() for parameter in parameters]
 
+    # Actual comparison
     for key in keyword_arguments:
         if key not in param_names:
-            new_error = Message(import_path + "." + func_name, line, "Parameter [" + key + "] not found.", file)
+            new_error = _unknown_parameter_error(file, line, func_name, import_path, key)
             message_manager.add_message(new_error)
 
     message_manager.print_messages()
+
+
+def _unknown_parameter_error(file: str, line: int, func_name: str, import_path: str, argument_name: str):
+    return Message(file, line, f"{qualified_name(import_path, func_name)} has no parameter named '{argument_name}'.")

@@ -6,7 +6,7 @@ from analyses.messages.fehler import Message
 
 class TestFehlerManager(TestCase):
     def test_print_help(self):
-        f1 = Message("Pfad", 2, "Beschreibung", "Datei")
+        f1 = Message("Datei", 2, "Beschreibung")
         result = "error occured  in [Pfad in file Datei] in line 2: Beschreibung"
 
         self.assertEqual(str(f1), result)

@@ -1,26 +1,21 @@
 class Message:
-    def __init__(self, dateipfad, zeilennummer, description, dateiname):
-        self.dateipfad = dateipfad
-        self.zeilennummer = zeilennummer
-        self.description = description
-        self.dateiname = dateiname
+    def __init__(self, file: str, line: int, description: str):
+        self.file: str = file
+        self.line: int = line
+        self.description: str = description
 
     def __str__(self):
-        return "error occured  in [" + self.dateipfad + " in file " + self.dateiname + "] in line " + str(
-            self.zeilennummer) + ": " + self.description
+        return f"Error in '{self.file}' line {self.line}: {self.description}"
 
 
 class MessageManager:
-    def __init__(self, message=None):
-        if message is None:
-            message = []
-
-        self.message = message
+    def __init__(self):
+        self.messages = []
 
     def add_message(self, message):
-        self.message.append(message)
+        self.messages.append(message)
 
     def print_messages(self):
-        for f in self.message:
+        for f in self.messages:
             print(f)
             print("----")
