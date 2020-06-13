@@ -1,4 +1,3 @@
-import json
 from typing import List, Any, Dict, TypeVar, Optional
 
 
@@ -8,12 +7,6 @@ from typing import List, Any, Dict, TypeVar, Optional
 
 # It will provide the same output as before, and don’t forget to remove the ‘()’ after func when printing it.
 # Just writing @property above the function any_func() make it available to be used as a property.
-
-def convert_parameter_to_python(parameter: Dict):
-    return Parameter(parameter["_Parameter__name"],
-                     parameter["_Parameter__has_default"],
-                     parameter["_Parameter__default"]
-                     )
 
 
 class Parameter:
@@ -37,24 +30,13 @@ class Parameter:
 
     def __str__(self) -> str:
         if self.__has_default and self.__type_hint__ is not None:
-            return f"{self.__name} : {self.__type_hint__ }= {self.__default}"
+            return f"{self.__name} : {self.__type_hint__}= {self.__default}"
         elif self.__has_default:
             return f"{self.__name} = {self.__default}"
         elif self.__type_hint__ is not None:
-            return f"{self.__name} : {self.__type_hint__ }"
+            return f"{self.__name} : {self.__type_hint__}"
         else:
             return f"{self.__name}"
-
-
-def convert_function_to_python(function: Dict):
-    parameters: Dict = function["_Function__parameters"]
-    parameter_names = parameters.keys()
-
-    for parameter_name in parameter_names:
-        parameters[parameter_name] = convert_parameter_to_python(parameters[parameter_name])
-
-    return Function(function["_Function__name"],
-                    list(parameters.values()))
 
 
 class Function:
@@ -74,17 +56,6 @@ class Function:
     def __str__(self) -> str:
         parameter_string = ", ".join(self.__parameters)
         return f"def {self.__name}({parameter_string})"
-
-
-def convert_class_to_python(klass: Dict):
-    methods: Dict = klass["_Class__methods"]
-    method_names = methods.keys()
-
-    for method_name in method_names:
-        methods[method_name] = convert_function_to_python(methods[method_name])
-    return Class(klass["_Class__name"],
-                 list(methods.values()),
-                 klass["_Class__to_ignore"])
 
 
 class Class:
@@ -114,25 +85,6 @@ class Class:
 
     def get_methods(self) -> List[Function]:
         return _dict_to_list(self.__methods)
-
-
-def convert_module_to_python(module: Dict):
-    functions: Dict = module["_Module__top_level_functions"]
-    function_names = functions.keys()
-
-    for fucntion_name in function_names:
-        functions[fucntion_name] = convert_function_to_python(functions[fucntion_name])
-
-    classes: Dict = module["_Module__classes"]
-    class_names = classes.keys()
-
-    for class_name in class_names:
-        classes[class_name] = convert_class_to_python(classes[class_name])
-
-    return Module(module["_Module__name"],
-                  list(classes.values()),
-                  list(functions.values()),
-                  module["_Module__to_ignore"])
 
 
 class Module:
