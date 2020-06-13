@@ -47,4 +47,4 @@ if __name__ == '__main__':
         parse_code(file_path, sklearn)
 
     else:
-        print('programm expects only the file to check as an argument.')
+        print('Usage: python code_analyzer.py <file_to_analyze>')

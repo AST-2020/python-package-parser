@@ -1,24 +1,25 @@
 """
 this visitor scans for function and method calls. functions and methods, which can be assigned to the module
 will be further analysed to gather informations about its position in the module, name, line, arguments.
-These informations are then used to call a comparator method to evaluate its correctness.
+These informations are then used to call a analyses method to evaluate its correctness.
 """
 
 import ast
 from typing import Any
 
-from user_code.variables import UsedVariables
+from analyses.compare_argument_number import compare_arg_amount
+from analyses.compare_argument_names import compare_arg_names
+from library.model import Package
 from user_code.imports import Imports
-from comparator.comparator import Comparator
+from user_code.variables import UsedVariables
 
 
 class FunctionVisitor(ast.NodeVisitor):
-    def __init__(self, file, dict, imports, variables: UsedVariables = UsedVariables()):
+    def __init__(self, file, package: Package, imports, variables: UsedVariables = UsedVariables()):
         ast.NodeVisitor.__init__(self)
         self.imports: Imports = imports
         self.vars: UsedVariables = variables
-        self.package_dict = dict
-        self.comp = Comparator(self.package_dict)
+        self.package = package
         self.file = file
 
     # collect relevant information about call of function or method
@@ -34,9 +35,9 @@ class FunctionVisitor(ast.NodeVisitor):
 
         if (package is not None) and (package != ""):
             # compare names of named args
-            self.comp.compare_arg_names(self.file, line, package, keywords, name, cls)
+            compare_arg_names(self.package, self.file, line, package, keywords, name, cls)
             # compare arg count
-            self.comp.compare_arg_amount(self.file, line, package, name, keywords, args, cls)
+            compare_arg_amount(self.package, self.file, line, package, keywords, args, name, cls)
         """
         # if function
         package = self.imports.get_package_from_asname(prefix, line)
@@ -60,7 +61,7 @@ class FunctionVisitor(ast.NodeVisitor):
         # path, sub, type = self.expand_prefix(prefix, line, name)
         keywords = self.get_keywords(node)
 
-        # hand information over to comparator
+        # hand information over to analyses
         if (type is 'function') or (type is 'method'):
             # print(line, name, path, sub, type, keywords)
             if sub is not None:
@@ -213,7 +214,7 @@ class FunctionVisitor(ast.NodeVisitor):
             list.append(keyword.arg)
         return list
 
-    @ staticmethod
+    @staticmethod
     # get unnamed arguments of the function
     def get_args(node):
         # print(ast.dump(node))

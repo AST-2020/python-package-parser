@@ -1,7 +1,7 @@
 import unittest
 from unittest import TestCase
 
-from messages.fehler import Message, MessageManager
+from analyses.messages.fehler import Message
 
 
 class TestFehlerManager(TestCase):
