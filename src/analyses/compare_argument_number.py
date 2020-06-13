@@ -5,11 +5,11 @@ from analyses.messages import MessageManager, Message
 from library.model import Package, Parameter
 
 
-def compare_arg_amount(package: Package, file: str, line: int, import_path: str, keyword_arguments: List[str],
+def compare_arg_amount(package: Package, file: str, line: int, module_path: str, keyword_arguments: List[str],
                        arg_values: List, func_name: str, receiver_class_name: str):
     message_manager = MessageManager()
 
-    parameters = get_parameters(package, import_path, func_name, receiver_class_name)
+    parameters = get_parameters(package, module_path, func_name, receiver_class_name)
     if parameters is None:
         message_manager.add_message(function_not_found_error(func_name, file, line))
         message_manager.print_messages()
@@ -19,7 +19,7 @@ def compare_arg_amount(package: Package, file: str, line: int, import_path: str,
     given_args = _given_number_of_arguments(arg_values, keyword_arguments)
     min_expected_args, max_expected_args = _expected_number_of_arguments(parameters)
     if not min_expected_args <= given_args <= max_expected_args:
-        new_error = _wrong_number_of_arguments_error(file, line, import_path, func_name, min_expected_args,
+        new_error = _wrong_number_of_arguments_error(file, line, module_path, func_name, min_expected_args,
                                                      max_expected_args, given_args)
         message_manager.add_message(new_error)
 
@@ -41,7 +41,7 @@ def _expected_number_of_arguments(parameters: List[Parameter]) -> (int, int):
     return minimum, maximum
 
 
-def _wrong_number_of_arguments_error(file: str, line: int, import_path: str, func_name: str, min_expected_args: int,
+def _wrong_number_of_arguments_error(file: str, line: int, module_path: str, func_name: str, min_expected_args: int,
                                      max_expected_args: int, given_args: int):
     if min_expected_args == max_expected_args:
         expected = f"exactly {min_expected_args}"
@@ -51,5 +51,5 @@ def _wrong_number_of_arguments_error(file: str, line: int, import_path: str, fun
     return Message(
         file,
         line,
-        f"{qualified_name(import_path, func_name)} expects {expected} arguments but got {given_args}."
+        f"{qualified_name(module_path, func_name)} expects {expected} arguments but got {given_args}."
     )
