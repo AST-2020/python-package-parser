@@ -2,8 +2,7 @@ import json
 import ast
 import unittest
 
-from user_code.import_parser import ImportVisitor
-from user_code.imports import Imports
+from user_code.parser._import_parser import ImportVisitor
 
 
 class ImportParserTestCase(unittest.TestCase):

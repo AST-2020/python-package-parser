@@ -1,8 +1,7 @@
 import ast
 from typing import Any
 
-from user_code.imports import Imports
-from user_code.variables import UsedVariables
+from user_code.model import Imports, Variables
 
 
 class VariableVisitor(ast.NodeVisitor):
@@ -15,7 +14,7 @@ class VariableVisitor(ast.NodeVisitor):
 
     def __init__(self, imports):
         ast.NodeVisitor.__init__(self)
-        self.vars: UsedVariables = UsedVariables()
+        self.vars: Variables = Variables()
         self.imports: Imports = imports
 
     # because we assume that all variables need to have type annotations

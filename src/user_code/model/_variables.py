@@ -1,4 +1,4 @@
-class UsedVariables:
+class Variables:
     """
     UsedVariables stores declared variables, where only variables with type annotations are seen,
     and saves the line of declaration and type for the variable.

@@ -1,7 +1,7 @@
 import ast
 from typing import Any
 
-from user_code.imports import Imports
+from user_code.model import Imports
 
 
 class ImportVisitor(ast.NodeVisitor):

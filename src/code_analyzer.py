@@ -3,9 +3,7 @@ import sys
 
 from library.model import Package
 from library.parser import parse_package
-from user_code.code_parser import FunctionVisitor
-from user_code.import_parser import ImportVisitor
-from user_code.variable_parser import VariableVisitor
+from user_code.parser import FunctionVisitor, ImportVisitor, VariableVisitor
 
 
 def parse_code(file_to_analyze: str, package: Package):

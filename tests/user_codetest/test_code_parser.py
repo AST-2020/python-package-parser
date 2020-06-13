@@ -2,9 +2,9 @@ import unittest
 import json
 import ast
 
-from user_code.variables import UsedVariables
-from user_code.imports import Imports
-from user_code.code_parser import FunctionVisitor
+from user_code.model._variables import Variables
+from user_code.model._imports import Imports
+from user_code.parser._function_parser import FunctionVisitor
 
 
 class UserCodeCase(unittest.TestCase):
@@ -64,7 +64,7 @@ class UserCodeCase(unittest.TestCase):
         # if is method
         imp = Imports()
         imp.add_named_import(package='torch', asname='torch', line=0)
-        vars = UsedVariables()
+        vars = Variables()
         vars.add_usage('tensor', 1, 'torch.Tensor')
         fv3 = FunctionVisitor(source, imp, vars)
         self.assertEqual(('torch.tensor', 'Tensor', 'method'), fv3.expand_prefix('tensor', 1, 'norm'))

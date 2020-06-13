@@ -1,15 +1,14 @@
 import unittest
-import json
 import ast
 
-from user_code.variables import UsedVariables
-from user_code.imports import Imports
-from user_code.variable_parser import VariableVisitor
+from user_code.model._variables import Variables
+from user_code.model._imports import Imports
+from user_code.parser._variable_parser import VariableVisitor
 
 
 class VariablesCase(unittest.TestCase):
     def test_get_var_type(self):
-        uv = UsedVariables()
+        uv = Variables()
         uv.add_variable('var')
         uv.add_usage('var', 1, 'string')
         uv.add_usage('var', 3, 'int')

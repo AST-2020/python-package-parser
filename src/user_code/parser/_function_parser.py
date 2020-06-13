@@ -1,24 +1,23 @@
 import ast
 from typing import Any
 
-from analysis.compare_argument_number import compare_arg_amount
 from analysis.compare_argument_names import compare_arg_names
+from analysis.compare_argument_number import compare_arg_amount
 from library.model import Package
-from user_code.imports import Imports
-from user_code.variables import UsedVariables
+from user_code.model import Imports, Variables
 
 
 class FunctionVisitor(ast.NodeVisitor):
     """
     this visitor scans for function and method calls. functions and methods, which can be assigned to the module
-    will be further analysed to gather informations about its position in the module, name, line, arguments.
-    These informations are then used to call a analyses method to evaluate its correctness.
+    will be further analysed to gather information about its position in the module, name, line, arguments.
+    This information is then used to call a analyses method to evaluate its correctness.
     """
 
-    def __init__(self, file, package: Package, imports, variables: UsedVariables = UsedVariables()):
+    def __init__(self, file, package: Package, imports, variables: Variables = Variables()):
         ast.NodeVisitor.__init__(self)
         self.imports: Imports = imports
-        self.vars: UsedVariables = variables
+        self.vars: Variables = variables
         self.package = package
         self.file = file
 
