@@ -31,6 +31,7 @@ class FunctionVisitor(ast.NodeVisitor):
         cls, package = self.get_package(prefix, name, line)
         if cls == '':
             cls = None
+
         if (package is not None) and (package != ""):
             # compare names of named args
             self.comp.compare_arg_names(self.file, line, package, keywords, name, cls)

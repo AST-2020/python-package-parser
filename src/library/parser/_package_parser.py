@@ -1,12 +1,25 @@
 import importlib
 import inspect
 import os
-
 from pathlib import Path
-from typing import Any, Generator, List, Optional, Tuple
+from typing import Optional, Generator, Tuple, Any, List
+
+from library.model import Package
+from library.parser._module_parser import parse_module
 
 
-def walk_package(package_name: str) -> Generator[Tuple[str, str, Optional[str]], Any, None]:
+def parse_package(package_name: str) -> Optional[Package]:
+    if not _is_package_installed(package_name):
+        return None
+
+    result = Package(package_name)
+    for module_path, python_file, python_interface_file in _walk_package(package_name):
+        module = parse_module(module_path, python_file, python_interface_file)
+        result.add_module(module)
+    return result
+
+
+def _walk_package(package_name: str) -> Generator[Tuple[str, str, Optional[str]], Any, None]:
     """
     Yields 3-tuples of the form (module_path, python_file, python_interface_file), which can be iterated in a
     for-loop.
@@ -25,7 +38,6 @@ def walk_package(package_name: str) -> Generator[Tuple[str, str, Optional[str]],
     # Get package root
     package_root = _get_package_root(package_name)
     if package_root is None:
-        print(f"Cannot find root of package {package_name}.")
         return
 
     # Walk through directories
@@ -43,6 +55,12 @@ def walk_package(package_name: str) -> Generator[Tuple[str, str, Optional[str]],
             yield module_path, python_file, python_interface_file
 
 
+def _is_package_installed(package_name: str) -> bool:
+    """Checks if the package with the given name is installed."""
+
+    return _get_package_root(package_name) is not None
+
+
 def _get_package_root(package_name: str) -> Optional[str]:
     try:
         package = importlib.import_module(package_name)
@@ -50,10 +68,6 @@ def _get_package_root(package_name: str) -> Optional[str]:
         return str(init_file.parent)
     except ModuleNotFoundError:
         return None
-
-
-def _is_package_installed(package_name: str) -> bool:
-    return _get_package_root(package_name) is not None
 
 
 def _get_module_base_path(package_name: str, package_root: str, dirpath: str) -> str:
@@ -75,11 +89,7 @@ def _get_module_path(module_base_path: str, filename: str) -> str:
         return module_base_path + "." + Path(filename).stem
 
 
-def _get_python_interface_file(dirpath: str, filenames: List[str], filename: str) -> Optional[str]:
-    pyi_file = filename.replace(".py", ".pyi")
+def _get_python_interface_file(dirpath: str, filenames: List[str], python_file: str) -> Optional[str]:
+    pyi_file = python_file.replace(".py", ".pyi")
     if pyi_file in filenames:
         return Path(dirpath, pyi_file).as_posix()
-
-    pyi_in_file = filename.replace(".py", ".pyi.in")
-    if pyi_in_file in filenames:
-        return Path(dirpath, pyi_in_file).as_posix()

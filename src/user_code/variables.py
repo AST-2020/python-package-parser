@@ -3,6 +3,7 @@ UsedVariables stores declared variables, where only variables with type annotati
 and saves the line of declaration and type for the variable.
 """
 
+
 class UsedVariables:
     def __init__(self):
         self.dict = {}

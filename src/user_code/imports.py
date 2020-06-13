@@ -3,6 +3,7 @@ Imports class stores all used imports. in named imports later called by a name p
 and in unknown imports without a prefix needed are stored
 """
 
+
 class Imports:
 
     def __init__(self):
@@ -27,6 +28,7 @@ class Imports:
                 return self.named[asname][0]
         else:
             return None
+
     """
     # get package for a content item without prefix from unknown
     def get_package_from_content(self, caller, line):

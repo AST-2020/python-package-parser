@@ -11,5 +11,5 @@ N, D_in, H, D_out = 64, 1000, 100, 10
 
 # funktion
 x1: Tensor = randn(N, D_in, dtype=dtype, device=device)       # should give an error
-x2: Tensor = randn()                                        # should give an error
+x2: Tensor = randn()                                          # should give an error
 x3: Tensor = randn(N, D_in, dtype=dtype)

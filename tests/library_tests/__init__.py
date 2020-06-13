@@ -1,13 +1,15 @@
+from library.parser import parse_package
 from tests.library_tests import TestDirectory
-from library.library_model import Library
-from library.package_parser import read_directory
-
 
 if __name__ == '__main__':
+    package = parse_package("tests.library_tests.TestDirectory")
+    for module in package.get_all_modules():
+        print(module.get_name())
 
-    library = TestDirectory.__file__
-    library = library.replace("__init__.py", '')
-    library = library[0:-1]
-    path_to_delete = library.rsplit('TestDirectory', 1)[0]
-    parsed_data = Library([])
-    read_directory(library, path_to_delete, parsed_data)
+        print("  Classes\n  =======")
+        for klass in module.get_all_classes():
+            print(f"    {klass}")
+
+        print("  Functions\n  =========")
+        for function in module.get_all_top_level_functions():
+            print(f"    {function}")

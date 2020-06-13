@@ -8,8 +8,8 @@ Therefore variables which belong to the library, but are not imported correctly 
 import ast
 from typing import Any
 
-from user_code.variables import UsedVariables
 from user_code.imports import Imports
+from user_code.variables import UsedVariables
 
 
 class VariableVisitor(ast.NodeVisitor):

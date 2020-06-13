@@ -1,26 +1,26 @@
 import ast
 import sys
 
-from library.library_model import Library
-from library.package_parser import parse_package
+from library.model import Package
+from library.parser import parse_package
 from user_code.code_parser import FunctionVisitor
 from user_code.import_parser import ImportVisitor
 from user_code.variable_parser import VariableVisitor
 
 
-def parse_code(file_to_analyze: str, package_name: str, package: Library):
+def parse_code(file_to_analyze: str, package: Package):
     """
     This function combines all of the python files to first visit the user code 'file' for imports, then variables, then
     functions and methods.
     """
 
     # open file
-    f = open(file_to_analyze, mode='r')
-    contents = f.read()
-    tree = ast.parse(contents)
+    with open(file_to_analyze, mode='r') as f:
+        contents = f.read()
+        tree = ast.parse(contents)
 
     # get imports
-    imp = ImportVisitor(package_name, package)
+    imp = ImportVisitor(package.get_name(), package)
     imp.visit(tree)
     imps = imp.get_imports()
 
@@ -43,8 +43,8 @@ if __name__ == '__main__':
         sklearn = parse_package('sklearn')
 
         # parse code for both libraries
-        parse_code(file_path, "torch", torch)
-        parse_code(file_path, "sklearn", sklearn)
+        parse_code(file_path, torch)
+        parse_code(file_path, sklearn)
 
     else:
         print('programm expects only the file to check as an argument.')

@@ -1,11 +1,4 @@
 class Fehler:
-    # Daten werden gespeichert.
-    dateipfad = ''
-    zeilennummer = 0
-    description = ''
-    dateiname = ''
-
-    # Konstruktur initialisieren
     def __init__(self, dateipfad, zeilennummer, description, dateiname):
         self.dateipfad = dateipfad
         self.zeilennummer = zeilennummer
