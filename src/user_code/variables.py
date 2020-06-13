@@ -1,10 +1,9 @@
-"""
-UsedVariables stores declared variables, where only variables with type annotations are seen,
-and saves the line of declaration and type for the variable.
-"""
-
-
 class UsedVariables:
+    """
+    UsedVariables stores declared variables, where only variables with type annotations are seen,
+    and saves the line of declaration and type for the variable.
+    """
+
     def __init__(self):
         self.dict = {}
 

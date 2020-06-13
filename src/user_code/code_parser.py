@@ -1,9 +1,3 @@
-"""
-this visitor scans for function and method calls. functions and methods, which can be assigned to the module
-will be further analysed to gather informations about its position in the module, name, line, arguments.
-These informations are then used to call a analyses method to evaluate its correctness.
-"""
-
 import ast
 from typing import Any
 
@@ -15,6 +9,12 @@ from user_code.variables import UsedVariables
 
 
 class FunctionVisitor(ast.NodeVisitor):
+    """
+    this visitor scans for function and method calls. functions and methods, which can be assigned to the module
+    will be further analysed to gather informations about its position in the module, name, line, arguments.
+    These informations are then used to call a analyses method to evaluate its correctness.
+    """
+
     def __init__(self, file, package: Package, imports, variables: UsedVariables = UsedVariables()):
         ast.NodeVisitor.__init__(self)
         self.imports: Imports = imports

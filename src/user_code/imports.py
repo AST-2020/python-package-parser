@@ -1,10 +1,8 @@
-"""
-Imports class stores all used imports. in named imports later called by a name prefix are stored,
-and in unknown imports without a prefix needed are stored
-"""
-
-
 class Imports:
+    """
+    Imports class stores all used imports. in named imports later called by a name prefix are stored,
+    and in unknown imports without a prefix needed are stored
+    """
 
     def __init__(self):
         self.named = {}

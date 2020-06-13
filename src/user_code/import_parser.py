@@ -1,22 +1,3 @@
-"""
-A class to save imports belonging to a given package e.g. torch or sklearn in imports,
-class object iterates over parsed user code and saves recognised imports,
-also ignores not relevant imports.
-
-should work on following kinds of imports:
-import X
-import X as Y
-import X as A, Y as B, ...
-
-from X import Y
-from X import Y, Z, ...
-from X import Y as A
-from X import *
-
-missing so far
-import X.*
-"""
-
 import ast
 from typing import Any
 
@@ -24,6 +5,25 @@ from user_code.imports import Imports
 
 
 class ImportVisitor(ast.NodeVisitor):
+    """
+    A class to save imports belonging to a given package e.g. torch or sklearn in imports,
+    class object iterates over parsed user code and saves recognised imports,
+    also ignores not relevant imports.
+
+    should work on following kinds of imports:
+    import X
+    import X as Y
+    import X as A, Y as B, ...
+
+    from X import Y
+    from X import Y, Z, ...
+    from X import Y as A
+    from X import *
+
+    missing so far
+    import X.*
+    """
+
     # module is the module name to check for
     # source is the structure in which the modules infos about submodules,.. are stores
     def __init__(self, module, source):
