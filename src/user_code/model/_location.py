@@ -17,7 +17,9 @@ class Location:
         return self.file == other.file and self.line == other.line and self.column == other.column
 
     def __lt__(self, other: Location) -> bool:
-        return self.file < other.file or self.line < other.line or self.column < other.line
+        return self.file < other.file or \
+               self.file == other.file and self.line < other.line or \
+               self.file == other.file and self.line == other.line and self.column < other.column
 
     def __str__(self) -> str:
         return f"'{self.file}' ({self.line}:{self.column})"

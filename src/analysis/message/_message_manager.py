@@ -11,6 +11,5 @@ class MessageManager:
         self.messages.append(message)
 
     def print_messages(self):
-        sorted_messages = sorted(self.messages, key=lambda msg: msg.location)
-        for message in sorted_messages:
+        for message in sorted(self.messages, key=lambda msg: msg.location):
             print(message)

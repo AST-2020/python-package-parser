@@ -1,9 +1,12 @@
 import ast
 import sys
 
+from analysis import check_function_exists, check_arg_names, check_arg_number
+from analysis.message import MessageManager
 from library.model import Package
 from library.parser import parse_package
 from user_code.parser import FunctionVisitor, ImportVisitor, VariableVisitor
+from user_code.parser._function_parser import parse_function_calls
 
 
 def parse_code(file_to_analyze: str, package: Package):
@@ -12,30 +15,14 @@ def parse_code(file_to_analyze: str, package: Package):
     functions and methods.
     """
 
-    # open file
-    with open(file_to_analyze, mode='r') as f:
-        contents = f.read()
-        tree = ast.parse(contents)
+    calls = parse_function_calls(file_to_analyze, package)
 
-    # get imports
-    imp = ImportVisitor(package.get_name(), package)
-    imp.visit(tree)
-    imps = imp.get_imports()
-
-    # get vars
-    var = VariableVisitor(imps)
-    var.visit(tree)
-    vars = var.get_vars()
-
-    # inspect functions
-    fp = FunctionVisitor(file_path, package, imps, vars)
-    fp.visit(tree)
-
-    fp.message_manager.print_messages()
-
-    # TODO get all functions calls, loop over them and check each one
-    # TODO actually to find the callee we must already do the checks in the analysis (in case there are overloads or an
-    #  import is missing)
+    message_manager = MessageManager()
+    for call in calls:
+        check_function_exists(call, message_manager)
+        check_arg_names(call, message_manager)
+        check_arg_number(call, message_manager)
+    message_manager.print_messages()
 
 
 if __name__ == '__main__':
@@ -48,7 +35,9 @@ if __name__ == '__main__':
 
         # parse code for both libraries
         parse_code(file_path, torch)
-        parse_code(file_path, sklearn)
+        # parse_code(file_path, sklearn)
+
+        # TODO do not show torch errors when checking sklearn
 
     else:
         print('Usage: python code_analyzer.py <file_to_analyze>')

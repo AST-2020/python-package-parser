@@ -1,9 +1,6 @@
 import ast
 from typing import Any, Optional, List
 
-from analysis.check_arg_names import check_arg_names
-from analysis.check_arg_number import check_arg_number
-from analysis.message import MessageManager
 from library.model import Package, Function
 from user_code.model import FunctionCall, Imports, Variables, Location
 from user_code.parser._import_parser import ImportVisitor
@@ -42,39 +39,29 @@ class FunctionVisitor(ast.NodeVisitor):
         ast.NodeVisitor.__init__(self)
         self.imports: Imports = imports
         self.vars: Variables = variables
-        self.package = package
+        self.package: Package = package
         self.file = file
         self.calls = []
-        self.message_manager = MessageManager()
 
     def visit_Call(self, node: ast.Call) -> Any:
-        # note that name contains class obj name as well if method
-        receiver, name = self._get_name(node)
-        cls, package = self._get_package(receiver, name, node.lineno)
-
-        call = self._create_function_call(node)
-
-        self.calls.append(call)
-
-        if cls == '':
-            cls = None
-
-        if (package is not None) and (package != ""):
-            # compare names of named args
-            check_arg_names(self.message_manager, call, self.package, package, name, cls)
-            # compare arg count
-            check_arg_number(self.message_manager, call, self.package, package, name, cls)
-
-    def _create_function_call(self, node: ast.Call) -> FunctionCall:
-        return FunctionCall(
-            self._get_callee(node),
+        _, func_name = self._get_name(node)
+        call = FunctionCall(
+            func_name,
             self._get_number_of_positional_args(node),
             self._get_keyword_arg_names(node),
-            Location.create_location(self.file, node)
+            Location.create_location(self.file, node),
+            self._get_callee(node)
         )
+        self.calls.append(call)
 
     def _get_callee(self, node: ast.Call) -> List[Function]:
-        pass
+        receiver, func_name = self._get_name(node)
+        cls, package = self._get_package(receiver, func_name, node.lineno)
+
+        if (package is not None) and (package != ""):
+            return get_matching_overloads(self.package, package, func_name, cls)
+
+        return []
 
     @staticmethod
     def _get_number_of_positional_args(node: ast.Call) -> int:
@@ -84,20 +71,20 @@ class FunctionVisitor(ast.NodeVisitor):
     def _get_keyword_arg_names(node: ast.Call) -> List[str]:
         return [keyword.arg for keyword in node.keywords]
 
-    def _get_package(self, prefix, name, line):
+    def _get_package(self, prefix, name: str, line: int):
         if prefix is None:
             if self.imports.get_package_from_asname(name, line) is not None:
-                return '', self._get_function_package('', name, line)
+                return None, self._get_function_package('', name, line)
 
         else:
             if self.imports.get_package_from_asname(prefix, line) is not None:
-                return '', self._get_function_package(prefix, name, line)
+                return None, self._get_function_package(prefix, name, line)
             cls = self.vars.get_var_type(prefix, line)
             if cls is not None:
-                return cls, self._get_method_package(cls, name, line)
-        return '', ''
+                return cls, self._get_method_package(cls, line)
+        return None, ''
 
-    def _get_function_package(self, prefix, name, line):
+    def _get_function_package(self, prefix: str, name: str, line: int) -> str:
         if prefix == '':
             package = self.imports.get_package_from_asname(name, line).split('.')
             if name == package[-1]:
@@ -107,7 +94,7 @@ class FunctionVisitor(ast.NodeVisitor):
         else:
             return self.imports.get_package_from_asname(prefix, line)
 
-    def _get_method_package(self, cls, name, line):
+    def _get_method_package(self, cls: str, line: int) -> str:
         if cls != '':
             cls = cls.split('.')
             package = self.imports.get_package_from_asname(cls[0], line).split('.')
@@ -135,3 +122,22 @@ class FunctionVisitor(ast.NodeVisitor):
             return result
         else:
             raise ValueError(f"Cannot handle node type {type(node)}.")
+
+
+def get_matching_overloads(package: Package, module_path: str, func_name: str,
+                           cls_name: Optional[str]) -> List[Function]:
+    if _is_constructor_call(package, module_path, func_name, cls_name):
+        return package.get_methods_with_name(module_path, func_name, "__init__")
+    elif _is_method_call(package, module_path, func_name, cls_name):
+        return package.get_methods_with_name(module_path, cls_name, func_name)
+    else:
+        return package.get_top_level_functions_with_name(module_path, func_name)
+
+
+def _is_constructor_call(package: Package, module_path: str, func_name: str, cls_name: str) -> bool:
+    return len(package.get_classes_with_name(module_path, func_name)) > 0 or \
+           cls_name is not None and func_name == cls_name
+
+
+def _is_method_call(package: Package, module_path: str, func_name: str, cls_name: Optional[str]) -> bool:
+    return not _is_constructor_call(package, module_path, func_name, cls_name) and cls_name is not None
