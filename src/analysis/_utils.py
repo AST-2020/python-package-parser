@@ -24,7 +24,7 @@ def get_matching_overloads(package: Package, module_path: str, func_name: str,
 
 
 def function_not_found_error(func_name: str, location: Location) -> Message:
-    return Message(location, f"Function/method '{func_name}' was not found.")
+    return Message(location, f"Function '{func_name}' was not found.")
 
 
 def qualified_name(import_path: str, func_name: str):

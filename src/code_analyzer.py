@@ -31,6 +31,12 @@ def parse_code(file_to_analyze: str, package: Package):
     fp = FunctionVisitor(file_path, package, imps, vars)
     fp.visit(tree)
 
+    fp.message_manager.print_messages()
+
+    # TODO get all functions calls, loop over them and check each one
+    # TODO actually to find the callee we must already do the checks in the analysis (in case there are overloads or an
+    #  import is missing)
+
 
 if __name__ == '__main__':
     if len(sys.argv) == 2:

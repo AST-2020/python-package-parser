@@ -4,6 +4,7 @@ import ast
 
 from user_code.model._variables import Variables
 from user_code.model._imports import Imports
+from user_code.parser import FunctionVisitor
 from user_code.parser._function_parser import FunctionVisitor
 
 
@@ -23,9 +24,9 @@ class UserCodeCase(unittest.TestCase):
 
         fv = FunctionVisitor({})
 
-        self.assertEqual(fv.get_name(node1), ('prefix', 'name'))
-        self.assertEqual(fv.get_name(node2), ('', 'name'))
-        self.assertEqual(fv.get_name(node3), ('pre1.pre2', 'name'))
+        self.assertEqual(fv._get_name(node1), ('prefix', 'name'))
+        self.assertEqual(fv._get_name(node2), ('', 'name'))
+        self.assertEqual(fv._get_name(node3), ('pre1.pre2', 'name'))
 
     def test_get_path(self):
         # get souce structure depending on torch or sklearn selected
@@ -92,5 +93,5 @@ class UserCodeCase(unittest.TestCase):
 
         fv = FunctionVisitor({})
 
-        self.assertListEqual(fv.get_keywords(node1), ['a', 'b'])
-        self.assertListEqual(fv.get_keywords(node2), [])
+        self.assertListEqual(FunctionVisitor._get_keyword_arg_names(fv), ['a', 'b'])
+        self.assertListEqual(FunctionVisitor._get_keyword_arg_names(fv), [])

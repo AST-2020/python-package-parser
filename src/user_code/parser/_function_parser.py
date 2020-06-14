@@ -1,10 +1,34 @@
 import ast
-from typing import Any
+from typing import Any, Optional, List
 
 from analysis.check_arg_names import check_arg_names
 from analysis.check_arg_number import check_arg_number
-from library.model import Package
-from user_code.model import Imports, Variables, Location
+from analysis.message import MessageManager
+from library.model import Package, Function
+from user_code.model import FunctionCall, Imports, Variables, Location
+from user_code.parser._import_parser import ImportVisitor
+from user_code.parser._variable_parser import VariableVisitor
+
+
+def parse_function_calls(file_to_analyze: str, package: Package) -> List[FunctionCall]:
+    with open(file_to_analyze, mode='r') as f:
+        contents = f.read()
+        tree = ast.parse(contents)
+
+    # get imports
+    imp = ImportVisitor(package.get_name(), package)
+    imp.visit(tree)
+    imps = imp.get_imports()
+
+    # get vars
+    var = VariableVisitor(imps)
+    var.visit(tree)
+    vars = var.get_vars()
+
+    fp = FunctionVisitor(file_to_analyze, package, imps, vars)
+    fp.visit(tree)
+
+    return fp.calls
 
 
 class FunctionVisitor(ast.NodeVisitor):
@@ -20,72 +44,60 @@ class FunctionVisitor(ast.NodeVisitor):
         self.vars: Variables = variables
         self.package = package
         self.file = file
+        self.calls = []
+        self.message_manager = MessageManager()
 
-    # collect relevant information about call of function or method
     def visit_Call(self, node: ast.Call) -> Any:
         # note that name contains class obj name as well if method
-        receiver, name = self.get_name(node)
-        line = node.lineno
-        location = Location.create_location(self.file, node)
-        keywords = self.get_keywords(node)
-        args = self.get_args(node)
-        cls, package = self.get_package(receiver, name, line)
+        receiver, name = self._get_name(node)
+        cls, package = self._get_package(receiver, name, node.lineno)
+
+        call = self._create_function_call(node)
+
+        self.calls.append(call)
+
         if cls == '':
             cls = None
 
         if (package is not None) and (package != ""):
             # compare names of named args
-            check_arg_names(self.package, location, package, keywords, name, cls)
+            check_arg_names(self.message_manager, call, self.package, package, name, cls)
             # compare arg count
-            check_arg_number(self.package, location, package, keywords, args, name, cls)
-        """
-        # if function
-        package = self.imports.get_package_from_asname(prefix, line)
-        if package is not None:
-            if name in package.split('.'):
-                package = '.'.join(package.split('.')[:-1])
-            if package in self.package_dict['function']:
-                self.comp.compare(self.package_dict, package, name, keywords, line)
+            check_arg_number(self.message_manager, call, self.package, package, name, cls)
 
-        # if method
-        cls = self.vars.get_var_type(prefix, line)
-        if cls is not None:
-            package = self.imports.get_package_from_asname(cls, line)
-            if name in package.split('.'):
-                package = '.'.join(package.split('.')[:-1])
-            if cls in package.split('.'):
-                package = '.'.join(package.split('.')[:-1])
-            if (package is not None) and (package in self.package_dict['method']):
-                self.comp.compare(self.package_dict, package, name, keywords, line, cls)
-        
-        # path, sub, type = self.expand_prefix(prefix, line, name)
-        keywords = self.get_keywords(node)
+    def _create_function_call(self, node: ast.Call) -> FunctionCall:
+        return FunctionCall(
+            self._get_callee(node),
+            self._get_number_of_positional_args(node),
+            self._get_keyword_arg_names(node),
+            Location.create_location(self.file, node)
+        )
 
-        # hand information over to analyses
-        if (type is 'function') or (type is 'method'):
-            # print(line, name, path, sub, type, keywords)
-            if sub is not None:
-                print(sub, name, (name in self.package_dict[type][path][sub])) #':', self.package_dict[type][path][sub])
-            else:
-                print(name, ':', self.package_dict[type][path][name])
-            # self.comp.compare(self.package_dict, path, name, keywords, line, sub)
-        """
+    def _get_callee(self, node: ast.Call) -> List[Function]:
+        pass
 
-    # find the package and class if method, the function is defined at
-    def get_package(self, prefix, name, line):
+    @staticmethod
+    def _get_number_of_positional_args(node: ast.Call) -> int:
+        return len(node.args)
+
+    @staticmethod
+    def _get_keyword_arg_names(node: ast.Call) -> List[str]:
+        return [keyword.arg for keyword in node.keywords]
+
+    def _get_package(self, prefix, name, line):
         if prefix is None:
             if self.imports.get_package_from_asname(name, line) is not None:
-                return '', self.get_function_package('', name, line)
+                return '', self._get_function_package('', name, line)
 
         else:
             if self.imports.get_package_from_asname(prefix, line) is not None:
-                return '', self.get_function_package(prefix, name, line)
+                return '', self._get_function_package(prefix, name, line)
             cls = self.vars.get_var_type(prefix, line)
             if cls is not None:
-                return cls, self.get_method_package(cls, name, line)
+                return cls, self._get_method_package(cls, name, line)
         return '', ''
 
-    def get_function_package(self, prefix, name, line):
+    def _get_function_package(self, prefix, name, line):
         if prefix == '':
             package = self.imports.get_package_from_asname(name, line).split('.')
             if name == package[-1]:
@@ -95,7 +107,7 @@ class FunctionVisitor(ast.NodeVisitor):
         else:
             return self.imports.get_package_from_asname(prefix, line)
 
-    def get_method_package(self, cls, name, line):
+    def _get_method_package(self, cls, name, line):
         if cls != '':
             cls = cls.split('.')
             package = self.imports.get_package_from_asname(cls[0], line).split('.')
@@ -106,119 +118,20 @@ class FunctionVisitor(ast.NodeVisitor):
             return package
         return ''
 
-    # helper function for get_name to get the full name with all prefixes
-    def visit_Attribute(self, node: ast.Attribute):
-        attrs = []
-        if type(node.value) is ast.Name:
-            attrs.append(node.value.id)
-        if type(node.value) is ast.Attribute:
-            attrs = self.visit(node.value)
-        if node.attr:
-            attrs.append(node.attr)
-        return attrs
+    def _get_name(self, node: ast.Call) -> (Optional[str], str):
+        function_path = self._function_path(node.func)
 
-    # get the function name and prefix
-    def get_name(self, node):
-        name = None
-        receiver = None
-        if type(node.func) == ast.Name:
-            if isinstance(node.func.id, str):
-                name = node.func.id
-                return receiver, name
-        if type(node.func) == ast.Attribute:
-            list = self.visit(node.func)
-            if len(list) > 1:
-                receiver = '.'.join(list[:-1])
-                name = list[-1]
-                return receiver, name
-            else:
-                name = list[0]
-                return receiver, name
-        return receiver, name
+        if len(function_path) > 1:
+            return '.'.join(function_path[:-1]), function_path[-1]
+        else:
+            return None, function_path[0]
 
-    """
-    def get_path(self, prefix, fkt, type, cls=''):
-        if type == 'function':
-            for module in self.package_dict['function']:
-                # if prefix is partial path
-                if prefix in module:
-                    if fkt in self.package_dict['function'][module]:
-                        return module
-
-            # if prefix contains whole path till function
-            list = prefix.split('.')
-            for i in range(len(list)-1):
-                pre = '.'.join(list[:(-i)])
-                if pre in self.package_dict['function'].keys():
-                    return pre
-
-        if type == 'method':
-            for module in self.package_dict['method']:
-                if cls in self.package_dict['method'][module]:
-                    return module
-        return None
-
-    # further expand the functions prefix, to get path in package, and wheter it's a function or method
-    # returns path: the path inside the package, cls: class name if its a method, name: the function name
-    def expand_prefix(self, prefix, line, name):
-        path = None
-        type = None
-        if prefix is not None:
-            # if function with prefix
-            if prefix in self.imports.named:
-                path = self.imports.get_package_from_asname(prefix, line)
-                path = self.get_path(path, name, 'function')
-                if path is not None:
-                    return path, None, 'function'
-
-            # if Constructor with prefix
-            if prefix in self.imports.named:
-                path = self.imports.get_package_from_asname(prefix, line)
-                path = self.get_path(path, '__init__', 'method', name)
-                if path is not None:
-                    return path, name, 'method'
-
-            # if method with class object as prefix
-            cls = self.vars.get_var_type(prefix, line)
-            if cls is not None:
-                list = cls.split('.')
-                # if class type contains prefix
-                if len(list) == 2:
-                    path = self.imports.get_package_from_asname(list[0], line)
-                    cls = list[-1]
-                    if path is not None:
-                        path = self.get_path(path, name, 'method', cls)
-                        return path, cls, 'method'
-                # if class type contains no prefix
-                else:
-                    # search for path
-                    path = self.imports.get_package_from_content(cls, line)
-                    if path is not None:
-                        path = self.get_path(path, name, 'method', cls)
-                        return path, cls, 'method'
-
-        if name is not None:
-            # if Constructor without prefix
-            path = self.get_path(prefix, name, 'method', name)
-            if path is not None:
-                return path, name, 'method'
-
-        return None, None, type
-    """
-
-    @staticmethod
-    # get keywords/ named argument names of the function
-    def get_keywords(node):
-        return [keyword.arg for keyword in node.keywords]
-
-    @staticmethod
-    # get unnamed arguments of the function
-    def get_args(node):
-        # print(ast.dump(node))
-        args = []
-        for arg in node.args:
-            if type(arg) == ast.Str:
-                args.append(arg.s)
-            else:
-                args.append(arg.id)
-        return args
+    def _function_path(self, node: ast.AST) -> List[str]:
+        if isinstance(node, ast.Name):
+            return [node.id]
+        elif isinstance(node, ast.Attribute):
+            result = self._function_path(node.value)
+            result.append(node.attr)
+            return result
+        else:
+            raise ValueError(f"Cannot handle node type {type(node)}.")

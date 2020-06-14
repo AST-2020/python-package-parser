@@ -27,7 +27,6 @@ class ImportVisitor(ast.NodeVisitor):
     # module is the module name to check for
     # source is the structure in which the modules infos about submodules,.. are stores
     def __init__(self, module, source):
-        ast.NodeVisitor.__init__(self)
         self.module = module
         self.imports = Imports()
         self.source = source

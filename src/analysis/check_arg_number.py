@@ -3,32 +3,27 @@ from typing import List
 from analysis._utils import get_parameters, function_not_found_error, qualified_name
 from analysis.message import MessageManager, Message
 from library.model import Package, Parameter
-from user_code.model import Location
+from user_code.model import Location, FunctionCall
 
 
-def check_arg_number(package: Package, location: Location, module_path: str, keyword_arguments: List[str],
-                     arg_values: List, func_name: str, receiver_class_name: str):
-    message_manager = MessageManager()
-
+def check_arg_number(message_manager: MessageManager, call: FunctionCall, package: Package, module_path: str,
+                     func_name: str, receiver_class_name: str):
     parameters = get_parameters(package, module_path, func_name, receiver_class_name)
     if parameters is None:
-        message_manager.add_message(function_not_found_error(func_name, location))
-        message_manager.print_messages()
+        message_manager.add_message(function_not_found_error(func_name, call.location))
         return
 
     # Actual comparison
-    given_args = _given_number_of_arguments(arg_values, keyword_arguments)
+    given_args = _given_number_of_arguments(call)
     min_expected_args, max_expected_args = _expected_number_of_arguments(parameters)
     if not min_expected_args <= given_args <= max_expected_args:
-        new_error = _wrong_number_of_arguments_error(location, module_path, func_name, min_expected_args,
+        new_error = _wrong_number_of_arguments_error(call.location, module_path, func_name, min_expected_args,
                                                      max_expected_args, given_args)
         message_manager.add_message(new_error)
 
-    message_manager.print_messages()
 
-
-def _given_number_of_arguments(arg_values: List, keyword_arguments: List):
-    return len(arg_values) + len(keyword_arguments)
+def _given_number_of_arguments(call: FunctionCall):
+    return call.number_of_positional_args + len(call.keyword_arg_names)
 
 
 def _expected_number_of_arguments(parameters: List[Parameter]) -> (int, int):
@@ -51,5 +46,5 @@ def _wrong_number_of_arguments_error(location: Location, module_path: str, func_
 
     return Message(
         location,
-        f"{qualified_name(module_path, func_name)} expects {expected} arguments but got {given_args}."
+        f"Function '{qualified_name(module_path, func_name)}' expects {expected} arguments but got {given_args}."
     )
