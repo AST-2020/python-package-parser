@@ -1,3 +1,11 @@
+from __future__ import annotations  # https://www.python.org/dev/peps/pep-0563/
+
+from dataclasses import dataclass
+from typing import Dict, Optional
+
+from user_code.model._location import Location
+
+
 class Imports:
     """
     Imports class stores all used imports. in named imports later called by a name prefix are stored,
@@ -5,35 +13,23 @@ class Imports:
     """
 
     def __init__(self):
-        self.named = {}
-        self.unknown = {}
+        self.imports: Dict[str, Import] = {}
 
-    # add a import with alias/ asname and the package path to named
-    def add_import(self, name, package, line):
-        self.named[name] = (package, line)
+    def add_import(self, imp: Import):
+        self.imports[imp.alias] = imp
 
-    # add a import without alias/ asname and the package path to unknown
-    def add_unnamed_import(self, package, line):
-        self.unknown[package] = ([], line)
-
-    # fill valid contents to unknown for a package
-    def set_package_content(self, package, contents):
-        self.unknown[package] = (contents, self.unknown[package][1])
-
-    def get_package_from_asname(self, asname, line):
-        if asname in self.named:
-            if line >= self.named[asname][1]:
-                return self.named[asname][0]
+    def resolve_alias(self, alias: str, line: int) -> Optional[str]:
+        if self._is_imported_already(alias, line):
+            return self.imports[alias].full_name
         else:
             return None
 
-    """
-    # get package for a content item without prefix from unknown
-    def get_package_from_content(self, caller, line):
-        for package in self.unknown:
-            if line >= self.unknown[package][1]:
-                for content in self.unknown[package][0]:
-                    if caller == content:
-                        return package
-        return None
-    """
+    def _is_imported_already(self, alias: str, line: int) -> bool:
+        return alias in self.imports and line >= self.imports[alias].location.line
+
+
+@dataclass
+class Import:
+    alias: str
+    full_name: str
+    location: Location

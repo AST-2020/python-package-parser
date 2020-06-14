@@ -2,6 +2,7 @@ import json
 import ast
 import unittest
 
+from user_code.model import Imports
 from user_code.parser._import_parser import ImportVisitor
 
 
@@ -34,38 +35,36 @@ class ImportParserTestCase(unittest.TestCase):
 
         tree = ast.parse(test_code1)
         imp.visit(tree)
-        self.assertIn('torch', imp.get_imports().named)
-        self.assertIn('torch', imp.get_imports().named['torch'])
-        imp.del_imports()
+        self.assertIn('torch', imp.imports.imports)
+        self.assertIn('torch', imp.imports.imports['torch'])
+        imp.imports = Imports()
 
         tree = ast.parse(test_code2)
         imp.visit(tree)
-        self.assertIn('t', imp.get_imports().named)
-        self.assertIn('torch', imp.get_imports().named['t'])
-        imp.del_imports()
+        self.assertIn('t', imp.imports.imports)
+        self.assertIn('torch', imp.imports.imports['t'])
+        imp.imports = Imports()
 
         tree = ast.parse(test_code3)
         imp.visit(tree)
-        self.assertIn('t', imp.get_imports().named)
-        self.assertIn('torch', imp.get_imports().named['t'])
-        self.assertNotIn('np', imp.get_imports().named)
-        self.assertNotIn('numpy', imp.get_imports().named)
-        imp.del_imports()
+        self.assertIn('t', imp.imports.imports)
+        self.assertIn('torch', imp.imports.imports['t'])
+        self.assertNotIn('np', imp.imports.imports)
+        self.assertNotIn('numpy', imp.imports.imports)
+        imp.imports = Imports()
 
         tree = ast.parse(test_code4)
         imp.visit(tree)
-        self.assertIn('nn', imp.get_imports().named)
-        self.assertIn('torch.nn', imp.get_imports().named['nn'])
-        imp.del_imports()
+        self.assertIn('nn', imp.imports.imports)
+        self.assertIn('torch.nn', imp.imports.imports['nn'])
+        imp.imports = Imports()
 
         tree = ast.parse(test_code5)
         imp.visit(tree)
-        self.assertIn('nn', imp.get_imports().named)
-        self.assertIn('torch.nn', imp.get_imports().named['nn'])
+        self.assertIn('nn', imp.imports.imports)
+        self.assertIn('torch.nn', imp.imports.imports['nn'])
 
     def test_visit_ImportFrom(self):
-        test_code1 = 'from torch import *'
-        test_code2 = 'from numpy import *'
         test_code3 = 'from torch import randn, Tensor'
         test_code4 = 'from math import sin'
         test_code5 = 'from torch.nn import x'
@@ -77,32 +76,22 @@ class ImportParserTestCase(unittest.TestCase):
 
         imp = ImportVisitor('torch', source)
 
-        tree = ast.parse(test_code1)
-        imp.visit(tree)
-        self.assertIn('torch', imp.get_imports().unknown)
-        imp.del_imports()
-
-        tree = ast.parse(test_code2)
-        imp.visit(tree)
-        self.assertNotIn('numpy', imp.get_imports().unknown)
-        imp.del_imports()
-
         tree = ast.parse(test_code3)
         imp.visit(tree)
-        self.assertIn('randn', imp.get_imports().named)
-        self.assertIn('torch.randn', imp.get_imports().named['randn'])
-        self.assertIn('Tensor', imp.get_imports().named)
-        self.assertIn('torch.Tensor', imp.get_imports().named['Tensor'])
-        imp.del_imports()
+        self.assertIn('randn', imp.imports.imports)
+        self.assertIn('torch.randn', imp.imports.imports['randn'])
+        self.assertIn('Tensor', imp.imports.imports)
+        self.assertIn('torch.Tensor', imp.imports.imports['Tensor'])
+        imp.imports = Imports()
 
         tree = ast.parse(test_code4)
         imp.visit(tree)
-        self.assertNotIn('math', imp.get_imports().named)
-        self.assertNotIn('sin', imp.get_imports().named)
-        imp.del_imports()
+        self.assertNotIn('math', imp.imports.imports)
+        self.assertNotIn('sin', imp.imports.imports)
+        imp.imports = Imports()
 
         tree = ast.parse(test_code5)
         imp.visit(tree)
-        self.assertIn('x', imp.get_imports().named)
-        self.assertIn('torch.nn.x', imp.get_imports().named['x'])
-        imp.del_imports()
+        self.assertIn('x', imp.imports.imports)
+        self.assertIn('torch.nn.x', imp.imports.imports['x'])
+        imp.imports = Imports()

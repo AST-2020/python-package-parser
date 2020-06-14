@@ -15,7 +15,7 @@ def parse_function_calls(file_to_analyze: str, package: Package) -> List[Functio
     # get imports
     import_visitor = ImportVisitor(file_to_analyze, package)
     import_visitor.visit(tree)
-    imports = import_visitor.get_imports()
+    imports = import_visitor.imports
 
     # get vars
     var_visitor = VariableVisitor(imports)
@@ -68,11 +68,11 @@ class FunctionVisitor(ast.NodeVisitor):
 
     def _get_package(self, prefix, name: str, line: int):
         if prefix is None:
-            if self.imports.get_package_from_asname(name, line) is not None:
+            if self.imports.resolve_alias(name, line) is not None:
                 return None, self._get_function_package('', name, line)
 
         else:
-            if self.imports.get_package_from_asname(prefix, line) is not None:
+            if self.imports.resolve_alias(prefix, line) is not None:
                 return None, self._get_function_package(prefix, name, line)
             cls = self.vars.get_var_type(prefix, line)
             if cls is not None:
@@ -81,18 +81,18 @@ class FunctionVisitor(ast.NodeVisitor):
 
     def _get_function_package(self, prefix: str, name: str, line: int) -> str:
         if prefix == '':
-            package = self.imports.get_package_from_asname(name, line).split('.')
+            package = self.imports.resolve_alias(name, line).split('.')
             if name == package[-1]:
                 package = package[:-1]
             package = '.'.join(package)
             return package
         else:
-            return self.imports.get_package_from_asname(prefix, line)
+            return self.imports.resolve_alias(prefix, line)
 
     def _get_method_package(self, cls: str, line: int) -> str:
         if cls != '':
             cls = cls.split('.')
-            package = self.imports.get_package_from_asname(cls[0], line).split('.')
+            package = self.imports.resolve_alias(cls[0], line).split('.')
             cls = '.'.join(cls)
             if cls == package[-1]:
                 package = package[:-1]

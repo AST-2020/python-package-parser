@@ -27,7 +27,7 @@ class VariableVisitor(ast.NodeVisitor):
             # get type and the import path
             type = node.annotation.value.id
 
-            for key in self.imports.named:
+            for key in self.imports.imports:
                 if type == key:
                     type += '.' + node.annotation.attr
                     self.vars.add_usage(var=name, type=type, line=line)
@@ -35,7 +35,7 @@ class VariableVisitor(ast.NodeVisitor):
         else:
             # if the constructor is the prefix
             type = node.annotation.id
-            for key in self.imports.named:
+            for key in self.imports.imports:
                 if type == key:
                     self.vars.add_usage(var=name, type=type, line=line)
 

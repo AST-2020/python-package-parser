@@ -23,10 +23,8 @@ class VariablesCase(unittest.TestCase):
 
         # get imports
         imp = Imports()
-        imp.add_import(name='x', package='xx', line=0)
-        imp.add_import(name='cls2', package='xx.cls2', line=0)
-        imp.add_unnamed_import(package='z', line=0)
-        imp.set_package_content('z', ['cls3'])
+        imp.add_import(alias='x', full_name='xx', line=0)
+        imp.add_import(alias='cls2', full_name='xx.cls2', line=0)
 
         # parse with var_parser
         vv = VariableVisitor(imp)

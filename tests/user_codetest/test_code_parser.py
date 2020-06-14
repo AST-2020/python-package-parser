@@ -58,13 +58,13 @@ class UserCodeCase(unittest.TestCase):
 
         # if is function
         imp = Imports()
-        imp.add_import(name='t', package='torch', line=0)
+        imp.add_import(alias='t', full_name='torch', line=0)
         fv2 = FunctionVisitor(source, imp)
         self.assertEqual(('torch.onnx.symbolic_opset9', '', 'function'), fv2.expand_prefix('t', 1, 'randn'))
 
         # if is method
         imp = Imports()
-        imp.add_import(name='torch', package='torch', line=0)
+        imp.add_import(alias='torch', full_name='torch', line=0)
         vars = Variables()
         vars.add_usage('tensor', 1, 'torch.Tensor')
         fv3 = FunctionVisitor(source, imp, vars)
@@ -72,15 +72,9 @@ class UserCodeCase(unittest.TestCase):
 
         # if is Constructor with alias
         imp = Imports()
-        imp.add_import(name='torch', package='torch', line=0)
+        imp.add_import(alias='torch', full_name='torch', line=0)
         fv4 = FunctionVisitor(source, imp)
         self.assertEqual(('torch.tensor', 'Tensor', 'method'), fv4.expand_prefix('torch', 1, 'Tensor'))
-
-        # if Constructor without alias
-        imp = Imports()
-        imp.add_unnamed_import(package='torch', line=0)
-        fv4 = FunctionVisitor(source, imp)
-        self.assertEqual(('torch.tensor', 'Tensor', 'method'), fv4.expand_prefix('', 2, 'Tensor'))
 
     def test_get_keywords(self):
         text1 = "func(a=1, b=2)"

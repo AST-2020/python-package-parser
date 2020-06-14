@@ -2,6 +2,7 @@ import ast
 
 from library.model import Package
 from user_code.model import Imports, Location
+from user_code.model._imports import Import
 
 
 class ImportVisitor(ast.NodeVisitor):
@@ -28,12 +29,6 @@ class ImportVisitor(ast.NodeVisitor):
         self.package = package
         self.imports = Imports()
 
-    def get_imports(self):
-        return self.imports
-
-    def del_imports(self):
-        self.imports = Imports()
-
     def visit_Import(self, node: ast.Import):
         location = Location.create_location(self.file_to_analyze, node)
 
@@ -41,7 +36,7 @@ class ImportVisitor(ast.NodeVisitor):
             if self._should_consider_import(imported.name):
                 alias = imported.asname if imported.asname is None else imported.name.split('.')[-1]
                 full_name = imported.name
-                self.imports.add_import(alias, full_name, location.line)
+                self.imports.add_import(Import(alias, full_name, location))
 
     def visit_ImportFrom(self, node: ast.ImportFrom):
         location = Location.create_location(self.file_to_analyze, node)
@@ -56,7 +51,7 @@ class ImportVisitor(ast.NodeVisitor):
                 else:
                     alias = imported.asname if imported.asname is not None else imported.name
                     full_name = node.module + '.' + imported.name
-                    self.imports.add_import(alias, full_name, location.line)
+                    self.imports.add_import(Import(alias, full_name, location))
 
     def _should_consider_import(self, module: str) -> bool:
         return self.package.get_name() in module.split('.')
