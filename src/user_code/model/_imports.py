@@ -9,8 +9,8 @@ class Imports:
         self.unknown = {}
 
     # add a import with alias/ asname and the package path to named
-    def add_named_import(self, package, line, asname):
-        self.named[asname] = (package, line)
+    def add_import(self, name, package, line):
+        self.named[name] = (package, line)
 
     # add a import without alias/ asname and the package path to unknown
     def add_unnamed_import(self, package, line):

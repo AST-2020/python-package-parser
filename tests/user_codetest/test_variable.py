@@ -23,8 +23,8 @@ class VariablesCase(unittest.TestCase):
 
         # get imports
         imp = Imports()
-        imp.add_named_import(package='xx', asname='x', line=0)
-        imp.add_named_import(package='xx.cls2', asname='cls2', line=0)
+        imp.add_import(name='x', package='xx', line=0)
+        imp.add_import(name='cls2', package='xx.cls2', line=0)
         imp.add_unnamed_import(package='z', line=0)
         imp.set_package_content('z', ['cls3'])
 

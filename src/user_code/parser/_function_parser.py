@@ -13,16 +13,16 @@ def parse_function_calls(file_to_analyze: str, package: Package) -> List[Functio
         tree = ast.parse(contents)
 
     # get imports
-    imp = ImportVisitor(package.get_name(), package)
-    imp.visit(tree)
-    imps = imp.get_imports()
+    import_visitor = ImportVisitor(file_to_analyze, package)
+    import_visitor.visit(tree)
+    imports = import_visitor.get_imports()
 
     # get vars
-    var = VariableVisitor(imps)
-    var.visit(tree)
-    vars = var.get_vars()
+    var_visitor = VariableVisitor(imports)
+    var_visitor.visit(tree)
+    variables = var_visitor.get_vars()
 
-    fp = FunctionVisitor(file_to_analyze, package, imps, vars)
+    fp = FunctionVisitor(file_to_analyze, package, imports, variables)
     fp.visit(tree)
 
     return fp.calls
@@ -45,13 +45,8 @@ class FunctionVisitor(ast.NodeVisitor):
 
     def visit_Call(self, node: ast.Call) -> Any:
         _, func_name = self._get_name(node)
-        call = FunctionCall(
-            func_name,
-            self._get_number_of_positional_args(node),
-            self._get_keyword_arg_names(node),
-            Location.create_location(self.file, node),
-            self._get_callee(node)
-        )
+        call = FunctionCall(func_name, self._get_number_of_positional_args(node), self._get_keyword_arg_names(node),
+                            self._get_callee(node), Location.create_location(self.file, node))
         self.calls.append(call)
 
     def _get_callee(self, node: ast.Call) -> List[Function]:
@@ -121,7 +116,7 @@ class FunctionVisitor(ast.NodeVisitor):
             result.append(node.attr)
             return result
         else:
-            raise ValueError(f"Cannot handle node type {type(node)}.")
+            raise TypeError(f"Cannot handle node type {type(node)}.")
 
 
 def get_matching_overloads(package: Package, module_path: str, func_name: str,

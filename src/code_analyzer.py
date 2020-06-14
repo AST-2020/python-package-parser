@@ -1,11 +1,9 @@
-import ast
 import sys
 
 from analysis import check_function_exists, check_arg_names, check_arg_number
 from analysis.message import MessageManager
 from library.model import Package
 from library.parser import parse_package
-from user_code.parser import FunctionVisitor, ImportVisitor, VariableVisitor
 from user_code.parser._function_parser import parse_function_calls
 
 

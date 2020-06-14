@@ -1,7 +1,7 @@
 import ast
-from typing import Any
 
-from user_code.model import Imports
+from library.model import Package
+from user_code.model import Imports, Location
 
 
 class ImportVisitor(ast.NodeVisitor):
@@ -18,64 +18,53 @@ class ImportVisitor(ast.NodeVisitor):
     from X import Y
     from X import Y, Z, ...
     from X import Y as A
-    from X import *
 
     missing so far
     import X.*
     """
 
-    # module is the module name to check for
-    # source is the structure in which the modules infos about submodules,.. are stores
-    def __init__(self, module, source):
-        self.module = module
+    def __init__(self, file_to_analyze: str, package: Package):
+        self.file_to_analyze = file_to_analyze
+        self.package = package
         self.imports = Imports()
-        self.source = source
 
-    # return found imports
     def get_imports(self):
         return self.imports
 
-    # reset imports
     def del_imports(self):
         self.imports = Imports()
 
-    # watches all import ... statements and extracts info
-    def visit_Import(self, node: ast.Import) -> Any:
-        line = node.lineno
-        for alias in node.names:
-            package = alias.name
-            # check if asname is used or not
-            if alias.asname is None:
-                # if asname is not used take latest name part as asname
-                asname = alias.name.split('.')[-1]
-            else:
-                asname = alias.asname
-            # load in imports
-            if self.module in package:
-                self.imports.add_named_import(asname=asname, package=package, line=line)
+    def visit_Import(self, node: ast.Import):
+        location = Location.create_location(self.file_to_analyze, node)
 
-    # watches all from ... import ... statements and extracts info
-    def visit_ImportFrom(self, node: ast.ImportFrom) -> Any:
-        line = node.lineno
-        for alias in node.names:
-            if self.module in node.module.split('.'):
-                # if there is no asname
-                if alias.asname is None:
-                    # if a star import is used store info in imports.unknown
-                    if alias.name == '*':
-                        package = node.module
-                        self.imports.add_unnamed_import(package=package, line=line)
-                        cont = self.source['package__all__list'][package]
-                        self.imports.set_package_content(package=package, contents=cont)
+        for imported in node.names:
+            if self._should_consider_import(imported.name):
+                alias = imported.asname if imported.asname is None else imported.name.split('.')[-1]
+                full_name = imported.name
+                self.imports.add_import(alias, full_name, location.line)
 
-                    # else generate the asname from name and store in imports.named
-                    else:
-                        asname = alias.name
-                        package = node.module + '.' + alias.name
-                        self.imports.add_named_import(asname=asname, package=package, line=line)
+    def visit_ImportFrom(self, node: ast.ImportFrom):
+        location = Location.create_location(self.file_to_analyze, node)
 
-                # if asname is given in import store in imports.named
+        if self._is_relative_import(node):
+            raise ValueError(f"{location}: Unable to handle relative imports, use absolute imports instead.")
+
+        if self._should_consider_import(node.module):
+            for imported in node.names:
+                if self._is_star_import(imported):
+                    raise ValueError(f"{location}: Unable to handle * imports, use explicit imports instead.")
                 else:
-                    asname = alias.asname
-                    package = node.module + '.' + alias.name
-                    self.imports.add_named_import(asname=asname, package=package, line=line)
+                    alias = imported.asname if imported.asname is not None else imported.name
+                    full_name = node.module + '.' + imported.name
+                    self.imports.add_import(alias, full_name, location.line)
+
+    def _should_consider_import(self, module: str) -> bool:
+        return self.package.get_name() in module.split('.')
+
+    @staticmethod
+    def _is_relative_import(node: ast.ImportFrom) -> bool:
+        return node.level > 0
+
+    @staticmethod
+    def _is_star_import(imported_name: ast.alias) -> bool:
+        return imported_name.name == '*'
