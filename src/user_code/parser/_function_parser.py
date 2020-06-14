@@ -1,10 +1,10 @@
 import ast
 from typing import Any
 
-from analysis.compare_argument_names import compare_arg_names
-from analysis.compare_argument_number import compare_arg_amount
+from analysis.check_arg_names import check_arg_names
+from analysis.check_arg_number import check_arg_number
 from library.model import Package
-from user_code.model import Imports, Variables
+from user_code.model import Imports, Variables, Location
 
 
 class FunctionVisitor(ast.NodeVisitor):
@@ -24,19 +24,20 @@ class FunctionVisitor(ast.NodeVisitor):
     # collect relevant information about call of function or method
     def visit_Call(self, node: ast.Call) -> Any:
         # note that name contains class obj name as well if method
-        prefix, name = self.get_name(node)
+        receiver, name = self.get_name(node)
         line = node.lineno
+        location = Location.create_location(self.file, node)
         keywords = self.get_keywords(node)
         args = self.get_args(node)
-        cls, package = self.get_package(prefix, name, line)
+        cls, package = self.get_package(receiver, name, line)
         if cls == '':
             cls = None
 
         if (package is not None) and (package != ""):
             # compare names of named args
-            compare_arg_names(self.package, self.file, line, package, keywords, name, cls)
+            check_arg_names(self.package, location, package, keywords, name, cls)
             # compare arg count
-            compare_arg_amount(self.package, self.file, line, package, keywords, args, name, cls)
+            check_arg_number(self.package, location, package, keywords, args, name, cls)
         """
         # if function
         package = self.imports.get_package_from_asname(prefix, line)
@@ -119,21 +120,21 @@ class FunctionVisitor(ast.NodeVisitor):
     # get the function name and prefix
     def get_name(self, node):
         name = None
-        prefix = None
+        receiver = None
         if type(node.func) == ast.Name:
             if isinstance(node.func.id, str):
                 name = node.func.id
-                return prefix, name
+                return receiver, name
         if type(node.func) == ast.Attribute:
             list = self.visit(node.func)
             if len(list) > 1:
-                prefix = '.'.join(list[:-1])
+                receiver = '.'.join(list[:-1])
                 name = list[-1]
-                return prefix, name
+                return receiver, name
             else:
                 name = list[0]
-                return prefix, name
-        return prefix, name
+                return receiver, name
+        return receiver, name
 
     """
     def get_path(self, prefix, fkt, type, cls=''):
@@ -208,18 +209,14 @@ class FunctionVisitor(ast.NodeVisitor):
     @staticmethod
     # get keywords/ named argument names of the function
     def get_keywords(node):
-        list = []
-        for keyword in node.keywords:
-            list.append(keyword.arg)
-        return list
+        return [keyword.arg for keyword in node.keywords]
 
     @staticmethod
     # get unnamed arguments of the function
     def get_args(node):
         # print(ast.dump(node))
         args = []
-        raw_args = node.args
-        for arg in raw_args:
+        for arg in node.args:
             if type(arg) == ast.Str:
                 args.append(arg.s)
             else:

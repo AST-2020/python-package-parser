@@ -6,14 +6,12 @@ from user_code.model import Imports, Variables
 
 class VariableVisitor(ast.NodeVisitor):
     """
-    A class to save variable declarations in an UsedVariable object
-    it gets name, prefix and the line it is defined in
+    A class to save variable declarations in an UsedVariable object it gets name, prefix and the line it is defined in
     and saves it in the object if it is included with the imports stored in imports
     Therefore variables which belong to the library, but are not imported correctly are ignored and not added!
     """
 
     def __init__(self, imports):
-        ast.NodeVisitor.__init__(self)
         self.vars: Variables = Variables()
         self.imports: Imports = imports
 

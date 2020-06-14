@@ -2,6 +2,7 @@ from typing import Optional, List
 
 from analysis.message import Message
 from library.model import Package, Parameter, Function
+from user_code.model import Location
 
 
 def get_parameters(package: Package, module_path: str, func_name: str, cls_name: str) -> Optional[List[Parameter]]:
@@ -22,8 +23,8 @@ def get_matching_overloads(package: Package, module_path: str, func_name: str,
         return package.get_top_level_functions_with_name(module_path, func_name)
 
 
-def function_not_found_error(func_name: str, file: str, line: int) -> Message:
-    return Message(file, line, f"Function/method '{func_name}' was not found.")
+def function_not_found_error(func_name: str, location: Location) -> Message:
+    return Message(location, f"Function/method '{func_name}' was not found.")
 
 
 def qualified_name(import_path: str, func_name: str):
