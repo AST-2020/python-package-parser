@@ -33,10 +33,9 @@ class ImportVisitor(ast.NodeVisitor):
         location = Location.create_location(self.file_to_analyze, node)
 
         for imported in node.names:
-            if self._should_consider_import(imported.name):
-                alias = imported.asname if imported.asname is None else imported.name.split('.')[-1]
-                full_name = imported.name
-                self.imports.add_import(Import(alias, full_name, location))
+            alias = self._get_alias(imported)
+            full_name = imported.name
+            self.imports.add_import(Import(alias, full_name, location))
 
     def visit_ImportFrom(self, node: ast.ImportFrom):
         location = Location.create_location(self.file_to_analyze, node)
@@ -44,17 +43,17 @@ class ImportVisitor(ast.NodeVisitor):
         if self._is_relative_import(node):
             raise ValueError(f"{location}: Unable to handle relative imports, use absolute imports instead.")
 
-        if self._should_consider_import(node.module):
-            for imported in node.names:
-                if self._is_star_import(imported):
-                    raise ValueError(f"{location}: Unable to handle * imports, use explicit imports instead.")
-                else:
-                    alias = imported.asname if imported.asname is not None else imported.name
-                    full_name = node.module + '.' + imported.name
-                    self.imports.add_import(Import(alias, full_name, location))
+        for imported in node.names:
+            if self._is_star_import(imported):
+                raise ValueError(f"{location}: Unable to handle * imports, use explicit imports instead.")
+            else:
+                alias = self._get_alias(imported)
+                full_name = node.module + '.' + imported.name
+                self.imports.add_import(Import(alias, full_name, location))
 
-    def _should_consider_import(self, module: str) -> bool:
-        return True  # self.package.get_name() in module.split('.')
+    @staticmethod
+    def _get_alias(imported: ast.alias) -> str:
+        return imported.name if imported.asname is None else imported.asname
 
     @staticmethod
     def _is_relative_import(node: ast.ImportFrom) -> bool:
