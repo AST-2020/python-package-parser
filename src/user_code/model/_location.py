@@ -26,4 +26,4 @@ class Location:
 
     @staticmethod
     def create_location(file: str, node: Union[ast.stmt, ast.expr]) -> Location:
-        return Location(file, node.lineno, node.col_offset)
+        return Location(file, node.lineno, node.col_offset + 1)
