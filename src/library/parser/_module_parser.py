@@ -55,14 +55,45 @@ class _PythonFileVisitor(ast.NodeVisitor):
             function = Function(node.name, parameters)
             self.__current_class.add_method(function)
 
-    @staticmethod
-    def __create_parameter_list(node: ast.FunctionDef) -> List[Parameter]:
+    def find_inner_hint(self, subscriptable_object, hint_string=""):
+        hint_string += subscriptable_object.value.id + "["
+        if "elts" in subscriptable_object.slice.value.__dir__():
+            for hint in subscriptable_object.slice.value.elts:
+                if type(hint) is ast.Subscript:
+                    hint_string += self.find_inner_hint(hint) + ", "
+                else:
+                    hint_string += hint.id + ", "
+            hint_string = hint_string[:-2] + "]"
+        else:
+            hint_string += subscriptable_object.slice.value.id + "]"
+        return hint_string
+
+    def __create_parameter_list(self, node: ast.FunctionDef) -> List[Parameter]:
         param_name_and_hint = {}
         found_hint_in_definition = False
         for arg in node.args.args:
             if arg.annotation is not None and "id" in arg.annotation.__dir__():
                 found_hint_in_definition = True
                 param_name_and_hint[arg.arg] = arg.annotation.id
+
+            elif arg.annotation is not None:
+                print(self.find_inner_hint(arg.annotation))
+
+                # # Tuple[Tensor, Tensor], kwargs: Dict[str, Tensor]
+                # print(arg.annotation.value.id)
+                # # [Tensor, Tensor]:
+                # for hint in arg.annotation.slice.value.elts:
+                #   print(hint.id)
+
+
+            # torch.testing._internal.distributed.rpc.jit.rpc_test
+            # None
+            # rpc_async_call_remote_torchscript_in_torchscript
+            #
+            # torch.testing._internal.distributed.rpc.jit.rpc_test
+            # None
+            # rpc_async_call_remote_torchscript_in_torchscript
+
             else:
                 param_name_and_hint[arg.arg] = None
 

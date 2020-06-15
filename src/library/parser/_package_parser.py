@@ -112,3 +112,7 @@ def _get_python_interface_file(dirpath: str, filenames: List[str], python_file: 
     pyi_file = python_file.replace(".py", ".pyi")
     if pyi_file in filenames:
         return Path(dirpath, pyi_file).as_posix()
+
+
+if __name__ == '__main__':
+    parse_package("torch")
