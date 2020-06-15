@@ -8,6 +8,25 @@ from library.model import Package
 from library.parser._module_parser import parse_module
 
 
+def parse_packages(package_names: List[str]) -> Optional[Package]:
+    result = None
+
+    for package_name in package_names:
+        package = parse_package(package_name)
+        if package is None:
+            continue
+
+        if result is None:
+            result = package
+        else:
+            result = Package(
+                f"{result.get_name()}, {package.get_name()}",
+                result.get_all_modules() + package.get_all_modules()
+            )
+
+    return result
+
+
 def parse_package(package_name: str) -> Optional[Package]:
     if not _is_package_installed(package_name):
         return None

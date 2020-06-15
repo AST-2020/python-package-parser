@@ -54,7 +54,7 @@ class ImportVisitor(ast.NodeVisitor):
                     self.imports.add_import(Import(alias, full_name, location))
 
     def _should_consider_import(self, module: str) -> bool:
-        return self.package.get_name() in module.split('.')
+        return True  # self.package.get_name() in module.split('.')
 
     @staticmethod
     def _is_relative_import(node: ast.ImportFrom) -> bool:
