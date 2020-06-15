@@ -108,73 +108,46 @@ class FunctionVisitor(ast.NodeVisitor):
         return [keyword.arg for keyword in node.keywords]
 
     def _get_callee_candidates(self, node: ast.Call) -> List[Function]:
-        klass_name, module_name = self._get_package(node)
+        module_path, class_name, function_name = self.find_function(node)
 
-        if (module_name is not None) and (module_name != ""):
-            return self.get_matching_overloads(self.package, module_name, klass_name, self._get_function_name(node))
+        if module_path is None:
+            return []
+        elif FunctionVisitor._is_constructor_call(self.package, module_path, function_name):
+            class_name = function_name
+            return self.package.get_methods_with_name(module_path, class_name, "__init__")
+        elif FunctionVisitor._is_method_call(self.package, module_path, class_name, function_name):
+            return self.package.get_methods_with_name(module_path, class_name, function_name)
+        else:
+            return self.package.get_top_level_functions_with_name(module_path, function_name)
 
-        return []
-
-    def _get_package(self, node: ast.Call):
+    def find_function(self, node: ast.Call) -> (Optional[str], Optional[str], str):
+        function_name = self._get_function_name(node)
         line = node.lineno
-        name = self._get_function_name(node)
-        prefix = self._get_function_receiver(node)
 
-        if self._is_top_level_function_call(prefix, line):
-            pass
-
-        if prefix is None:
-            if self.imports.resolve_alias(name, line) is not None:
-                return None, self._get_function_package('', name, line)
+        receiver = self._get_function_receiver(node)
+        if receiver is None:  # Direct call: f()
+            if self.imports.resolve_alias(function_name, line) is not None:
+                module_path = self.imports.get_module_path(function_name, line)
+                return module_path, None, function_name
         else:
-            if self.imports.resolve_alias(prefix, line) is not None:
-                return None, self._get_function_package(prefix, name, line)
-            cls = self.vars.get_var_type(prefix, line)
-            if cls is not None:
-                return cls, self._get_method_package(cls, line)
-        return None, ''
+            if self.imports.resolve_alias(receiver, line) is not None:  # Qualified call: module.f()
+                module_path = self.imports.resolve_alias(receiver, line)
+                return module_path, None, function_name
+            else:
+                class_name = self.vars.get_var_type(receiver, line)
+                if class_name is not None:  # Method call: var.f()
+                    module_path = self.imports.get_module_path(class_name, line)
+                    return module_path, class_name, function_name
 
-    def _is_top_level_function_call(self, prefix: Optional[str], line: int) -> bool:
-        return prefix is None or self.imports.resolve_alias(prefix, line) is not None
-
-    def _get_function_package(self, prefix: str, name: str, line: int) -> str:
-        if prefix == '':
-            package = self.imports.resolve_alias(name, line).split(".")
-            if name == package[-1]:
-                package = package[:-1]
-            package = ".".join(package)
-            return package
-        else:
-            return self.imports.resolve_alias(prefix, line)
-
-    def _get_method_package(self, cls: str, line: int) -> str:
-        if cls != '':
-            cls = cls.split(".")
-            package = self.imports.resolve_alias(cls[0], line).split(".")
-            cls = ".".join(cls)
-            if cls == package[-1]:
-                package = package[:-1]
-            package = ".".join(package)
-            return package
-        return ''
+        return None, None, function_name
 
     @staticmethod
-    def get_matching_overloads(package: Package, module_path: str, class_name: Optional[str],
-                               func_name: str) -> List[Function]:
-        if FunctionVisitor._is_constructor_call(package, module_path, class_name, func_name):
-            class_name = func_name
-            return package.get_methods_with_name(module_path, class_name, "__init__")
-        elif FunctionVisitor._is_method_call(package, module_path, class_name, func_name):
-            return package.get_methods_with_name(module_path, class_name, func_name)
-        else:
-            return package.get_top_level_functions_with_name(module_path, func_name)
-
-    @staticmethod
-    def _is_constructor_call(package: Package, module_path: str, class_name: Optional[str], func_name: str) -> bool:
-        return len(package.get_classes_with_name(module_path, func_name)) > 0 or \
-               class_name is not None and func_name == class_name
+    def _is_constructor_call(package: Package, module_path: str, func_name: str) -> bool:
+        return len(package.get_classes_with_name(module_path, func_name)) > 0
 
     @staticmethod
     def _is_method_call(package: Package, module_path: str, class_name: Optional[str], func_name: str) -> bool:
-        return not FunctionVisitor._is_constructor_call(package, module_path, class_name, func_name) and \
-               class_name is not None
+        return not FunctionVisitor._is_constructor_call(package, module_path, func_name) and class_name is not None
+
+    def _is_top_level_function_call(self, prefix: Optional[str], line: int) -> bool:
+        return prefix is None or self.imports.resolve_alias(prefix, line) is not None

@@ -24,6 +24,17 @@ class Imports:
         else:
             return None
 
+    def get_module_path(self, alias: str, line: int) -> Optional[str]:
+        full_name = self.resolve_alias(alias, line)
+        if full_name is None:
+            return None
+
+        # Remove the part of the full name after the last dot if it is the same as the alias
+        full_name_parts = full_name.split(".")
+        if alias == full_name_parts[-1]:
+            full_name_parts = full_name_parts[:-1]
+        return ".".join(full_name_parts)
+
     def _is_imported_already(self, alias: str, line: int) -> bool:
         return alias in self.imports and line >= self.imports[alias].location.line
 
