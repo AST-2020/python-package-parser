@@ -2,18 +2,18 @@ import ast
 from typing import Dict, Optional, Any, List
 
 from library.model import Class, Function, Module, Parameter
+from ._pyi_parser import _PythonPyiFileVisitor
 
 
 def parse_module(module_path: str, python_file: str, python_interface_file: str) -> Module:
-
-    tree = None
     if python_interface_file is not None:
         tree = _parse_python_interface_file(python_interface_file)
+    else:
+        tree = None
 
     module = Module(module_path)
 
     _parse_python_file(module, python_file, tree)
-
     return module
 
 
@@ -21,13 +21,14 @@ def _parse_python_file(module: Module, python_file: str, pyi_file_tree):
     with open(python_file, mode="r", encoding='utf-8') as f:
         contents = f.read()
         tree = ast.parse(contents)
-        _PythonFileVisitor(module, pyi_file= pyi_file_tree).visit(tree)
+        _PythonFileVisitor(module, pyi_file=pyi_file_tree).visit(tree)
 
 
 def _parse_python_interface_file(python_interface_file: str):
     with open(python_interface_file, mode="r", encoding='utf-8') as f:
         contents = f.read()
-        return ast.parse(contents)
+        tree = ast.parse(source=contents)
+        return tree
 
 
 class _PythonFileVisitor(ast.NodeVisitor):
@@ -80,10 +81,10 @@ class _PythonFileVisitor(ast.NodeVisitor):
             if arg.annotation is not None and "id" in arg.annotation.__dir__():
                 found_hint_in_definition = True
                 param_name_and_hint[arg.arg] = arg.annotation.id
-                print(arg.annotation.id)
 
             elif arg.annotation is not None:
-                print(self.find_inner_hint(arg.annotation))
+                pass
+                # self.find_inner_hint(arg.annotation)
 
             # torch.testing._internal.distributed.rpc.jit.rpc_test
             # None
@@ -97,6 +98,14 @@ class _PythonFileVisitor(ast.NodeVisitor):
                 param_name_and_hint[arg.arg] = None
 
         if not found_hint_in_definition and self.__pyi_file is not None:
+            if self.__current_class is not None:
+                pyi_type_hints = _PythonPyiFileVisitor(node.name, param_name_and_hint, self.__current_class.get_name())
+            else:
+                pyi_type_hints = _PythonPyiFileVisitor(node.name, param_name_and_hint)
+            pyi_type_hints.visit(self.__pyi_file)
+            type_hints = pyi_type_hints.get_type_hints()
+            if type_hints is not None:
+                print(type_hints)
 
 
         if not found_hint_in_definition:
@@ -105,7 +114,6 @@ class _PythonFileVisitor(ast.NodeVisitor):
 
         # end format before entering the values in the structure --> List(tuple)
         param_name_and_hint = [(name, type) for name, type in param_name_and_hint.items()]
-        # print(node.name, "  ",param_name_and_hint)
 
         parameter_defaults: List[Any] = [getattr(default, default.__dir__()[0]) for default in node.args.defaults]
 
