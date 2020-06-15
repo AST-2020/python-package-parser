@@ -24,9 +24,9 @@ class UserCodeCase(unittest.TestCase):
 
         fv = FunctionVisitor({})
 
-        self.assertEqual(fv._get_name(node1), ('prefix', 'name'))
-        self.assertEqual(fv._get_name(node2), ('', 'name'))
-        self.assertEqual(fv._get_name(node3), ('pre1.pre2', 'name'))
+        self.assertEqual(fv._get_function_receiver(node1), ('prefix', 'name'))
+        self.assertEqual(fv._get_function_receiver(node2), ('', 'name'))
+        self.assertEqual(fv._get_function_receiver(node3), ('pre1.pre2', 'name'))
 
     def test_get_path(self):
         # get souce structure depending on torch or sklearn selected
