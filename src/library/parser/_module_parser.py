@@ -5,29 +5,33 @@ from library.model import Class, Function, Module, Parameter
 
 
 def parse_module(module_path: str, python_file: str, python_interface_file: str) -> Module:
+
+    tree = None
+    if python_interface_file is not None:
+        tree = _parse_python_interface_file(python_interface_file)
+
     module = Module(module_path)
 
-    _parse_python_file(module, python_file)
-    if python_interface_file is not None:
-        _parse_python_interface_file(module, python_interface_file)
+    _parse_python_file(module, python_file, tree)
 
     return module
 
 
-def _parse_python_file(module: Module, python_file: str):
+def _parse_python_file(module: Module, python_file: str, pyi_file_tree):
     with open(python_file, mode="r", encoding='utf-8') as f:
         contents = f.read()
         tree = ast.parse(contents)
-        _PythonFileVisitor(module).visit(tree)
+        _PythonFileVisitor(module, pyi_file= pyi_file_tree).visit(tree)
 
 
-def _parse_python_interface_file(module: Module, python_interface_file: str):
+def _parse_python_interface_file(python_interface_file: str):
     with open(python_interface_file, mode="r", encoding='utf-8') as f:
-        pass  # TODO
+        contents = f.read()
+        return ast.parse(contents)
 
 
 class _PythonFileVisitor(ast.NodeVisitor):
-    def __init__(self, current_module: Module, pyi_file: Dict = None):
+    def __init__(self, current_module: Module, pyi_file = None):
         self.__current_module = current_module
         self.__pyi_file = pyi_file
         self.__current_class: Optional[Class] = None
@@ -40,8 +44,6 @@ class _PythonFileVisitor(ast.NodeVisitor):
         self.__current_class = None  # Exit the class scope
 
     def visit_FunctionDef(self, node: ast.FunctionDef) -> Any:
-        if node.name == "device":
-            print(self.__current_module, " ", self.__current_class)
         for decorator in node.decorator_list:
             if "id" in decorator.__dir__() and decorator.id == "property":
                 return
@@ -64,6 +66,9 @@ class _PythonFileVisitor(ast.NodeVisitor):
                 else:
                     hint_string += hint.id + ", "
             hint_string = hint_string[:-2] + "]"
+        elif "slice" in subscriptable_object.slice.value.__dir__():
+            hint_string += self.find_inner_hint(subscriptable_object.slice.value) + ", "
+            hint_string = hint_string[:-2] + "]"
         else:
             hint_string += subscriptable_object.slice.value.id + "]"
         return hint_string
@@ -75,16 +80,10 @@ class _PythonFileVisitor(ast.NodeVisitor):
             if arg.annotation is not None and "id" in arg.annotation.__dir__():
                 found_hint_in_definition = True
                 param_name_and_hint[arg.arg] = arg.annotation.id
+                print(arg.annotation.id)
 
             elif arg.annotation is not None:
                 print(self.find_inner_hint(arg.annotation))
-
-                # # Tuple[Tensor, Tensor], kwargs: Dict[str, Tensor]
-                # print(arg.annotation.value.id)
-                # # [Tensor, Tensor]:
-                # for hint in arg.annotation.slice.value.elts:
-                #   print(hint.id)
-
 
             # torch.testing._internal.distributed.rpc.jit.rpc_test
             # None
@@ -97,18 +96,8 @@ class _PythonFileVisitor(ast.NodeVisitor):
             else:
                 param_name_and_hint[arg.arg] = None
 
-        # if not found_hint_in_definition and self.__pyi_file is not None:
-        #     args_list = []
-        #     if self.__current_class is not None and self.__current_class.get_name() in self.__pyi_file \
-        #             and node.name in self.__pyi_file[self.__current_class.get_name()]:
-        #         args_list = self.__pyi_file[self.__current_class.get_name()][node.name]
-        #     elif node.name in self.__pyi_file:
-        #         args_list = self.__pyi_file[node.name]
-        #     for element in args_list:
-        #         if len(element) is 1:
-        #             param_name_and_hint[element[0]] = None
-        #         else:
-        #             param_name_and_hint[element[0]] = element[1]
+        if not found_hint_in_definition and self.__pyi_file is not None:
+
 
         if not found_hint_in_definition:
             doc_string = ast.get_docstring(node)
