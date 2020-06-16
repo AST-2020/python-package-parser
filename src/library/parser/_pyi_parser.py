@@ -22,35 +22,46 @@ class _PythonPyiFileVisitor(ast.NodeVisitor):
         if node.name == self.function_name and self.cls_name == self.searched_cls_name:
             for arg in node.args.args:
                 if arg.arg not in self.searched_args:
-                    self.single_type_hints = None
+                    self.single_type_hints = {}
                     break
-                if arg.annotation is not None and "id" in arg.annotation.__dir__():
-                    self.single_type_hints[arg.arg] = arg.annotation.id
+                type_hint = self.find_inner_hint(arg.annotation)
+                print("the type hint" ,type_hint)
+                self.single_type_hints[arg.arg] = type_hint
 
-                elif arg.annotation is not None:
-                    self.single_type_hints[arg.arg] = self.find_inner_hint(arg.annotation)
-
-                else:
-                    self.single_type_hints[arg.arg] = None
-
-        if len(self.single_type_hints) is not 0:
+        if len(self.single_type_hints) is not 0 and len(self.single_type_hints) == len(self.searched_args):
             self.returned_type_hints.append(self.single_type_hints)
             self.single_type_hints = {}
 
     def find_inner_hint(self, subscriptable_object, hint_string=""):
-        hint_string += subscriptable_object.value.id + "["
-        if "elts" in subscriptable_object.slice.value.__dir__():
-            for hint in subscriptable_object.slice.value.elts:
-                if type(hint) is ast.Subscript:
-                    hint_string += self.find_inner_hint(hint) + ", "
+        if subscriptable_object is None:
+            return None
+        if subscriptable_object.__dir__()[0] in ["id", "s"]:
+            hint_string = getattr(subscriptable_object, subscriptable_object.__dir__()[0])
+        elif subscriptable_object.__dir__()[0] is "value":
+            hint = self.find_inner_hint(subscriptable_object.value)
+            if hint is not None:
+                hint_string += hint
+            else:
+                hint_string += "..."
+        if "slice" in subscriptable_object.__dir__():
+            hint_string += "[" + self.find_inner_hint(subscriptable_object.slice.value) + "]"
+        elif subscriptable_object.__dir__()[0] in ["value", "id", "s"]:
+            pass
+        elif "elts" in subscriptable_object.__dir__():
+            for i in range(len(subscriptable_object.elts)):
+                hint = self.find_inner_hint(subscriptable_object.elts[i])
+                if i < len(subscriptable_object.elts)-1:
+                    if hint is not None:
+                        hint_string += self.find_inner_hint(subscriptable_object.elts[i]) + ", "
+                    else:
+                        hint_string += "..., "
                 else:
-                    hint_string += hint.id + ", "
-            hint_string = hint_string[:-2] + "]"
-        elif "slice" in subscriptable_object.slice.value.__dir__():
-            hint_string += self.find_inner_hint(subscriptable_object.slice.value) + ", "
-            hint_string = hint_string[:-2] + "]"
+                    if hint is not None:
+                        hint_string += self.find_inner_hint(subscriptable_object.elts[i])
+                    else:
+                        hint_string += "..."
         else:
-            hint_string += subscriptable_object.slice.value.id + "]"
+            print("searched for", subscriptable_object.__dir__())
         return hint_string
 
     def get_type_hints(self):

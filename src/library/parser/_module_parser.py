@@ -105,7 +105,8 @@ class _PythonFileVisitor(ast.NodeVisitor):
             pyi_type_hints.visit(self.__pyi_file)
             type_hints = pyi_type_hints.get_type_hints()
             if type_hints is not None:
-                print(type_hints)
+                pass
+                # print(type_hints)
 
 
         if not found_hint_in_definition:
