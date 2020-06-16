@@ -2,6 +2,12 @@ import ast
 from typing import Any, Dict
 
 
+# differences:
+# 1- lr_scheduler.pyi(in file: (scale_fn): Optional[Callable[[float], float]] vs
+#       from code: Optional[Callable[float, float]])
+# 2- opimizer.pyi (in file: (step): Optional[Callable[[], float]]) vs
+#         from code: Optional[Callable[, float]]
+
 class _PythonPyiFileVisitor(ast.NodeVisitor):
     def __init__(self, function_name, searched_args: Dict, searched_cls_name=None):
         self.function_name = function_name
@@ -25,7 +31,7 @@ class _PythonPyiFileVisitor(ast.NodeVisitor):
                     self.single_type_hints = {}
                     break
                 type_hint = self.find_inner_hint(arg.annotation)
-                print("the type hint" ,type_hint)
+                # print("the type hint", type_hint)
                 self.single_type_hints[arg.arg] = type_hint
 
         if len(self.single_type_hints) is not 0 and len(self.single_type_hints) == len(self.searched_args):
@@ -60,8 +66,6 @@ class _PythonPyiFileVisitor(ast.NodeVisitor):
                         hint_string += self.find_inner_hint(subscriptable_object.elts[i])
                     else:
                         hint_string += "..."
-        else:
-            print("searched for", subscriptable_object.__dir__())
         return hint_string
 
     def get_type_hints(self):

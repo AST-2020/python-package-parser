@@ -1,6 +1,8 @@
 import sys
 from typing import List
 
+import torch
+
 from analysis import check_function_exists, check_arg_names, check_arg_number
 from analysis.message import MessageManager
 from library.model import Package
