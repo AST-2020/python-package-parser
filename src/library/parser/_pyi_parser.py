@@ -1,4 +1,5 @@
 import ast
+from collections import OrderedDict
 from typing import Any, Dict
 
 
@@ -13,7 +14,8 @@ class _PythonPyiFileVisitor(ast.NodeVisitor):
         self.function_name = function_name
         self.searched_cls_name = searched_cls_name
         self.searched_args = searched_args
-        self.single_type_hints = {}
+        self.single_type_hints = OrderedDict() # represent the type hints for a single occurence of function
+        # list that represent all occurences of the function in the Module (multiple in case of overloaded functions)
         self.returned_type_hints = []
         self.cls_name = None
 
@@ -28,7 +30,7 @@ class _PythonPyiFileVisitor(ast.NodeVisitor):
         if node.name == self.function_name and self.cls_name == self.searched_cls_name:
             for arg in node.args.args:
                 if arg.arg not in self.searched_args:
-                    self.single_type_hints = {}
+                    self.single_type_hints = OrderedDict()
                     break
                 type_hint = self.find_inner_hint(arg.annotation)
                 # print("the type hint", type_hint)
@@ -36,7 +38,8 @@ class _PythonPyiFileVisitor(ast.NodeVisitor):
 
         if len(self.single_type_hints) is not 0 and len(self.single_type_hints) == len(self.searched_args):
             self.returned_type_hints.append(self.single_type_hints)
-            self.single_type_hints = {}
+            self.single_type_hints = OrderedDict()
+            # print(self.returned_type_hints)
 
     def find_inner_hint(self, subscriptable_object, hint_string=""):
         if subscriptable_object is None:
@@ -56,7 +59,7 @@ class _PythonPyiFileVisitor(ast.NodeVisitor):
         elif "elts" in subscriptable_object.__dir__():
             for i in range(len(subscriptable_object.elts)):
                 hint = self.find_inner_hint(subscriptable_object.elts[i])
-                if i < len(subscriptable_object.elts)-1:
+                if i < len(subscriptable_object.elts) - 1:
                     if hint is not None:
                         hint_string += self.find_inner_hint(subscriptable_object.elts[i]) + ", "
                     else:

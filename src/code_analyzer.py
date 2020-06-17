@@ -6,7 +6,7 @@ import torch
 from analysis import check_function_exists, check_arg_names, check_arg_number
 from analysis.message import MessageManager
 from library.model import Package
-from library.parser import parse_packages
+from library.parser import parse_packages, parse_package
 from user_code.parser import parse_function_calls
 
 
@@ -37,6 +37,23 @@ def analyze_file(file_to_analyze: str, package: Package, message_manager: Messag
 
 if __name__ == '__main__':
     if len(sys.argv) >= 2:
-        analyze_files(sys.argv[1:], parse_packages(['torch', 'sklearn'])).print_messages()
+        package = parse_package("torch")
+        # for module in package.get_all_modules():
+        #     print(module.get_name())
+        #
+        #     print("  Classes\n  =======")
+        #     for klass in module.get_all_classes():
+        #         print(f"    {klass}")
+        #
+        #     print("  Functions\n  =========")
+        #     for function in module.get_all_top_level_functions():
+        #         print(f"    {function}")
+        methods = package.get_methods_with_name("torch.utils.data.sampler", "BatchSampler", "__init__")
+        for method in methods:
+            parameters = method.get_parameters()
+            for parameter in parameters:
+                print(parameter.get_type_hint())
+
+        # analyze_files(sys.argv[1:], parse_packages(['torch', 'sklearn'])).print_messages()
     else:
         print('Usage: python code_analyzer.py <files_to_analyze*>')

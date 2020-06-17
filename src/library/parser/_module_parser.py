@@ -5,6 +5,16 @@ from library.model import Class, Function, Module, Parameter
 from ._pyi_parser import _PythonPyiFileVisitor
 
 
+# examples for special cases:
+# torch.testing._internal.distributed.rpc.jit.rpc_test
+# None
+# rpc_async_call_remote_torchscript_in_torchscript
+#
+# torch.testing._internal.distributed.rpc.jit.rpc_test
+# None
+# rpc_async_call_remote_torchscript_in_torchscript
+
+
 def parse_module(module_path: str, python_file: str, python_interface_file: str) -> Module:
     if python_interface_file is not None:
         tree = _parse_python_interface_file(python_interface_file)
@@ -32,7 +42,7 @@ def _parse_python_interface_file(python_interface_file: str):
 
 
 class _PythonFileVisitor(ast.NodeVisitor):
-    def __init__(self, current_module: Module, pyi_file = None):
+    def __init__(self, current_module: Module, pyi_file=None):
         self.__current_module = current_module
         self.__pyi_file = pyi_file
         self.__current_class: Optional[Class] = None
@@ -48,15 +58,18 @@ class _PythonFileVisitor(ast.NodeVisitor):
         for decorator in node.decorator_list:
             if "id" in decorator.__dir__() and decorator.id == "property":
                 return
-        parameters = self.__create_parameter_list(node)
+        parameters = self.__create_parameter_lists(node)
 
         if self.__current_class is None:
-            function = Function(node.name, parameters)
-            self.__current_module.add_top_level_function(function)
+            for param_obj in parameters:
+                function = Function(node.name, param_obj)
+                self.__current_module.add_top_level_function(function)
         else:
-            parameters = parameters[1:]
-            function = Function(node.name, parameters)
-            self.__current_class.add_method(function)
+            for param_obj in parameters:
+                if param_obj is not None:
+                    param_obj = param_obj[1:]
+                function = Function(node.name, param_obj)
+                self.__current_class.add_method(function)
 
     def find_inner_hint(self, subscriptable_object, hint_string=""):
         hint_string += subscriptable_object.value.id + "["
@@ -74,61 +87,78 @@ class _PythonFileVisitor(ast.NodeVisitor):
             hint_string += subscriptable_object.slice.value.id + "]"
         return hint_string
 
-    def __create_parameter_list(self, node: ast.FunctionDef) -> List[Parameter]:
-        param_name_and_hint = {}
+    def __create_parameter_lists(self, node: ast.FunctionDef) -> List[Parameter]:
+        param_name_and_hint = []
+        name_and_hint_dict = {}
         found_hint_in_definition = False
         for arg in node.args.args:
             if arg.annotation is not None and "id" in arg.annotation.__dir__():
                 found_hint_in_definition = True
-                param_name_and_hint[arg.arg] = arg.annotation.id
+                name_and_hint_dict[arg.arg] = arg.annotation.id
 
             elif arg.annotation is not None:
                 pass
                 # self.find_inner_hint(arg.annotation)
 
-            # torch.testing._internal.distributed.rpc.jit.rpc_test
-            # None
-            # rpc_async_call_remote_torchscript_in_torchscript
-            #
-            # torch.testing._internal.distributed.rpc.jit.rpc_test
-            # None
-            # rpc_async_call_remote_torchscript_in_torchscript
-
             else:
-                param_name_and_hint[arg.arg] = None
+                name_and_hint_dict[arg.arg] = None
+
+        param_name_and_hint.append(name_and_hint_dict)
 
         if not found_hint_in_definition and self.__pyi_file is not None:
             if self.__current_class is not None:
-                pyi_type_hints = _PythonPyiFileVisitor(node.name, param_name_and_hint, self.__current_class.get_name())
+                pyi_type_hints = _PythonPyiFileVisitor(node.name, name_and_hint_dict, self.__current_class.get_name())
             else:
-                pyi_type_hints = _PythonPyiFileVisitor(node.name, param_name_and_hint)
+                pyi_type_hints = _PythonPyiFileVisitor(node.name, name_and_hint_dict)
             pyi_type_hints.visit(self.__pyi_file)
-            type_hints = pyi_type_hints.get_type_hints()
-            if type_hints is not None:
-                print(type_hints)
-
+            param_name_and_hint = pyi_type_hints.get_type_hints()
 
         if not found_hint_in_definition:
             doc_string = ast.get_docstring(node)
             # call find_paramter_hint_in_doc_string()
 
-        # end format before entering the values in the structure --> List(tuple)
-        param_name_and_hint = [(name, type) for name, type in param_name_and_hint.items()]
-
         parameter_defaults: List[Any] = [getattr(default, default.__dir__()[0]) for default in node.args.defaults]
+        if param_name_and_hint is None:
+            return []
+        else:
+            return self.__create_parameter_objects(param_name_and_hint, parameter_defaults)
 
+    def __create_parameter_objects(self, hints: List[Dict], defaults: List):
         result: List[Parameter] = []
-        for i in range(len(param_name_and_hint)):
-            default_index = i + len(parameter_defaults) - len(param_name_and_hint)
-            if default_index < 0:  # Parameter has no default value
-                if len(param_name_and_hint[i]) == 1:
-                    result.append(Parameter(param_name_and_hint[i][0]))
+        one_function_param = []
+        for hint in hints:
+            hint_as_list = [(name, type) for name, type in hint.items()]
+            for i in range(len(hint_as_list)):
+                default_index = i + len(defaults) - len(hint_as_list)
+                if default_index < 0:  # Parameter has no default value
+                    if hint_as_list[i][1] is None:
+                        one_function_param.append(Parameter(hint_as_list[i][0]))
+                    else:
+                        one_function_param.append(Parameter(hint_as_list[i][0], type_hint=hint_as_list[i][1]))
                 else:
-                    result.append(Parameter(param_name_and_hint[i][0], type_hint=param_name_and_hint[i][1]))
-            else:
-                if len(param_name_and_hint[i]) == 1:
-                    result.append(Parameter(param_name_and_hint[i][0], True, parameter_defaults[default_index]))
-                else:
-                    result.append(Parameter(param_name_and_hint[i][0], type_hint=param_name_and_hint[i][1],
-                                            has_default=True, default=parameter_defaults[default_index]))
+                    if hint_as_list[i][1] is None:
+                        one_function_param.append(
+                            Parameter(hint_as_list[i][0], has_default=True, default=defaults[default_index]))
+                    else:
+                        one_function_param.append(Parameter(hint_as_list[i][0], type_hint=hint_as_list[i][1],
+                                                            has_default=True, default=defaults[default_index]))
+            result.append(one_function_param)
+            one_function_param = []
         return result
+
+        # for i in range(len(param_name_and_hint)):
+        #     default_index = i + len(parameter_defaults) - len(param_name_and_hint)
+        #     if default_index < 0:  # Parameter has no default value
+        #         if len(param_name_and_hint[i]) == 1:
+        #             result.append(Parameter(param_name_and_hint[i][0]))
+        #         else:
+        #             result.append(Parameter(param_name_and_hint[i][0], type_hint=param_name_and_hint[i][1]))
+        #     else:
+        #         if len(param_name_and_hint[i]) == 1:
+        #             result.append(Parameter(param_name_and_hint[i][0], True, parameter_defaults[default_index]))
+        #         else:
+        #             result.append(Parameter(param_name_and_hint[i][0], type_hint=param_name_and_hint[i][1],
+        #                                     has_default=True, default=parameter_defaults[default_index]))
+
+        # # end format before entering the values in the structure --> List(tuple)
+        # param_name_and_hint = [(name, type) for name, type in param_name_and_hint.items()]
