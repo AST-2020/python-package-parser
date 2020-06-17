@@ -26,40 +26,77 @@ def _parse_python_interface_file(module: Module, python_interface_file: str):
     with open(python_interface_file, mode="r", encoding='utf-8') as f:
         pass  # TODO
 
-def _find_parameter_hint_in_doc_string(doc_string: str):
-    sections = {}
+def _find_parameter_hint_numpydoc_style(doc_string):
+    '''
+    search NumpyDoc style docstrings for parameters
+    example:
+        "Parameter(s)
+        --------------
+        first : array_like
+            the 1st param name `first`
+        second :
+            the 2nd param
+        third : {'value', 'other'}, optional
+            the 3rd param, by default 'value'"
+    '''
+    # --- isolate parameter section ---
+    param_section = None
     # used keywords to references sections within the docstings
-    keywords = ['Parameters', 'Parameter', 'Returns', 'Notes', 'See also', 'Examples', 'References', 'Yields', 'Raises', 'Warns']
+    keywords = ['Parameters', 'Parameter', 'Returns', 'Notes', 'See also', 'Examples', 'References', 'Yields', 'Raises',
+                'Warns']
     # create regex compiler
     expr = r'[\n]*({})\n[-]+\n'.format('|'.join(keywords))
-    regex = re.compile(expr, re.MULTILINE|re.S)
+    sections = re.compile(expr, re.MULTILINE | re.S)
 
     # if doc_string is not empty, split by keywords in text sections
-    if doc_string is not None:
-        splits = regex.split(doc_string)
+    if doc_string is None:
+        return None
 
-        # das sortieren in ein dict muss doch auch schon direkt moeglich sein
-        for i in range(len(splits)):
-            if splits[i] in keywords:
-                # store found sections and contents in a dict
-                sections[splits[i]] = splits[i+1].strip('\n')
-    
-        # if Parameter(s) is key in sections, analyse futher
-        # den Vergleich finde ich noch ziemlich unschoen. das sollte auch noch besser gehen
-        if 'Parameters' in sections:
-            print(sections['Parameters'])
-        if 'Parameter' in sections:
-            print(sections['Parameter'])
+    splits = sections.split(doc_string)
 
-        # else the second most common notation seems to be
-        # :param(s) : param_name ...
+    # das sortieren in ein dict muss doch auch schon direkt moeglich sein
+    for i in range(len(splits)):
+        if splits[i] in ['Parameters', 'Parameter']:
+            # store found sections and contents in a dict
+            param_section = splits[i + 1].strip('\n')
 
-    if 'Parameters' not in sections.keys() and doc_string is not None:
+    # --- divide param_section in list of (param_name, type_info) touples---
+    if param_section is not None:
+        expr = r'\n*(.+?) : (.+?)[\n\t.+]+'
+        params = re.compile(expr, re.MULTILINE)
+        return params.findall(param_section)
+    return None
+
+def _find_parameter_hint_rest_style(doc_string):
+    '''
+    search reST style docstrings for parameters
+    reSt style examples:
+    ":param(s) param_name: description"
+    ":params param_name :description"
+    '''
+    expr = r':\s?params?\s(.+?)\s?:\s*(.+?)\n+'
+    params = re.compile(expr, re.MULTILINE)
+
+    if doc_string is None:
+        return None
+
+    p = params.findall(doc_string)
+    if p != []:
+        return p
+    return None
+
+def _find_parameter_hint_in_doc_string(doc_string: str):
+    # if numpydoc style
+    if _find_parameter_hint_numpydoc_style(doc_string) is not None:
         pass
-        # print('// new docstring\n', doc_string, '\n')
+    # if reST doc style
+    elif _find_parameter_hint_rest_style(doc_string) is not None:
+        pass
 
-        # function call for splitting of params and extraction of default and type
+    # elif doc_string is not None:
+    #     print(doc_string)
 
+    pass
 
 class _PythonFileVisitor(ast.NodeVisitor):
     def __init__(self, current_module: Module, pyi_file: Dict = None):
