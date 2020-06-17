@@ -52,7 +52,7 @@ if __name__ == '__main__':
         for method in methods:
             parameters = method.get_parameters()
             for parameter in parameters:
-                print(parameter.get_type_hint())
+                print(parameter)
 
         # analyze_files(sys.argv[1:], parse_packages(['torch', 'sklearn'])).print_messages()
     else:
