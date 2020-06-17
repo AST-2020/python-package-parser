@@ -1,4 +1,5 @@
 import ast
+import re
 from typing import Dict, Optional, Any, List
 
 from library.model import Class, Function, Module, Parameter
@@ -24,6 +25,40 @@ def _parse_python_file(module: Module, python_file: str):
 def _parse_python_interface_file(module: Module, python_interface_file: str):
     with open(python_interface_file, mode="r", encoding='utf-8') as f:
         pass  # TODO
+
+def _find_parameter_hint_in_doc_string(doc_string: str):
+    sections = {}
+    # used keywords to references sections within the docstings
+    keywords = ['Parameters', 'Parameter', 'Returns', 'Notes', 'See also', 'Examples', 'References', 'Yields', 'Raises', 'Warns']
+    # create regex compiler
+    expr = r'[\n]*({})\n[-]+\n'.format('|'.join(keywords))
+    regex = re.compile(expr, re.MULTILINE|re.S)
+
+    # if doc_string is not empty, split by keywords in text sections
+    if doc_string is not None:
+        splits = regex.split(doc_string)
+
+        # das sortieren in ein dict muss doch auch schon direkt moeglich sein
+        for i in range(len(splits)):
+            if splits[i] in keywords:
+                # store found sections and contents in a dict
+                sections[splits[i]] = splits[i+1].strip('\n')
+    
+        # if Parameter(s) is key in sections, analyse futher
+        # den Vergleich finde ich noch ziemlich unschoen. das sollte auch noch besser gehen
+        if 'Parameters' in sections:
+            print(sections['Parameters'])
+        if 'Parameter' in sections:
+            print(sections['Parameter'])
+
+        # else the second most common notation seems to be
+        # :param(s) : param_name ...
+
+    if 'Parameters' not in sections.keys() and doc_string is not None:
+        pass
+        # print('// new docstring\n', doc_string, '\n')
+
+        # function call for splitting of params and extraction of default and type
 
 
 class _PythonFileVisitor(ast.NodeVisitor):
@@ -81,7 +116,7 @@ class _PythonFileVisitor(ast.NodeVisitor):
 
         if not found_hint_in_definition:
             doc_string = ast.get_docstring(node)
-            # call find_paramter_hint_in_doc_string()
+            _find_parameter_hint_in_doc_string(doc_string)
 
         # end format before entering the values in the structure --> List(tuple)
         param_name_and_hint = [(name, type) for name, type in param_name_and_hint.items()]
