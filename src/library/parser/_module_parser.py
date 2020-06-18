@@ -26,6 +26,68 @@ def _parse_python_interface_file(module: Module, python_interface_file: str):
     with open(python_interface_file, mode="r", encoding='utf-8') as f:
         pass  # TODO
 
+def _find_parameter_hint_epy_style(doc_string):
+    '''
+    search epy text docstrings for parameters
+    epy text examples:
+    "@param(s) param_name: description"
+    "@params param_name :description"
+    '''
+    expr = r'@\s?params?\s(.+?)\s?:\s*(.+?)\n+'
+    params = re.compile(expr, re.MULTILINE)
+
+    if doc_string is None:
+        return None
+
+    p = params.findall(doc_string)
+    if p != []:
+        print(p)
+        return p
+    return None
+
+def _find_parameter_hint_google_style(doc_string):
+    '''
+    search NumpyDoc style docstrings for parameters
+    This is an example of Google style.
+
+    Args:
+        param1: This is the first param.
+        param2: This is a second param.
+
+    Returns:
+        This is a description of what is returned.
+
+    Raises:
+        KeyError: Raises an exception.
+    '''
+    # --- isolate parameter section ---
+    param_section = None
+    # used keywords to references sections within the docstings
+    keywords = ["Args", "Arg", "Paramter", "Param", "Parameters"]
+    # create regex compiler
+    expr = r'^({}):\n+([.\n]+?)($|^.+?:)'.format('|'.join(keywords))
+    sections = re.compile(expr, re.MULTILINE | re.S)
+
+    # if doc_string is not empty, split by keywords in text sections
+    if doc_string is None:
+        return None
+
+    print(sections.split(doc_string))
+
+    # # das sortieren in ein dict muss doch auch schon direkt moeglich sein
+    # for i in range(len(splits)):
+    #     if splits[i] in ['Parameters', 'Parameter']:
+    #         # store found sections and contents in a dict
+    #         param_section = splits[i + 1].strip('\n')
+    #
+    # # --- divide param_section in list of (param_name, type_info) touples---
+    # if param_section is not None:
+    #     expr = r'\n*(.+?) : (.+?)[\n\t.+]+'
+    #     params = re.compile(expr, re.MULTILINE)
+    #     return params.findall(param_section)
+    # return None
+
+
 def _find_parameter_hint_numpydoc_style(doc_string):
     '''
     search NumpyDoc style docstrings for parameters
@@ -91,6 +153,10 @@ def _find_parameter_hint_in_doc_string(doc_string: str):
         pass
     # if reST doc style
     elif _find_parameter_hint_rest_style(doc_string) is not None:
+        pass
+    elif _find_parameter_hint_epy_style(doc_string):
+        pass
+    elif _find_parameter_hint_google_style(doc_string):
         pass
 
     # elif doc_string is not None:
