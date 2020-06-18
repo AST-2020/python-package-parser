@@ -60,33 +60,31 @@ def _find_parameter_hint_google_style(doc_string):
     Raises:
         KeyError: Raises an exception.
     '''
-    # --- isolate parameter section ---
     param_section = None
     # used keywords to references sections within the docstings
-    keywords = ["Args", "Arg", "Paramter", "Param", "Parameters"]
+    wanted_sections = ["Args", "Arg", "Paramter", "Param", "Parameters"]
+    unwanted_sections = ['Returns', 'Notes', 'See also', 'Examples', 'References', 'Yields', 'Raises', 'Warns']
     # create regex compiler
-    expr = r'^({}):\n+([.\n]+?)($|^.+?:)'.format('|'.join(keywords))
-    sections = re.compile(expr, re.MULTILINE | re.S)
+    expr = r'^({}):?\n+'.format('|'.join(wanted_sections+unwanted_sections))
+    sections = re.compile(expr, re.M|re.S)
 
-    # if doc_string is not empty, split by keywords in text sections
     if doc_string is None:
         return None
 
-    print(sections.split(doc_string))
+    # isolate parameter section
+    section = sections.split(doc_string)
+    if section is not None:
+        for i in range(len(section)):
+            if section[i] in wanted_sections:
+                param_section = section[i+1]
 
-    # # das sortieren in ein dict muss doch auch schon direkt moeglich sein
-    # for i in range(len(splits)):
-    #     if splits[i] in ['Parameters', 'Parameter']:
-    #         # store found sections and contents in a dict
-    #         param_section = splits[i + 1].strip('\n')
-    #
-    # # --- divide param_section in list of (param_name, type_info) touples---
-    # if param_section is not None:
-    #     expr = r'\n*(.+?) : (.+?)[\n\t.+]+'
-    #     params = re.compile(expr, re.MULTILINE)
-    #     return params.findall(param_section)
-    # return None
+    # extract params
+    if param_section is not None:
+        expr = r'^\s+(.+?)\s(.+?)\n'
+        params= re.compile(expr, re.M)
+        return params.findall(param_section)
 
+    return None
 
 def _find_parameter_hint_numpydoc_style(doc_string):
     '''
