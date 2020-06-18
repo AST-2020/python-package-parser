@@ -13,26 +13,26 @@ class Test(TestCase):
          @return: this is a description of what is returned
          @raise keyError: raises an exception
          """
-        result = [("param1", "this is a first param"), ("param2", "this is a second param")]
+        result = [('param1', 'this is a first param'), ('param2', 'this is a second param')]
 
         self.assertListEqual(result, _module_parser._find_parameter_hint_epy_style(eingabe))
 
     def test__find_parameter_hint_google_style(self):
         eingabe = """
         This is an example of Google style.
-
+        
         Args:
-            param1: This is the first param.
-            param2: This is a second param.
-
+            param1: This is a first param
+            param2: This is a second param
+        
         Returns:
             This is a description of what is returned.
-
+        
         Raises:
             KeyError: Raises an exception.
         """
 
-        result = [("param1", "this is a first param"), ("param2", "this is a second param")]
+        result = [("param1", "This is a first param"), ("param2", "This is a second param")]
 
         self.assertListEqual(result, _module_parser._find_parameter_hint_google_style(eingabe))
 
@@ -54,16 +54,9 @@ class Test(TestCase):
         -------
         string
             a value in a string
-
-        Raises
-        ------
-        KeyError
-            when a key error
-        OtherError
-            when an other error
         """
 
-        result = [("first", "array_like\nthe 1st param name 'first'"), ("second", "the 2nd param"), ("third", "{'value', 'other'}, optional\nthe 3rd param, by default 'value'")]
+        result = [("first", "array_like"), ("second", ""), ("third", "{'value', 'other'}, optional")]
 
         self.assertListEqual(result, _module_parser._find_parameter_hint_numpydoc_style(eingabe))
 
