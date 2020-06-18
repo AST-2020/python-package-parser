@@ -41,7 +41,6 @@ def _find_parameter_hint_epy_style(doc_string):
 
     p = params.findall(doc_string)
     if p != []:
-        print(p)
         return p
     return None
 
@@ -62,10 +61,10 @@ def _find_parameter_hint_google_style(doc_string):
     '''
     param_section = None
     # used keywords to references sections within the docstings
-    wanted_sections = ["Args", "Arg", "Paramter", "Param", "Parameters"]
+    wanted_sections = ["Args", "Arg", "Parameter", "Param", "Parameters"]
     unwanted_sections = ['Returns', 'Notes', 'See also', 'Examples', 'References', 'Yields', 'Raises', 'Warns']
     # create regex compiler
-    expr = r'^({}):?\n+'.format('|'.join(wanted_sections+unwanted_sections))
+    expr = r'\s*({}):?\n+'.format('|'.join(wanted_sections+unwanted_sections))
     sections = re.compile(expr, re.M|re.S)
 
     if doc_string is None:
@@ -74,15 +73,16 @@ def _find_parameter_hint_google_style(doc_string):
     # isolate parameter section
     section = sections.split(doc_string)
     if section is not None:
-        for i in range(len(section)):
+        for i in range(len(section)-1):
             if section[i] in wanted_sections:
                 param_section = section[i+1]
 
     # extract params
     if param_section is not None:
-        expr = r'^\s+(.+?)\s(.+?)\n'
-        params= re.compile(expr, re.M)
-        return params.findall(param_section)
+        expr = r'^\s+(.+?)\s?:\s(.+)'
+        params = re.compile(expr, re.M)
+        p = params.findall(param_section)
+        return p
 
     return None
 
@@ -105,28 +105,25 @@ def _find_parameter_hint_numpydoc_style(doc_string):
     keywords = ['Parameters', 'Parameter', 'Returns', 'Notes', 'See also', 'Examples', 'References', 'Yields', 'Raises',
                 'Warns']
     # create regex compiler
-    expr = r'[\n]*({})\n[-]+\n'.format('|'.join(keywords))
-    sections = re.compile(expr, re.MULTILINE | re.S)
+    expr = r'\n*\s*({})\n\s*-+\n'.format('|'.join(keywords))
+    sections = re.compile(expr, re.M)
 
     # if doc_string is not empty, split by keywords in text sections
     if doc_string is None:
         return None
 
     splits = sections.split(doc_string)
-    print(splits)
-
-    # das sortieren in ein dict muss doch auch schon direkt moeglich sein
-    for i in range(len(splits)):
+    for i in range(len(splits)-1):
         if "Parameter" in splits[i]:
             # store found sections and contents in a dict
             param_section = splits[i + 1].lstrip('\n')
-            print(param_section)
 
     # --- divide param_section in list of (param_name, type_info) touples---
     if param_section is not None:
-        expr = r'\n*(.+?) : (.+?)[\n\t.+]+'
+        expr = r'\n*\s*(.+?) ?: ?(.*?)\n'
         params = re.compile(expr, re.MULTILINE)
-        return params.findall(param_section)
+        p = params.findall(param_section)
+        return p
     return None
 
 def _find_parameter_hint_rest_style(doc_string):
@@ -148,21 +145,26 @@ def _find_parameter_hint_rest_style(doc_string):
     return None
 
 def _find_parameter_hint_in_doc_string(doc_string: str):
-    # if numpydoc style
-    if _find_parameter_hint_numpydoc_style(doc_string) is not None:
-        pass
-    # if reST doc style
-    elif _find_parameter_hint_rest_style(doc_string) is not None:
-        pass
-    elif _find_parameter_hint_epy_style(doc_string):
-        pass
-    elif _find_parameter_hint_google_style(doc_string):
-        pass
+    param_list = None
 
-    # elif doc_string is not None:
-    #     print(doc_string)
+    param_list = _find_parameter_hint_numpydoc_style(doc_string)
+    # if  not numpydoc style
+    if param_list is None:
+        param_list = _find_parameter_hint_rest_style(doc_string)
 
-    pass
+    # if not reST doc style
+    if param_list is None:
+        param_list = _find_parameter_hint_epy_style(doc_string)
+
+    # if not epy doc style
+    if param_list is None:
+        param_list = _find_parameter_hint_google_style(doc_string)
+
+    # if not google doc style
+    if param_list is None:
+        return None
+
+    # call function to extract type and default from param_list here
 
 class _PythonFileVisitor(ast.NodeVisitor):
     def __init__(self, current_module: Module, pyi_file: Dict = None):
