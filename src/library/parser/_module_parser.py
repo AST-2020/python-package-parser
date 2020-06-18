@@ -2,7 +2,7 @@ import ast
 import re
 from typing import Dict, Optional, Any, List
 
-from library.model import Class, Function, Module, Parameter
+from src.library.model import Class, Function, Module, Parameter
 
 
 def parse_module(module_path: str, python_file: str, python_interface_file: str) -> Module:
@@ -113,12 +113,14 @@ def _find_parameter_hint_numpydoc_style(doc_string):
         return None
 
     splits = sections.split(doc_string)
+    print(splits)
 
     # das sortieren in ein dict muss doch auch schon direkt moeglich sein
     for i in range(len(splits)):
-        if splits[i] in ['Parameters', 'Parameter']:
+        if "Parameter" in splits[i]:
             # store found sections and contents in a dict
-            param_section = splits[i + 1].strip('\n')
+            param_section = splits[i + 1].lstrip('\n')
+            print(param_section)
 
     # --- divide param_section in list of (param_name, type_info) touples---
     if param_section is not None:

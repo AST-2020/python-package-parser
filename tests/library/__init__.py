@@ -1,4 +1,5 @@
-from library.parser import parse_package
+from src.library import parser
+from src.library.parser import parse_package
 from tests.library import TestDirectory
 
 if __name__ == '__main__':

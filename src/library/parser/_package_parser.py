@@ -4,8 +4,8 @@ import os
 from pathlib import Path
 from typing import Optional, Generator, Tuple, Any, List
 
-from library.model import Package
-from library.parser._module_parser import parse_module
+from src.library.model import Package
+from src.library.parser._module_parser import parse_module
 
 
 def parse_packages(package_names: List[str]) -> Optional[Package]:
