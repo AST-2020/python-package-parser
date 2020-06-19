@@ -6,7 +6,7 @@ from src.library.parser import _module_parser
 class Test(TestCase):
     def test__find_parameter_hint_epy_style(self):
         eingabe = """
-         his is a javadoc style.
+         This is a javadoc style.
 
          @param param1: this is a first param
          @param param2: this is a second param
