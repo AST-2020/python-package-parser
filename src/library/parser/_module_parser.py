@@ -3,6 +3,7 @@ from typing import Dict, Optional, Any, List
 
 from library.model import Class, Function, Module, Parameter
 from ._pyi_parser import _PythonPyiFileVisitor
+from collections import OrderedDict
 
 
 # examples for special cases:
@@ -72,38 +73,54 @@ class _PythonFileVisitor(ast.NodeVisitor):
                 self.__current_class.add_method(function)
 
     def find_inner_hint(self, subscriptable_object, hint_string=""):
-        hint_string += subscriptable_object.value.id + "["
-        if "elts" in subscriptable_object.slice.value.__dir__():
-            for hint in subscriptable_object.slice.value.elts:
-                if type(hint) is ast.Subscript:
-                    hint_string += self.find_inner_hint(hint) + ", "
+        if subscriptable_object is None:
+            return None
+        if subscriptable_object.__dir__()[0] in ["id", "s"]:
+            hint_string = getattr(subscriptable_object, subscriptable_object.__dir__()[0])
+        elif subscriptable_object.__dir__()[0] is "value":
+            hint = self.find_inner_hint(subscriptable_object.value)
+            if hint is not None:
+                hint_string += hint
+            else:
+                hint_string += "..."
+        if "slice" in subscriptable_object.__dir__():
+            hint_string += "[" + self.find_inner_hint(subscriptable_object.slice.value) + "]"
+            # hint: Optional[Callable[, float]]
+        elif subscriptable_object.__dir__()[0] in ["value", "id", "s"]:
+            pass
+        elif "elts" in subscriptable_object.__dir__():
+            if len(subscriptable_object.elts) is 0:
+                return "[]"
+            for i in range(len(subscriptable_object.elts)):
+                hint = self.find_inner_hint(subscriptable_object.elts[i])
+                if i < len(subscriptable_object.elts) - 1:
+                    if hint is not None:
+                        hint_string += self.find_inner_hint(subscriptable_object.elts[i]) + ", "
+                    else:
+                        hint_string += "..., "
                 else:
-                    hint_string += hint.id + ", "
-            hint_string = hint_string[:-2] + "]"
-        elif "slice" in subscriptable_object.slice.value.__dir__():
-            hint_string += self.find_inner_hint(subscriptable_object.slice.value) + ", "
-            hint_string = hint_string[:-2] + "]"
-        else:
-            hint_string += subscriptable_object.slice.value.id + "]"
+                    if hint is not None:
+                        hint_string += self.find_inner_hint(subscriptable_object.elts[i])
+                    else:
+                        hint_string += "..."
         return hint_string
 
     def __create_parameter_lists(self, node: ast.FunctionDef) -> List[Parameter]:
         param_name_and_hint = []
         name_and_hint_dict = {}
         found_hint_in_definition = False
+        # for arg in node.args.args:
+        #     if arg.annotation is not None and "id" in arg.annotation.__dir__():
         for arg in node.args.args:
-            if arg.annotation is not None and "id" in arg.annotation.__dir__():
-                found_hint_in_definition = True
-                name_and_hint_dict[arg.arg] = arg.annotation.id
+            type_hint = self.find_inner_hint(arg.annotation)
+            # print("the type hint", type_hint)
+            name_and_hint_dict[arg.arg] = type_hint
+            found_hint_in_definition = True
 
-            elif arg.annotation is not None:
-                pass
-                # self.find_inner_hint(arg.annotation)
-
-            else:
-                name_and_hint_dict[arg.arg] = None
-
+        # to test, if length of single_type_hints is equal to length of searched_args
+        # if not, then the type hints belong to a different function
         param_name_and_hint.append(name_and_hint_dict)
+        self.single_type_hints = OrderedDict()
 
         if not found_hint_in_definition and self.__pyi_file is not None:
             if self.__current_class is not None:
@@ -145,20 +162,3 @@ class _PythonFileVisitor(ast.NodeVisitor):
             result.append(one_function_param)
             one_function_param = []
         return result
-
-        # for i in range(len(param_name_and_hint)):
-        #     default_index = i + len(parameter_defaults) - len(param_name_and_hint)
-        #     if default_index < 0:  # Parameter has no default value
-        #         if len(param_name_and_hint[i]) == 1:
-        #             result.append(Parameter(param_name_and_hint[i][0]))
-        #         else:
-        #             result.append(Parameter(param_name_and_hint[i][0], type_hint=param_name_and_hint[i][1]))
-        #     else:
-        #         if len(param_name_and_hint[i]) == 1:
-        #             result.append(Parameter(param_name_and_hint[i][0], True, parameter_defaults[default_index]))
-        #         else:
-        #             result.append(Parameter(param_name_and_hint[i][0], type_hint=param_name_and_hint[i][1],
-        #                                     has_default=True, default=parameter_defaults[default_index]))
-
-        # # end format before entering the values in the structure --> List(tuple)
-        # param_name_and_hint = [(name, type) for name, type in param_name_and_hint.items()]

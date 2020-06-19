@@ -6,7 +6,7 @@ from typing import Any, Dict
 # differences:
 # 1- lr_scheduler.pyi(in file: (scale_fn): Optional[Callable[[float], float]] vs
 #       from code: Optional[Callable[float, float]])
-# 2- opimizer.pyi (in file: (step): Optional[Callable[[], float]]) vs
+# 2- opimizer.pyi (in file: (step): Optional[Callable[[], float]] vs
 #         from code: Optional[Callable[, float]]
 
 class _PythonPyiFileVisitor(ast.NodeVisitor):
@@ -36,10 +36,11 @@ class _PythonPyiFileVisitor(ast.NodeVisitor):
                 # print("the type hint", type_hint)
                 self.single_type_hints[arg.arg] = type_hint
 
+        # to test, if length of single_type_hints is equal to length of searched_args
+        # if not, then the type hints belong to a different function
         if len(self.single_type_hints) is not 0 and len(self.single_type_hints) == len(self.searched_args):
             self.returned_type_hints.append(self.single_type_hints)
             self.single_type_hints = OrderedDict()
-            # print(self.returned_type_hints)
 
     def find_inner_hint(self, subscriptable_object, hint_string=""):
         if subscriptable_object is None:
@@ -54,9 +55,12 @@ class _PythonPyiFileVisitor(ast.NodeVisitor):
                 hint_string += "..."
         if "slice" in subscriptable_object.__dir__():
             hint_string += "[" + self.find_inner_hint(subscriptable_object.slice.value) + "]"
+            # hint: Optional[Callable[, float]]
         elif subscriptable_object.__dir__()[0] in ["value", "id", "s"]:
             pass
         elif "elts" in subscriptable_object.__dir__():
+            if len(subscriptable_object.elts) is 0:
+                return "[]"
             for i in range(len(subscriptable_object.elts)):
                 hint = self.find_inner_hint(subscriptable_object.elts[i])
                 if i < len(subscriptable_object.elts) - 1:

@@ -1,4 +1,4 @@
-from pgast2020.src.library.parser import parse_package
+from library.parser import parse_package
 import TestDirectory
 
 if __name__ == '__main__':
@@ -15,8 +15,26 @@ if __name__ == '__main__':
     #         print(f"    {function}")
     methods = package.get_top_level_functions_with_name("TestDirectory.file1", "testFunc1")
     for method in methods:
+        print(method)
         parameters = method.get_parameters()
         for parameter in parameters:
             print(parameter)
         print("############")
-    # testFunc1
+
+
+
+    methods = package.get_methods_with_name("TestDirectory.file1", "testFile2", "__init__")
+    for method in methods:
+        print(method)
+        parameters = method.get_parameters()
+        for parameter in parameters:
+            print(parameter)
+        print("############")
+
+    methods = package.get_top_level_functions_with_name("TestDirectory.file1", "empty_func")
+    for method in methods:
+        print(method)
+        parameters = method.get_parameters()
+        for parameter in parameters:
+            print(parameter)
+        print("############")
