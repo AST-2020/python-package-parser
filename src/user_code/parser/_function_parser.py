@@ -5,6 +5,7 @@ from library.model import Package, Function
 from user_code.model import FunctionCall, Imports, Variables, Location
 from user_code.parser._import_parser import ImportVisitor
 from user_code.parser._variable_parser import VariableVisitor
+from user_code.model.argument import Arg, Kw_arg
 
 
 def parse_function_calls(file_to_analyze: str, package: Package) -> List[FunctionCall]:
@@ -47,6 +48,8 @@ class FunctionVisitor(ast.NodeVisitor):
             FunctionCall(
                 self._get_function_name(node),
                 self._get_number_of_positional_args(node),
+                self._get_positional_arg(node), #--
+                self._get_keyword_arg(node), #--
                 self._get_keyword_arg_names(node),
                 self._get_callee_candidates(node),
                 Location.create_location(self.file, node)
@@ -107,6 +110,28 @@ class FunctionVisitor(ast.NodeVisitor):
     def _get_keyword_arg_names(node: ast.Call) -> List[str]:
         return [keyword.arg for keyword in node.keywords]
 
+###########################################
+    @staticmethod #--
+    def _get_keyword_arg(node: ast.Call) -> List[Kw_arg]:
+        kws = []
+        for keyword in node.keywords:
+            # print(keyword.arg,getattr(keyword.value,keyword.value.__dir__()[0]))
+            a = Kw_arg(keyword.arg, getattr(keyword.value,keyword.value.__dir__()[0]))
+            kws.append(a)
+            # print(a.get_type())
+        return kws
+
+    @staticmethod #---
+    def _get_positional_arg(node: ast.Call) -> List[Arg]:
+        # hier sollte objekt von Arg gegeben wird
+        args = [Arg]
+        for arg in node.args:
+            a = Arg(getattr(arg, arg.__dir__()[0]))
+            args.append(a)
+        return args
+
+
+
     def _get_callee_candidates(self, node: ast.Call) -> List[Function]:
         module_path, class_name, function_name = self.find_function(node)
 
@@ -151,3 +176,12 @@ class FunctionVisitor(ast.NodeVisitor):
 
     def _is_top_level_function_call(self, prefix: Optional[str], line: int) -> bool:
         return prefix is None or self.imports.resolve_alias(prefix, line) is not None
+
+if __name__ == '__main__':
+    tree = ast.parse('f(m = 5 )')
+    l: [Kw_arg] = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call):
+            l.extend(FunctionVisitor._get_keyword_arg(node))
+    for k in l:
+        k.print_kw_arg()
