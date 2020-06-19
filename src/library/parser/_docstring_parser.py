@@ -1,6 +1,6 @@
 import re
 
-def _find_hint_from_param_desc_epy_style(descriptions: str):
+def _find_hint_from_param_desc_epy_style(descriptions):
     pass
 
 def _find_parameter_hint_string_epy_style(doc_string):
@@ -21,10 +21,23 @@ def _find_parameter_hint_string_epy_style(doc_string):
         return p
     return None
 
-def _find_hint_from_param_desc_google_style(descriptions: str):
-    if descriptions is not None:
-        print(descriptions)
-    pass
+def _find_hint_from_param_desc_google_style(descriptions):
+    param_hints = {}
+    if descriptions is None:
+        return None
+
+    for item in descriptions:
+        if len(item) == 3:
+            type_str = item[1].strip(' ')
+            type_str = type_str.lstrip('(')
+            type_str = type_str.rstrip(')')
+            if type_str != '':
+                param_hints[item[0]] = type_str
+
+    if param_hints != {}:
+        return param_hints
+
+    return None
 
 def _find_parameter_hint_string_google_style(doc_string):
     '''
@@ -68,7 +81,7 @@ def _find_parameter_hint_string_google_style(doc_string):
 
     return None
 
-def _find_hint_from_param_desc_numpydoc_style(descriptions: str):
+def _find_hint_from_param_desc_numpydoc_style(descriptions):
     pass
 
 def _find_parameter_hint_string_numpydoc_style(doc_string):
@@ -111,7 +124,7 @@ def _find_parameter_hint_string_numpydoc_style(doc_string):
         return p
     return None
 
-def _find_hint_from_param_desc_rest_style(descriptions: str):
+def _find_hint_from_param_desc_rest_style(descriptions):
     pass
 
 def _find_parameter_hint_string_rest_style(doc_string):
@@ -155,20 +168,25 @@ def _get_param_hint_strings_from_doc_string(doc_string: str):
         return None
 
 def _convert_hint_to_type(param_list):
-    types = { int: ['int', 'integer'],
-            bool: ['bool', 'boolean'],
-            float: ['float'],
-            str: ['str', 'string']
+    type_hints = {}
+    types = { int: ['int', 'integer', 'Int', 'Integer'],
+            bool: ['bool', 'boolean', 'Bool', 'Boolean'],
+            float: ['float', 'Float'],
+            str: ['str', 'string', 'Str', 'String']
             }
-    pass
-    # also arrays, lists, dicts, ... ?
+    for param in param_list:
+        type_hints[param] = []
+        for type in types:
+            for string in types[type]:
+                if string in param_list[param]:
+                    type_hints[param].append(type)
 
-    # (type) : default -> suchen nach klammern
-    # .+ ,default= -> suchen nach .+ vor dem Komma
-    # for item in param_list:
-        # check for privitive types
+    return type_hints
 
 def _find_parameter_hint_in_doc_string(doc_string: str):
     param_list = _get_param_hint_strings_from_doc_string(doc_string)
-
-    return _convert_hint_to_type(param_list)
+    if param_list is not None:
+        hints = _convert_hint_to_type(param_list)
+        print(hints)
+        return hints
+    return None
