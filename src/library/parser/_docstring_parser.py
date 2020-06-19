@@ -1,6 +1,6 @@
 import re
 
-def _find_parameter_hint_epy_style(doc_string):
+def _find_parameter_hint_string_epy_style(doc_string):
     '''
     search epy text docstrings for parameters
     epy text examples:
@@ -18,7 +18,7 @@ def _find_parameter_hint_epy_style(doc_string):
         return p
     return None
 
-def _find_parameter_hint_google_style(doc_string):
+def _find_parameter_hint_string_google_style(doc_string):
     '''
     search NumpyDoc style docstrings for parameters
     This is an example of Google style.
@@ -60,7 +60,7 @@ def _find_parameter_hint_google_style(doc_string):
 
     return None
 
-def _find_parameter_hint_numpydoc_style(doc_string):
+def _find_parameter_hint_string_numpydoc_style(doc_string):
     '''
     search NumpyDoc style docstrings for parameters
     example:
@@ -100,7 +100,7 @@ def _find_parameter_hint_numpydoc_style(doc_string):
         return p
     return None
 
-def _find_parameter_hint_rest_style(doc_string):
+def _find_parameter_hint_string_rest_style(doc_string):
     '''
     search reST style docstrings for parameters
     reSt style examples:
@@ -116,26 +116,40 @@ def _find_parameter_hint_rest_style(doc_string):
     p = params.findall(doc_string)
     if p != []:
         return p
+
+    # extract type hint from defined position
     return None
 
-def _find_parameter_hint_in_doc_string(doc_string: str):
-    param_list = None
+def _convert_hint_to_type(param_list):
+    types = { int: ['int', 'integer'],
+                        bool: ['bool', 'boolean'],
+                        float: ['float'],
+                        str: ['str', 'string']
+                        }
+    pass
+    # also arrays, lists, dicts, ... ?
 
-    param_list = _find_parameter_hint_numpydoc_style(doc_string)
-    # if  not numpydoc style
-    if param_list is None:
-        param_list = _find_parameter_hint_rest_style(doc_string)
+    # (type) : default -> suchen nach klammern
+    # .+ ,default= -> suchen nach .+ vor dem Komma
+    # for item in param_list:
+        # check for privitive types
 
-    # if not reST doc style
-    if param_list is None:
-        param_list = _find_parameter_hint_epy_style(doc_string)
+def _get_param_hint_strings_from_doc_string(doc_string: str):
+    if _find_parameter_hint_string_numpydoc_style(doc_string) is not None:
+        return _find_parameter_hint_string_numpydoc_style(doc_string)
 
-    # if not epy doc style
-    if param_list is None:
-        param_list = _find_parameter_hint_google_style(doc_string)
+    elif _find_parameter_hint_string_numpydoc_style(doc_string) is not None:
+        return _find_parameter_hint_string_numpydoc_style(doc_string)
 
-    # if not google doc style
-    if param_list is None:
+    elif _find_parameter_hint_string_numpydoc_style(doc_string) is not None:
+        return _find_parameter_hint_string_numpydoc_style(doc_string)
+
+    elif _find_parameter_hint_string_numpydoc_style(doc_string) is not None:
+        return _find_parameter_hint_string_numpydoc_style(doc_string)
+    else:
         return None
 
-    # call function to extract type and default from param_list here
+def _find_parameter_hint_in_doc_string(doc_string: str):
+    param_list = _get_param_hint_strings_from_doc_string(doc_string)
+
+    return _convert_hint_to_type(param_list)
