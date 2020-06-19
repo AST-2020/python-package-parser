@@ -124,7 +124,7 @@ class FunctionVisitor(ast.NodeVisitor):
     @staticmethod #---
     def _get_positional_arg(node: ast.Call) -> List[Arg]:
         # hier sollte objekt von Arg gegeben wird
-        args = [Arg]
+        args = []
         for arg in node.args:
             a = Arg(getattr(arg, arg.__dir__()[0]))
             args.append(a)
@@ -178,7 +178,17 @@ class FunctionVisitor(ast.NodeVisitor):
         return prefix is None or self.imports.resolve_alias(prefix, line) is not None
 
 if __name__ == '__main__':
-    tree = ast.parse('f(m = 5 )')
+    f = open('..\..\example.py', 'r')
+    content = f.read()
+    tree = ast.parse(content)
+
+    li = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call):
+            li.extend(FunctionVisitor._get_positional_arg(node))
+    for k0 in li:
+        k0.print_arg()
+
     l: [Kw_arg] = []
     for node in ast.walk(tree):
         if isinstance(node, ast.Call):

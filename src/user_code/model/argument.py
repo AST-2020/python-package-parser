@@ -3,11 +3,11 @@ structure for user_code arguments.
 """
 
 class Arg:
-    def __init__(self,value):
+    def __init__(self, value):
         self.value = value
-        self.type = self.__set_typ(value)
+        self.type = self.set_typ(value)
 
-    def __set_typ(self, value):
+    def set_typ(self, value):
         # print(type(value))
         return type(value)
     def get_value(self):
@@ -15,7 +15,7 @@ class Arg:
     def get_type(self):
         return self.type
 
-    def print_args(self):
+    def print_arg(self):
             print(self.value, ':  ', self.type)
 
 
@@ -24,7 +24,7 @@ class Kw_arg(Arg):
         self.name = name
         super().__init__(value)
     def print_kw_arg(self):
-            print(self.name, self.value, ':  ', self.type)
+            print(self.name,':', self.value, ':  ', self.type)
 
 class Arguments_of_function:
     def __init__(self):
