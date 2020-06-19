@@ -1,5 +1,8 @@
 import re
 
+def _find_hint_from_param_desc_epy_style(descriptions: str):
+    pass
+
 def _find_parameter_hint_string_epy_style(doc_string):
     '''
     search epy text docstrings for parameters
@@ -17,6 +20,11 @@ def _find_parameter_hint_string_epy_style(doc_string):
     if p != []:
         return p
     return None
+
+def _find_hint_from_param_desc_google_style(descriptions: str):
+    if descriptions is not None:
+        print(descriptions)
+    pass
 
 def _find_parameter_hint_string_google_style(doc_string):
     '''
@@ -53,12 +61,15 @@ def _find_parameter_hint_string_google_style(doc_string):
 
     # extract params
     if param_section is not None:
-        expr = r'^\s+(.+?)\s?:\s(.+)'
+        expr = r'^\s+(.+?)\s?(\(.+?\))?:\s(.+)' # type info in front of : within ()
         params = re.compile(expr, re.M)
         p = params.findall(param_section)
         return p
 
     return None
+
+def _find_hint_from_param_desc_numpydoc_style(descriptions: str):
+    pass
 
 def _find_parameter_hint_string_numpydoc_style(doc_string):
     '''
@@ -100,6 +111,9 @@ def _find_parameter_hint_string_numpydoc_style(doc_string):
         return p
     return None
 
+def _find_hint_from_param_desc_rest_style(descriptions: str):
+    pass
+
 def _find_parameter_hint_string_rest_style(doc_string):
     '''
     search reST style docstrings for parameters
@@ -120,12 +134,32 @@ def _find_parameter_hint_string_rest_style(doc_string):
     # extract type hint from defined position
     return None
 
+def _get_param_hint_strings_from_doc_string(doc_string: str):
+    if _find_parameter_hint_string_numpydoc_style(doc_string) is not None:
+        descs = _find_parameter_hint_string_numpydoc_style(doc_string)
+        return _find_hint_from_param_desc_numpydoc_style(descs)
+
+    elif _find_parameter_hint_string_google_style(doc_string) is not None:
+        descs = _find_parameter_hint_string_google_style(doc_string)
+        return _find_hint_from_param_desc_google_style(descs)
+
+    elif _find_parameter_hint_string_rest_style(doc_string) is not None:
+        descs = _find_parameter_hint_string_rest_style(doc_string)
+        return _find_hint_from_param_desc_rest_style(descs)
+
+    elif _find_parameter_hint_string_epy_style(doc_string) is not None:
+        descs = _find_parameter_hint_string_epy_style(doc_string)
+        return _find_hint_from_param_desc_epy_style(descs)
+
+    else:
+        return None
+
 def _convert_hint_to_type(param_list):
     types = { int: ['int', 'integer'],
-                        bool: ['bool', 'boolean'],
-                        float: ['float'],
-                        str: ['str', 'string']
-                        }
+            bool: ['bool', 'boolean'],
+            float: ['float'],
+            str: ['str', 'string']
+            }
     pass
     # also arrays, lists, dicts, ... ?
 
@@ -133,21 +167,6 @@ def _convert_hint_to_type(param_list):
     # .+ ,default= -> suchen nach .+ vor dem Komma
     # for item in param_list:
         # check for privitive types
-
-def _get_param_hint_strings_from_doc_string(doc_string: str):
-    if _find_parameter_hint_string_numpydoc_style(doc_string) is not None:
-        return _find_parameter_hint_string_numpydoc_style(doc_string)
-
-    elif _find_parameter_hint_string_numpydoc_style(doc_string) is not None:
-        return _find_parameter_hint_string_numpydoc_style(doc_string)
-
-    elif _find_parameter_hint_string_numpydoc_style(doc_string) is not None:
-        return _find_parameter_hint_string_numpydoc_style(doc_string)
-
-    elif _find_parameter_hint_string_numpydoc_style(doc_string) is not None:
-        return _find_parameter_hint_string_numpydoc_style(doc_string)
-    else:
-        return None
 
 def _find_parameter_hint_in_doc_string(doc_string: str):
     param_list = _get_param_hint_strings_from_doc_string(doc_string)
