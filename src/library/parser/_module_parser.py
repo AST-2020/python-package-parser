@@ -62,22 +62,30 @@ class _PythonFileVisitor(ast.NodeVisitor):
         parameters = self.__create_parameter_lists(node)
 
         if self.__current_class is None:
-            for param_obj in parameters:
-                function = Function(node.name, param_obj)
+            if len(parameters) == 0:
+                function = Function(node.name, [])
                 self.__current_module.add_top_level_function(function)
+            else:
+                for param_obj in parameters:
+                    function = Function(node.name, param_obj)
+                    self.__current_module.add_top_level_function(function)
         else:
-            for param_obj in parameters:
-                if param_obj is not None:
-                    param_obj = param_obj[1:]
-                function = Function(node.name, param_obj)
+            if len(parameters) == 0:
+                function = Function(node.name, [])
                 self.__current_class.add_method(function)
+            else:
+                for param_obj in parameters:
+                    if param_obj is not None:
+                        param_obj = param_obj[1:]
+                    function = Function(node.name, param_obj)
+                    self.__current_class.add_method(function)
 
     def find_inner_hint(self, subscriptable_object, hint_string=""):
         if subscriptable_object is None:
             return None
         if subscriptable_object.__dir__()[0] in ["id", "s"]:
             hint_string = getattr(subscriptable_object, subscriptable_object.__dir__()[0])
-        elif subscriptable_object.__dir__()[0] is "value":
+        elif subscriptable_object.__dir__()[0] == "value":
             hint = self.find_inner_hint(subscriptable_object.value)
             if hint is not None:
                 hint_string += hint
@@ -89,7 +97,7 @@ class _PythonFileVisitor(ast.NodeVisitor):
         elif subscriptable_object.__dir__()[0] in ["value", "id", "s"]:
             pass
         elif "elts" in subscriptable_object.__dir__():
-            if len(subscriptable_object.elts) is 0:
+            if len(subscriptable_object.elts) == 0:
                 return "[]"
             for i in range(len(subscriptable_object.elts)):
                 hint = self.find_inner_hint(subscriptable_object.elts[i])
@@ -113,9 +121,9 @@ class _PythonFileVisitor(ast.NodeVisitor):
         #     if arg.annotation is not None and "id" in arg.annotation.__dir__():
         for arg in node.args.args:
             type_hint = self.find_inner_hint(arg.annotation)
-            # print("the type hint", type_hint)
             name_and_hint_dict[arg.arg] = type_hint
-            found_hint_in_definition = True
+            if type_hint is not None:
+                found_hint_in_definition = True
 
         # to test, if length of single_type_hints is equal to length of searched_args
         # if not, then the type hints belong to a different function

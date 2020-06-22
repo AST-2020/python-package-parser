@@ -38,7 +38,7 @@ class _PythonPyiFileVisitor(ast.NodeVisitor):
 
         # to test, if length of single_type_hints is equal to length of searched_args
         # if not, then the type hints belong to a different function
-        if len(self.single_type_hints) is not 0 and len(self.single_type_hints) == len(self.searched_args):
+        if len(self.single_type_hints) != 0 and len(self.single_type_hints) == len(self.searched_args):
             self.returned_type_hints.append(self.single_type_hints)
             self.single_type_hints = OrderedDict()
 
@@ -47,7 +47,7 @@ class _PythonPyiFileVisitor(ast.NodeVisitor):
             return None
         if subscriptable_object.__dir__()[0] in ["id", "s"]:
             hint_string = getattr(subscriptable_object, subscriptable_object.__dir__()[0])
-        elif subscriptable_object.__dir__()[0] is "value":
+        elif subscriptable_object.__dir__()[0] == "value":
             hint = self.find_inner_hint(subscriptable_object.value)
             if hint is not None:
                 hint_string += hint
@@ -59,7 +59,7 @@ class _PythonPyiFileVisitor(ast.NodeVisitor):
         elif subscriptable_object.__dir__()[0] in ["value", "id", "s"]:
             pass
         elif "elts" in subscriptable_object.__dir__():
-            if len(subscriptable_object.elts) is 0:
+            if len(subscriptable_object.elts) == 0:
                 return "[]"
             for i in range(len(subscriptable_object.elts)):
                 hint = self.find_inner_hint(subscriptable_object.elts[i])
@@ -76,7 +76,7 @@ class _PythonPyiFileVisitor(ast.NodeVisitor):
         return hint_string
 
     def get_type_hints(self):
-        if len(self.returned_type_hints) is not 0:
+        if len(self.returned_type_hints) != 0:
             return self.returned_type_hints
         else:
             return None

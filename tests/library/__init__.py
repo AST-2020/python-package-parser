@@ -13,17 +13,17 @@ if __name__ == '__main__':
     #     print("  Functions\n  =========")
     #     for function in module.get_all_top_level_functions():
     #         print(f"    {function}")
-    methods = package.get_top_level_functions_with_name("TestDirectory.file1", "testFunc1")
-    for method in methods:
-        print(method)
-        parameters = method.get_parameters()
-        for parameter in parameters:
-            print(parameter)
-        print("############")
+    # methods = package.get_top_level_functions_with_name("TestDirectory.file1", "testFunc1")
+    # for method in methods:
+    #     print(method)
+    #     parameters = method.get_parameters()
+    #     for parameter in parameters:
+    #         print(parameter)
+    #     print("############")
 
 
 
-    methods = package.get_methods_with_name("TestDirectory.file1", "testFile2", "__init__")
+    methods = package.get_methods_with_name("TestDirectory.file1", "testFile1", "__init__")
     for method in methods:
         print(method)
         parameters = method.get_parameters()
@@ -38,3 +38,11 @@ if __name__ == '__main__':
         for parameter in parameters:
             print(parameter)
         print("############")
+
+    # methods = package.get_methods_with_name("TestDirectory.file1", "empty_cls", "empty_method")
+    # for method in methods:
+    #     print(method)
+    #     parameters = method.get_parameters()
+    #     for parameter in parameters:
+    #         print(parameter)
+    #     print("############")
