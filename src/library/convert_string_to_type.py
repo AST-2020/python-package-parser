@@ -1,12 +1,12 @@
 import re
 from typing import *
-# from torch import Tensor
+from torch import Tensor
 
 
 def convert_string_to_type(s: str) -> Type:
     try:
         return eval(s)
-    except NameError:
+    except (NameError, SyntaxError, TypeError) as e:
         if s == "string" or s == "str":
             return str
         if s == "boolean":
@@ -44,10 +44,15 @@ def convert_string_to_type(s: str) -> Type:
             return Dict[convert_string_to_type(matches[0]), convert_string_to_type(matches[1])]
 
         match = re.match("^Callable\\[\\[(.*)]$", s)
+        if match is None:
+            match = re.match("^Callable\\[(.*)]$", s)
         if match is not None:
             match = match.group(1).rsplit("], ")
+            if len(match) == 1:
+                match = match[0].rsplit(", ")
             match1 = match[0].split(", ")
             match1 = list(map(convert_string_to_type, match1))
             match2 = list(map(convert_string_to_type, match[1]))
             return Callable[match1, match2[0]]
+
         return Any

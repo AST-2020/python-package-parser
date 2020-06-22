@@ -11,7 +11,8 @@ from src.library.convert_string_to_type import convert_string_to_type
 #         from code: Optional[Callable[, float]]
 
 class _PythonPyiFileVisitor(ast.NodeVisitor):
-    def __init__(self, function_name, searched_args: Dict, searched_cls_name=None):
+    def __init__(self, module, function_name, searched_args: Dict, searched_cls_name=None):
+        self.__module = module
         self.function_name = function_name
         self.searched_cls_name = searched_cls_name
         self.searched_args = searched_args
@@ -47,40 +48,30 @@ class _PythonPyiFileVisitor(ast.NodeVisitor):
             self.single_type_hints = OrderedDict()
 
     def find_inner_hint(self, subscriptable_object, hint_string=""):
-        if subscriptable_object is None:
-            return None
+        if subscriptable_object is None or type(subscriptable_object) is str:
+            return subscriptable_object
         if subscriptable_object.__dir__()[0] in ["id", "s"]:
-            hint_string = getattr(subscriptable_object, subscriptable_object.__dir__()[0])
+            hint_string += getattr(subscriptable_object, subscriptable_object.__dir__()[0])
         elif subscriptable_object.__dir__()[0] == "value":
             hint = self.find_inner_hint(subscriptable_object.value)
             if hint is not None:
                 hint_string += hint
             else:
-                hint_string += "..."
-        if "slice" in subscriptable_object.__dir__() and "elts" in subscriptable_object.slice.value.__dir__():
-            hint_string += self.find_inner_hint(subscriptable_object.slice.value)
+                hint_string += "None"
+        elif subscriptable_object is Ellipsis:
+            hint_string += "Any"
 
-        elif "slice" in subscriptable_object.__dir__():
+        if "slice" in subscriptable_object.__dir__() and "elts" not in subscriptable_object.slice.value.__dir__():
             hint_string += "[" + self.find_inner_hint(subscriptable_object.slice.value) + "]"
-
-        elif subscriptable_object.__dir__()[0] in ["value", "id", "s"]:
-            pass
+        elif "slice" in subscriptable_object.__dir__():
+            hint_string += self.find_inner_hint(subscriptable_object.slice)
         elif "elts" in subscriptable_object.__dir__():
-            hint_string = "["
-            if len(subscriptable_object.elts) == 0:
-                return "[]"
+            hint_string += "["
             for i in range(len(subscriptable_object.elts)):
-                hint = self.find_inner_hint(subscriptable_object.elts[i])
                 if i < len(subscriptable_object.elts) - 1:
-                    if hint is not None:
-                        hint_string += self.find_inner_hint(subscriptable_object.elts[i]) + ", "
-                    else:
-                        hint_string += "..., "
+                    hint_string += self.find_inner_hint(subscriptable_object.elts[i]) + ", "
                 else:
-                    if hint is not None:
-                        hint_string += self.find_inner_hint(subscriptable_object.elts[i])
-                    else:
-                        hint_string += "..."
+                    hint_string += self.find_inner_hint(subscriptable_object.elts[i])
             hint_string += "]"
         return hint_string
 
