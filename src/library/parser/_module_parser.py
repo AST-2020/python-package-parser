@@ -4,6 +4,7 @@ from typing import Dict, Optional, Any, List
 from library.model import Class, Function, Module, Parameter
 from ._pyi_parser import _PythonPyiFileVisitor
 from collections import OrderedDict
+from src.library.convert_string_to_type import convert_string_to_type
 
 
 # examples for special cases:
@@ -91,12 +92,16 @@ class _PythonFileVisitor(ast.NodeVisitor):
                 hint_string += hint
             else:
                 hint_string += "..."
-        if "slice" in subscriptable_object.__dir__():
+        if "slice" in subscriptable_object.__dir__() and "elts" in subscriptable_object.slice.value.__dir__():
+            hint_string += self.find_inner_hint(subscriptable_object.slice.value)
+
+        elif "slice" in subscriptable_object.__dir__():
             hint_string += "[" + self.find_inner_hint(subscriptable_object.slice.value) + "]"
-            # hint: Optional[Callable[, float]]
+
         elif subscriptable_object.__dir__()[0] in ["value", "id", "s"]:
             pass
         elif "elts" in subscriptable_object.__dir__():
+            hint_string = "["
             if len(subscriptable_object.elts) == 0:
                 return "[]"
             for i in range(len(subscriptable_object.elts)):
@@ -111,6 +116,7 @@ class _PythonFileVisitor(ast.NodeVisitor):
                         hint_string += self.find_inner_hint(subscriptable_object.elts[i])
                     else:
                         hint_string += "..."
+            hint_string += "]"
         return hint_string
 
     def __create_parameter_lists(self, node: ast.FunctionDef) -> List[Parameter]:
@@ -123,6 +129,7 @@ class _PythonFileVisitor(ast.NodeVisitor):
             type_hint = self.find_inner_hint(arg.annotation)
             name_and_hint_dict[arg.arg] = type_hint
             if type_hint is not None:
+                type_hint = convert_string_to_type(type_hint)
                 found_hint_in_definition = True
 
         # to test, if length of single_type_hints is equal to length of searched_args

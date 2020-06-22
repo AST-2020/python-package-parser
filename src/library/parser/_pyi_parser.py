@@ -1,6 +1,7 @@
 import ast
 from collections import OrderedDict
 from typing import Any, Dict
+from src.library.convert_string_to_type import convert_string_to_type
 
 
 # differences:
@@ -33,6 +34,9 @@ class _PythonPyiFileVisitor(ast.NodeVisitor):
                     self.single_type_hints = OrderedDict()
                     break
                 type_hint = self.find_inner_hint(arg.annotation)
+                if type_hint is not None:
+                    type_hint = convert_string_to_type(type_hint)
+
                 # print("the type hint", type_hint)
                 self.single_type_hints[arg.arg] = type_hint
 
@@ -53,12 +57,16 @@ class _PythonPyiFileVisitor(ast.NodeVisitor):
                 hint_string += hint
             else:
                 hint_string += "..."
-        if "slice" in subscriptable_object.__dir__():
+        if "slice" in subscriptable_object.__dir__() and "elts" in subscriptable_object.slice.value.__dir__():
+            hint_string += self.find_inner_hint(subscriptable_object.slice.value)
+
+        elif "slice" in subscriptable_object.__dir__():
             hint_string += "[" + self.find_inner_hint(subscriptable_object.slice.value) + "]"
-            # hint: Optional[Callable[, float]]
+
         elif subscriptable_object.__dir__()[0] in ["value", "id", "s"]:
             pass
         elif "elts" in subscriptable_object.__dir__():
+            hint_string = "["
             if len(subscriptable_object.elts) == 0:
                 return "[]"
             for i in range(len(subscriptable_object.elts)):
@@ -73,6 +81,7 @@ class _PythonPyiFileVisitor(ast.NodeVisitor):
                         hint_string += self.find_inner_hint(subscriptable_object.elts[i])
                     else:
                         hint_string += "..."
+            hint_string += "]"
         return hint_string
 
     def get_type_hints(self):

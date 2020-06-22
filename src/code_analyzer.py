@@ -36,9 +36,8 @@ def analyze_file(file_to_analyze: str, package: Package, message_manager: Messag
 
 
 if __name__ == '__main__':
-    print(torch.__file__)
-    # if len(sys.argv) >= 2:
-    #     package = parse_package("torch")
+    if len(sys.argv) >= 2:
+        package = parse_package("torch")
     #     # for module in package.get_all_modules():
     #     #     print(module.get_name())
     #     #
@@ -56,5 +55,5 @@ if __name__ == '__main__':
     #             print(parameter)
 
         # analyze_files(sys.argv[1:], parse_packages(['torch', 'sklearn'])).print_messages()
-    # else:
-    #     print('Usage: python code_analyzer.py <files_to_analyze*>')
+    else:
+        print('Usage: python code_analyzer.py <files_to_analyze*>')

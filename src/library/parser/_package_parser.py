@@ -27,6 +27,8 @@ def parse_packages(package_names: List[str]) -> Optional[Package]:
     return result
 
 
+# main function (parse package --> check results)
+
 def parse_package(package_name: str) -> Optional[Package]:
     if not _is_package_installed(package_name):
         return None
@@ -38,6 +40,8 @@ def parse_package(package_name: str) -> Optional[Package]:
     return result
 
 
+# try with directory that has (py-pyi file pair) and (only py files)
+# check if path is correct
 def _walk_package(package_name: str) -> Generator[Tuple[str, str, Optional[str]], Any, None]:
     """
     Yields 3-tuples of the form (module_path, python_file, python_interface_file), which can be iterated in a
@@ -74,6 +78,8 @@ def _walk_package(package_name: str) -> Generator[Tuple[str, str, Optional[str]]
             yield module_path, python_file, python_interface_file
 
 
+# try with testdirectory (true)
+# try with imaginary package (false)
 def _is_package_installed(package_name: str) -> bool:
     """Checks if the package with the given name is installed."""
 
@@ -89,6 +95,7 @@ def _get_package_root(package_name: str) -> Optional[str]:
         return None
 
 
+# try with different files
 def _get_module_base_path(package_name: str, package_root: str, dirpath: str) -> str:
     module_base_path = package_name
     relative_dirpath = Path(dirpath).relative_to(package_root).as_posix()
@@ -97,10 +104,13 @@ def _get_module_base_path(package_name: str, package_root: str, dirpath: str) ->
     return module_base_path
 
 
+# make .py file (true)
+# non .py file (false)
 def _is_python_file(filename: str) -> bool:
     return Path(filename).suffix == ".py"
 
 
+# no tests for now
 def _get_module_path(module_base_path: str, filename: str) -> str:
     if filename == "__init__.py":
         return module_base_path
@@ -108,6 +118,8 @@ def _get_module_path(module_base_path: str, filename: str) -> str:
         return module_base_path + "." + Path(filename).stem
 
 
+# make two files with same name, but different extensions (true)
+# 1 file without another pyi file with same name
 def _get_python_interface_file(dirpath: str, filenames: List[str], python_file: str) -> Optional[str]:
     pyi_file = python_file.replace(".py", ".pyi")
     if pyi_file in filenames:

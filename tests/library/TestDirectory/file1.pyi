@@ -1,15 +1,14 @@
-from typing import List, Dict, overload, Tuple, Callable, Optional
+from typing import List, Dict, overload, Tuple, Callable, Optional, Union
+from torch import Tensor
 
-# my_list = [List, Dict, overload, "Tuple", "Callable", "Optional"]
 
 class testFile1:
-    def __init__(self, name: List[Tensor, str], nachname:str):
-        # if __name__ == '__main__':
-        #     s = "List[..."
-        #     convert_str_to_obj()
-        #     obj_type = List...
-        #     eval("List[Tensor]") #
-
+    # def __init__(self, name: Optional[Union[_device, str, int]], nachname:Optional[int],
+    #              echte_name:Callable[[Tensor, Tensor, int], Tensor]):
+    # def __init__(self, name: Dict[float, _device], nachname:Callable[[Tensor, Tensor, int], Tensor],
+    #              echte_name):
+    def __init__(self, name, nachname:Callable[[Tensor, Tensor, int], Tensor],
+                 echte_name):
         pass
 
 def testFunc1(num:str, my_list:List, my_bool:bool, my_double:Float, my_obj:obj) -> int:
