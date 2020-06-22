@@ -29,7 +29,7 @@ def analyze_file(file_to_analyze: str, package: Package, message_manager: Messag
         check_function_exists(call, message_manager)
         check_arg_names(call, message_manager)
         check_arg_number(call, message_manager)
-        # check_type(call, message_manager)
+        check_type(call, message_manager)
     return message_manager
 
 

@@ -6,7 +6,8 @@ from user_code.model import FunctionCall, Imports, Variables, Location
 from user_code.parser._import_parser import ImportVisitor
 from user_code.parser._variable_parser import VariableVisitor
 from user_code.model.argument import Arg, Kw_arg
-
+from user_code.parser._all_variable_parser import AllVariableVisitor
+from user_code.model import Variable
 
 def parse_function_calls(file_to_analyze: str, package: Package) -> List[FunctionCall]:
     with open(file_to_analyze, mode='r') as f:
@@ -22,6 +23,11 @@ def parse_function_calls(file_to_analyze: str, package: Package) -> List[Functio
     var_visitor = VariableVisitor(imports)
     var_visitor.visit(tree)
     variables = var_visitor.get_vars()
+
+    # get all declared vars
+    declared_vars = FunctionVisitor(file_to_analyze,package, imports, variables)
+    declared_vars.get_declared_vars()
+
 
     fp = FunctionVisitor(file_to_analyze, package, imports, variables)
     fp.visit(tree)
@@ -43,12 +49,13 @@ class FunctionVisitor(ast.NodeVisitor):
         self.vars: Variables = variables
         self.calls = []
 
+
     def visit_Call(self, node: ast.Call) -> Any:
         self.calls.append(
             FunctionCall(
                 self._get_function_name(node),
                 self._get_number_of_positional_args(node),
-                self._get_positional_arg(node), #--
+                self._get_positional_arg(node, self.get_declared_vars()), #--
                 self._get_keyword_arg(node), #--
                 self._get_keyword_arg_names(node),
                 self._get_callee_candidates(node),
@@ -110,7 +117,6 @@ class FunctionVisitor(ast.NodeVisitor):
     def _get_keyword_arg_names(node: ast.Call) -> List[str]:
         return [keyword.arg for keyword in node.keywords]
 
-###########################################
     @staticmethod #--
     def _get_keyword_arg(node: ast.Call) -> List[Kw_arg]:
         kws = []
@@ -121,14 +127,48 @@ class FunctionVisitor(ast.NodeVisitor):
             # print(a.get_type())
         return kws
 
+    @staticmethod
+    def find_value(var: AllVariableVisitor, var_name, var_lineno) -> Any:
+        vars:[Variable] = []
+        value = None
+        last_line_nr = 0
+        var = var
+        for variable in var:
+            if var_name == variable.name:
+                # print(vars[name][0], vars[name][1])
+                if var_lineno > variable.lineno and variable.lineno > last_line_nr:
+                    value = variable.value
+                    last_line_nr = variable.lineno
+        return value
+
+    def get_declared_vars(self):
+        with open(self.file, mode='r') as f:
+            contents = f.read()
+        tree = ast.parse(contents)
+        declared_vars = AllVariableVisitor()
+        declared_vars.visit(tree)
+        return declared_vars.usedvars
+
+
     @staticmethod #---
-    def _get_positional_arg(node: ast.Call) -> List[Arg]:
-        # hier sollte objekt von Arg gegeben wird
+    def _get_positional_arg(node: ast.Call, declared_vars) -> List[Arg]:
         args = []
         for arg in node.args:
-            a = Arg(getattr(arg, arg.__dir__()[0]))
+            if isinstance(arg, ast.Name):
+                # print(ast.dump(arg))
+                # hier sollte eine methode aufgerufen, die in usedvars nach dem wert von arg sucht.
+                # print(arg.id, arg.lineno)
+                a = Arg(FunctionVisitor.find_value(declared_vars, arg.id, arg.lineno ))
+                # a = Arg(arg.id)
+                # print('it is name ', a.value)
+                args.append(a)
+            else:
+                a = Arg(getattr(arg, arg.__dir__()[0]))
+                # print('it is value', a.value)
             args.append(a)
         return args
+
+
 
 
 
@@ -178,20 +218,36 @@ class FunctionVisitor(ast.NodeVisitor):
         return prefix is None or self.imports.resolve_alias(prefix, line) is not None
 
 if __name__ == '__main__':
-    f = open('..\..\example.py', 'r')
-    content = f.read()
-    tree = ast.parse(content)
+    with open('..\..\example.py', mode='r') as f:
+        contents = f.read()
+        tree = ast.parse(contents)
 
-    li = []
+
+    vars = AllVariableVisitor()
+    vars.visit(tree)
+    declared_vars = vars.usedvars
+    # print(declared_vars)
+    # # print(usedvars.usedvars)
+    # print(FunctionVisitor.find_value(var=declared_vars, var_name='N', var_lineno = 20))
+
+
+    # l = []
+    # l.extend(FunctionVisitor.get_declared_vars(tree))
+    # for k in l:
+    #     k.print_variable()
+
+
+
+
+
     for node in ast.walk(tree):
         if isinstance(node, ast.Call):
-            li.extend(FunctionVisitor._get_positional_arg(node))
-    for k0 in li:
-        k0.print_arg()
-
-    l: [Kw_arg] = []
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Call):
+            li = []
+            l: [Kw_arg] = []
+            li.extend(FunctionVisitor._get_positional_arg(node, declared_vars ))
             l.extend(FunctionVisitor._get_keyword_arg(node))
-    for k in l:
-        k.print_kw_arg()
+            print('method')
+            for k0 in li:
+                k0.print_arg()
+            for k in l:
+                k.print_kw_arg()
