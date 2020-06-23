@@ -4,6 +4,8 @@ T = TypeVar('T')
 
 
 def _dict_to_list(dct: Dict) -> List[T]:
+    if dct is None:
+        return None
     return list(dct.values())
 
 
