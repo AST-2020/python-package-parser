@@ -14,8 +14,16 @@ def check_type(call: FunctionCall, message_manager: MessageManager):
 
     # f(4, c = 5)
     param = [] # soll gelöscht werden
-    for key in call.positional_args:
-        pass
-
-    for key in call.keyword_arg:
-        pass
+    # for key in call.positional_args:
+    #     pass
+    #
+    # for key in call.keyword_arg:
+    #     pass
+    name = call.name
+    args = call.positional_arg
+    keyargs= call.keyword_arg
+    print(name)
+    for arg in args:
+        print( arg.value ,': ', arg.type)
+    for kwarg in keyargs:
+        print(kwarg.name,': ',kwarg.value, ': ', kwarg.type)

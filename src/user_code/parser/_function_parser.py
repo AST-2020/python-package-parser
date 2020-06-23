@@ -56,7 +56,7 @@ class FunctionVisitor(ast.NodeVisitor):
                 self._get_function_name(node),
                 self._get_number_of_positional_args(node),
                 self._get_positional_arg(node, self.get_declared_vars()), #--
-                self._get_keyword_arg(node), #--
+                self._get_keyword_arg(node, self.get_declared_vars()), #--
                 self._get_keyword_arg_names(node),
                 self._get_callee_candidates(node),
                 Location.create_location(self.file, node)
@@ -118,11 +118,20 @@ class FunctionVisitor(ast.NodeVisitor):
         return [keyword.arg for keyword in node.keywords]
 
     @staticmethod #--
-    def _get_keyword_arg(node: ast.Call) -> List[Kw_arg]:
+    def _get_keyword_arg(node: ast.Call,  declared_vars) -> List[Kw_arg]:
         kws = []
         for keyword in node.keywords:
+            # print(ast.dump(node))
+            if isinstance(keyword.value, ast.Name):
+                value_var_name = keyword.value.id
+                # print(value_var_name)
+                arg_value = FunctionVisitor.find_value(declared_vars, value_var_name, keyword.value.lineno )
+                # print(arg_value)
+                # print(ast.dump(keyword))
+            else:
+                arg_value = getattr(keyword.value,keyword.value.__dir__()[0])
             # print(keyword.arg,getattr(keyword.value,keyword.value.__dir__()[0]))
-            a = Kw_arg(keyword.arg, getattr(keyword.value,keyword.value.__dir__()[0]))
+            a = Kw_arg(keyword.arg, arg_value)
             kws.append(a)
             # print(a.get_type())
         return kws
@@ -163,9 +172,15 @@ class FunctionVisitor(ast.NodeVisitor):
                 # print('it is name ', a.value)
                 args.append(a)
             else:
-                a = Arg(getattr(arg, arg.__dir__()[0]))
+                if isinstance(arg, ast.Dict):
+                    a = Arg(getattr(arg, arg.__dir__()[0]))
+                    a.set_typ(type({}))
+                    # print(getattr(arg, arg.__dir__()[0]), type({}))
+                    # print(a.value, ': ', a.type)
+                else:
+                    a = Arg(getattr(arg, arg.__dir__()[0]))
                 # print('it is value', a.value)
-            args.append(a)
+                args.append(a)
         return args
 
 
@@ -242,12 +257,12 @@ if __name__ == '__main__':
 
     for node in ast.walk(tree):
         if isinstance(node, ast.Call):
-            li = []
-            l: [Kw_arg] = []
-            li.extend(FunctionVisitor._get_positional_arg(node, declared_vars ))
-            l.extend(FunctionVisitor._get_keyword_arg(node))
+            l = []
+            # kwl: [Kw_arg] = []
+            l.extend(FunctionVisitor._get_positional_arg(node, declared_vars ))
+            # kwl.extend(FunctionVisitor._get_keyword_arg(node, declared_vars))
             print('method')
-            for k0 in li:
-                k0.print_arg()
             for k in l:
-                k.print_kw_arg()
+                k.print_arg()
+            # for k0 in l:
+            #     k0.print_kw_arg()

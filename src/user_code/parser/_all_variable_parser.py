@@ -36,7 +36,6 @@ class AllVariableVisitor(ast.NodeVisitor):
                 names_list.append(node.id)
             if isinstance(node, ast.Assign):
                 node = node.value
-
                 # print(ast.dump(node))
                 if isinstance(node, ast.Tuple):
                     len = node.elts.__len__()

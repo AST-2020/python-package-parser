@@ -5,13 +5,17 @@ structure for user_code arguments.
 class Arg:
     def __init__(self, value):
         self.value = value
-        self.type = self.set_typ(value)
+        self.type = type(value)
 
-    def set_typ(self, value):
-        # print(type(value))
-        return type(value)
+    def set_typ(self, typ = None):
+        if typ is None:
+            self.type = type(self.value)
+        else:
+            self.type = typ
+
     def get_value(self):
         return self.value
+
     def get_type(self):
         return self.type
 
