@@ -9,7 +9,9 @@ class testFile5:
     def method_51(self, name, nachname, echte_name):
         pass
 
-    def method_52(self, name: Union[..., Tensor], nachname, echte_name):
+    def method_52(self, name, nachname, echte_name):
+        pass
+    def method_52(self, name2, nachname2, echte_name2):
         pass
 
     def method_53(self, name, nachname="yoyoyo", echte_name="kein Witz"):

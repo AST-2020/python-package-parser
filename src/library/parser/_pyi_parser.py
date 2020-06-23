@@ -59,7 +59,7 @@ class _PythonPyiFileVisitor(ast.NodeVisitor):
             else:
                 hint_string += "None"
         elif subscriptable_object is Ellipsis:
-            hint_string += "Any"
+            hint_string += "ellipsis"
 
         if "slice" in subscriptable_object.__dir__() and "elts" not in subscriptable_object.slice.value.__dir__():
             hint_string += "[" + self.find_inner_hint(subscriptable_object.slice.value) + "]"

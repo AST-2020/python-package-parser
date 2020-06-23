@@ -26,8 +26,10 @@ class Class:
 
     def get_all_methods(self) -> List[Function]:
         result = []
+        if self.__methods is None:
+            return []
         for methodsWithSameName in _dict_to_list(self.__methods):
-            result += methodsWithSameName
+            result.append(methodsWithSameName)
         return result
 
     def __str__(self) -> str:

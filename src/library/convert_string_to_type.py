@@ -5,8 +5,10 @@ from torch import Tensor
 
 def convert_string_to_type(s: str) -> Type:
     try:
+        if "ellipsis" in s:
+            s = s.replace("ellipsis", "...")
         return eval(s)
-    except (NameError, SyntaxError, TypeError) as e:
+    except (NameError, SyntaxError) as e:
         if s == "string" or s == "str":
             return str
         if s == "boolean":

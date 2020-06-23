@@ -7,25 +7,25 @@ if __name__ == '__main__':
     modules_names =[]
     module_functions = {}
     module_classes_names_and_methods = {}
-    package = parse_package("TestPackage")
-    all_modules = package.get_all_modules()
-    for module in all_modules:
-        module_name = module.get_name()
-        modules_names.append(module_name)
-        module_classes = module.get_all_classes()
-        for klass in module_classes:
-            klass_methods = klass.get_all_methods()
-            for method in klass_methods:
-                method_parameters = method.get_parameters()
-                for parameter in method_parameters:
-                    if parameter.get_name() == "file2_init":
-                        print(True)
+    package = parse_package("TestPackage_2")
+    # all_modules = package.get_all_modules()
+    # for module in all_modules:
+    #     module_name = module.get_name()
+    #     modules_names.append(module_name)
+    #     module_classes = module.get_all_classes()
+    #     for klass in module_classes:
+    #         klass_methods = klass.get_all_methods()
+    #         for method in klass_methods:
+    #             method_parameters = method.get_parameters()
+    #             for parameter in method_parameters:
+    #                 if parameter.get_name() == "file2_init":
+    #                     print(True)
 
 
 
 
 
-    print(modules_names)
+    # print(modules_names)
     # parsed_package = _walk_package("TestPackage")
     # for module_path, python_file, python_interface_file in parsed_package:
     #     print(module_path, " ", python_file, " ", python_interface_file)
@@ -49,13 +49,13 @@ if __name__ == '__main__':
 
 
 
-    # methods = package.get_methods_with_name("TestDirectory.file1", "testFile1", "__init__")
-    # for method in methods:
-    #     print(method)
-    #     parameters = method.get_parameters()
-    #     for parameter in parameters:
-    #         print(parameter)
-    #     print("############")
+    methods = package.get_methods_with_name("TestPackage_2.UC4_pyi_files", "testFile5", "method_52")
+    for method in methods:
+        print(method)
+        parameters = method.get_parameters()
+        for parameter in parameters:
+            print(parameter)
+        print("############")
     #
     # methods = package.get_top_level_functions_with_name("TestDirectory.file1", "empty_func")
     # for method in methods:

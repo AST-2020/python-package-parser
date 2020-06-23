@@ -7,12 +7,15 @@ class testFile5:
     def __init__(self, name: Optional[Union[_device, str, int]], nachname:Optional[int],
                  echte_name:Callable[[Tensor, Tensor, int], Tensor]):
         pass
+
     def method_51(self, name: Dict[float, _device], nachname:Callable[[Tensor, Tensor, int], Tensor],
                  echte_name):
         pass
-    def method_52(self, name: Union[..., Tensor], nachname:Callable[[Tensor, Tensor, int], Tensor],
+
+    def method_52(self, name: Union[int, Tensor], nachname:Callable[..., Tensor],
                  echte_name:Callable[['Module'], None]):
         pass
+
     def method_53(self,
                  name:Union[Callable[[int], float], List[Callable[[int], float]]],
                  nachname: Callable[[Tensor, Tensor, int], Tensor]="yoyoyo",
