@@ -7,7 +7,7 @@ if __name__ == '__main__':
     modules_names =[]
     module_functions = {}
     module_classes_names_and_methods = {}
-    package = parse_package("TestPackage_2")
+    package = parse_package("TestPackage_3")
     # all_modules = package.get_all_modules()
     # for module in all_modules:
     #     module_name = module.get_name()
@@ -49,7 +49,7 @@ if __name__ == '__main__':
 
 
 
-    methods = package.get_methods_with_name("TestPackage_2.UC4_pyi_files", "testFile5", "method_52")
+    methods = package.get_methods_with_name("TestPackage_3.UC4_pyi_files", "testFile5", "method_52")
     for method in methods:
         print(method)
         parameters = method.get_parameters()

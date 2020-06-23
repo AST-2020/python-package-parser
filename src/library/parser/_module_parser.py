@@ -93,7 +93,7 @@ class _PythonFileVisitor(ast.NodeVisitor):
             else:
                 hint_string += "None"
         elif subscriptable_object is Ellipsis:
-            hint_string += "Any"
+            hint_string += "ellipsis"
 
         if "slice" in subscriptable_object.__dir__() and "elts" not in subscriptable_object.slice.value.__dir__():
             hint_string += "[" + self.find_inner_hint(subscriptable_object.slice.value) + "]"
@@ -111,7 +111,7 @@ class _PythonFileVisitor(ast.NodeVisitor):
 
     def __create_parameter_lists(self, node: ast.FunctionDef) -> List[Parameter]:
         param_name_and_hint = []
-        name_and_hint_dict = {}
+        name_and_hint_dict = OrderedDict()
         found_hint_in_definition = False
         # for arg in node.args.args:
         #     if arg.annotation is not None and "id" in arg.annotation.__dir__():
@@ -128,12 +128,15 @@ class _PythonFileVisitor(ast.NodeVisitor):
         self.single_type_hints = OrderedDict()
 
         if not found_hint_in_definition and self.__pyi_file is not None:
+            found_hint_in_definition = True
             if self.__current_class is not None:
                 pyi_type_hints = _PythonPyiFileVisitor(self.__current_module.get_name(), node.name, name_and_hint_dict, self.__current_class.get_name())
             else:
                 pyi_type_hints = _PythonPyiFileVisitor(self.__current_module.get_name(), node.name, name_and_hint_dict)
             pyi_type_hints.visit(self.__pyi_file)
-            param_name_and_hint = pyi_type_hints.get_type_hints()
+            if pyi_type_hints.get_type_hints() is not None:
+                param_name_and_hint = pyi_type_hints.get_type_hints()
+
 
         if not found_hint_in_definition:
             doc_string = ast.get_docstring(node)

@@ -11,7 +11,7 @@ from src.library.convert_string_to_type import convert_string_to_type
 #         from code: Optional[Callable[, float]]
 
 class _PythonPyiFileVisitor(ast.NodeVisitor):
-    def __init__(self, module, function_name, searched_args: Dict, searched_cls_name=None):
+    def __init__(self, module, function_name, searched_args: OrderedDict, searched_cls_name=None):
         self.__module = module
         self.function_name = function_name
         self.searched_cls_name = searched_cls_name
