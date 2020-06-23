@@ -91,7 +91,7 @@ class _PythonFileVisitor(ast.NodeVisitor):
             if hint is not None:
                 hint_string += hint
             else:
-                hint_string += "None"
+                hint_string += "NoneType"
         elif subscriptable_object is Ellipsis:
             hint_string += "ellipsis"
 
@@ -136,7 +136,6 @@ class _PythonFileVisitor(ast.NodeVisitor):
             pyi_type_hints.visit(self.__pyi_file)
             if pyi_type_hints.get_type_hints() is not None:
                 param_name_and_hint = pyi_type_hints.get_type_hints()
-
 
         if not found_hint_in_definition:
             doc_string = ast.get_docstring(node)
