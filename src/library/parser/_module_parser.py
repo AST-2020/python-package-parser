@@ -1,7 +1,7 @@
 import ast
 from typing import Dict, Optional, Any, List
 
-from library.model import Class, Function, Module, Parameter
+from src.library.model import Class, Function, Module, Parameter
 from ._pyi_parser import _PythonPyiFileVisitor
 from collections import OrderedDict
 from src.library.convert_string_to_type import convert_string_to_type

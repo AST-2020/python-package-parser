@@ -1,28 +1,34 @@
-from library.parser import parse_package
-import TestDirectory
-# import unittest
-
-# class Test(unittest.TestCase):
-#
-#     def test_upper(self):
-#         self.assertEqual('foo'.upper(), 'FOO')
-#
-#     def test_isupper(self):
-#         self.assertTrue('FOO'.isupper())
-#         self.assertFalse('Foo'.isupper())
-#
-#     def test_split(self):
-#         s = 'hello world'
-#         self.assertEqual(s.split(), ['hello', 'world'])
-#         # check that s.split fails when the separator is not a string
-#         with self.assertRaises(TypeError):
-#             s.split(2)
-
-# if __name__ == '__main__':
-#     unittest.main()
+from src.library.parser import parse_package, parse_packages
+# from library.parser._package_parser import _walk_package
+from tests.library import TestDirectory
 
 if __name__ == '__main__':
-    package = parse_package("TestDirectory")
+    # pass
+    modules_names =[]
+    module_functions = {}
+    module_classes_names_and_methods = {}
+    package = parse_package("TestPackage")
+    all_modules = package.get_all_modules()
+    for module in all_modules:
+        module_name = module.get_name()
+        modules_names.append(module_name)
+        module_classes = module.get_all_classes()
+        for klass in module_classes:
+            klass_methods = klass.get_all_methods()
+            for method in klass_methods:
+                method_parameters = method.get_parameters()
+                for parameter in method_parameters:
+                    if parameter.get_name() == "file2_init":
+                        print(True)
+
+
+
+
+
+    print(modules_names)
+    # parsed_package = _walk_package("TestPackage")
+    # for module_path, python_file, python_interface_file in parsed_package:
+    #     print(module_path, " ", python_file, " ", python_interface_file)
     # for module in package.get_all_modules():
     #     print(module.get_name())
     #
@@ -43,21 +49,21 @@ if __name__ == '__main__':
 
 
 
-    methods = package.get_methods_with_name("TestDirectory.file1", "testFile1", "__init__")
-    for method in methods:
-        print(method)
-        parameters = method.get_parameters()
-        for parameter in parameters:
-            print(parameter)
-        print("############")
-
-    methods = package.get_top_level_functions_with_name("TestDirectory.file1", "empty_func")
-    for method in methods:
-        print(method)
-        parameters = method.get_parameters()
-        for parameter in parameters:
-            print(parameter)
-        print("############")
+    # methods = package.get_methods_with_name("TestDirectory.file1", "testFile1", "__init__")
+    # for method in methods:
+    #     print(method)
+    #     parameters = method.get_parameters()
+    #     for parameter in parameters:
+    #         print(parameter)
+    #     print("############")
+    #
+    # methods = package.get_top_level_functions_with_name("TestDirectory.file1", "empty_func")
+    # for method in methods:
+    #     print(method)
+    #     parameters = method.get_parameters()
+    #     for parameter in parameters:
+    #         print(parameter)
+    #     print("############")
 
     # methods = package.get_methods_with_name("TestDirectory.file1", "empty_cls", "empty_method")
     # for method in methods:

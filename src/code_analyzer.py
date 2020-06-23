@@ -37,7 +37,7 @@ def analyze_file(file_to_analyze: str, package: Package, message_manager: Messag
 
 if __name__ == '__main__':
     if len(sys.argv) >= 2:
-        package = parse_package("torch")
+        package = parse_packages(["torch", "sklearn"])
     #     # for module in package.get_all_modules():
     #     #     print(module.get_name())
     #     #

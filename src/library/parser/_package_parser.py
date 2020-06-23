@@ -4,13 +4,12 @@ import os
 from pathlib import Path
 from typing import Optional, Generator, Tuple, Any, List
 
-from library.model import Package
-from library.parser._module_parser import parse_module
+from src.library.model import Package
+from src.library.parser._module_parser import parse_module
 
 
 def parse_packages(package_names: List[str]) -> Optional[Package]:
     result = None
-
     for package_name in package_names:
         package = parse_package(package_name)
         if package is None:
@@ -28,7 +27,6 @@ def parse_packages(package_names: List[str]) -> Optional[Package]:
 
 
 # main function (parse package --> check results)
-
 def parse_package(package_name: str) -> Optional[Package]:
     if not _is_package_installed(package_name):
         return None
@@ -40,8 +38,6 @@ def parse_package(package_name: str) -> Optional[Package]:
     return result
 
 
-# try with directory that has (py-pyi file pair) and (only py files)
-# check if path is correct
 def _walk_package(package_name: str) -> Generator[Tuple[str, str, Optional[str]], Any, None]:
     """
     Yields 3-tuples of the form (module_path, python_file, python_interface_file), which can be iterated in a
@@ -118,7 +114,7 @@ def _get_module_path(module_base_path: str, filename: str) -> str:
         return module_base_path + "." + Path(filename).stem
 
 
-# make two files with same name, but different extensions (true)
+# create two files with same name, but different extensions (true)
 # 1 file without another pyi file with same name
 def _get_python_interface_file(dirpath: str, filenames: List[str], python_file: str) -> Optional[str]:
     pyi_file = python_file.replace(".py", ".pyi")
