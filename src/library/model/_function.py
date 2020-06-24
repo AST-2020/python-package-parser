@@ -19,5 +19,8 @@ class Function:
         return _dict_to_list(self.__parameters)
 
     def __str__(self) -> str:
-        parameter_string = ", ".join(self.__parameters)
+        if self.__parameters is not None:
+            parameter_string = ", ".join(self.__parameters)
+        else:
+            parameter_string = "None"
         return f"def {self.__name}({parameter_string})"

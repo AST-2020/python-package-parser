@@ -8,9 +8,13 @@ class Class:
     def __init__(self, name: str, methods: List[Function] = None):
         if methods is None:
             methods = []
-
+        self.__methods={}
         self.__name: str = name
-        self.__methods: Dict[str, List[Function]] = _list_to_dict(methods)
+        # self.__methods: Dict[str, List[Function]] = _list_to_dict(methods)
+        for method in methods:
+            if method.get_name() not in self.__methods.keys():
+                self.__methods[method.get_name()] = []
+            self.__methods[method.get_name()].append(method)
 
     def get_name(self) -> str:
         return self.__name
@@ -26,8 +30,10 @@ class Class:
 
     def get_all_methods(self) -> List[Function]:
         result = []
+        if self.__methods is None:
+            return []
         for methodsWithSameName in _dict_to_list(self.__methods):
-            result += methodsWithSameName
+            result.append(methodsWithSameName)
         return result
 
     def __str__(self) -> str:
