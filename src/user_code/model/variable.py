@@ -20,7 +20,7 @@ if __name__ == '__main__':
     vars.append(var2)
     vars.append(var3)
     vars.append(var4)
-    vars.append(var5 )
+    vars.append(var5)
 
     for var in vars:
         var.print_variable()

@@ -13,7 +13,7 @@ def check_type(call: FunctionCall, message_manager: MessageManager):
     # kw_arg[(name, value, type),.....]
 
     # f(4, c = 5)
-    param = [] # soll gelöscht werden
+    # param = [] # soll gelöscht werden
     # for key in call.positional_args:
     #     pass
     #
@@ -22,6 +22,14 @@ def check_type(call: FunctionCall, message_manager: MessageManager):
     name = call.name
     args = call.positional_arg
     keyargs= call.keyword_arg
+
+    package_info = call.callee_candidates
+
+    # for p in package_info:
+    #     print(str(p.get_name()), str(p.get_parameters()))
+    #     for name in p.get_parameters():
+    #         print(str(name.get_name()),': ' ,name.get_type_hint(), name.get_default())
+
     print(name)
     for arg in args:
         print( arg.value ,': ', arg.type)

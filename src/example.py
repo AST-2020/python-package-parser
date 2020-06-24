@@ -6,7 +6,7 @@ import torch
 dtype: torch.dtype = torch.float
 device: torch.device = torch.device('cpu')
 
-current_device(20.3 , 'str' ,[1,3,4] ,{'a':1} ,a= True, b = 4)
+# current_device(20.3 , 'str' ,[1,3,4] ,{'a':1} ,a= True, b = 4)
 
 # N is batch size; D_in is input dimension;
 # H is hidden dimension; D_out is output dimension.
