@@ -136,7 +136,7 @@ class _PythonFileVisitor(ast.NodeVisitor):
 
             param_names = [n for n in name_and_hint_dict.keys()]
             # call find_paramter_hint_in_doc_string()
-            _find_parameter_hint_in_doc_string(param_names, doc_string)
+            # _find_parameter_hint_in_doc_string(param_names, doc_string)
 
         parameter_defaults: List[Any] = [getattr(default, default.__dir__()[0]) for default in node.args.defaults]
         if param_name_and_hint is None:

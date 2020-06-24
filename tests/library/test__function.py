@@ -23,8 +23,8 @@ class TestFunction(TestCase):
         self.parameters.append(Parameter("arg6", eval("float"), True, 2))
 
         # test functions
-        self.function1 = Function("function1", Parameter("arg1"),Parameter("arg2", eval("int")),Parameter("arg3", None),
-        Parameter("arg4", has_default=True, default=2.4))
+        self.function1 = Function("function1", [Parameter("arg1"),Parameter("arg2", eval("int")),Parameter("arg3", None),
+        Parameter("arg4", has_default=True, default=2.4)])
         self.function2 = Function("empty_func", None)
 
         self.expected_results = set_results(self.parameters)

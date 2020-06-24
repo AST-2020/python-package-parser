@@ -2,7 +2,7 @@ from unittest import TestCase
 import ast
 import TestPackage_2
 from TestPackage_2 import UC1
-from library.parser._package_parser import _walk_package
+from src.library.parser._package_parser import _walk_package
 
 
 class Test_PythonFileVisitor(TestCase):

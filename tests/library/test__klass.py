@@ -1,9 +1,9 @@
 from collections import OrderedDict
 from typing import List
 from unittest import TestCase
-from library.model._parameter import Parameter
-from library.model._function import Function
-from library.model._klass import Class
+from src.library.model._parameter import Parameter
+from src.library.model._function import Function
+from src.library.model._klass import Class
 
 
 # def __init__(self, name: str, methods: List[Function] = None):

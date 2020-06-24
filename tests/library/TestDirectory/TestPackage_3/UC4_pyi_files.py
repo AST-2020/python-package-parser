@@ -13,8 +13,8 @@ class testFile5:
         pass
 
 
-    # def method_52(self, name2:int, nachname2, echte_name2):
-    #     pass
+    def method_52(self, name2:int, nachname2, echte_name2):
+        pass
 
     # def method_53(self, name, nachname="yoyoyo", echte_name="kein Witz"):
     #     pass
