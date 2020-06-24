@@ -5,6 +5,8 @@ from src.library.model import Class, Function, Module, Parameter
 from ._pyi_parser import _PythonPyiFileVisitor
 from collections import OrderedDict
 from src.library.convert_string_to_type import convert_string_to_type
+from src.library.model import Class, Function, Module, Parameter
+from src.library.parser._docstring_parser import _find_parameter_hint_in_doc_string
 
 # discussion: change logic for type_hints, so that if a parameter doesn't have a type_hint, it would be shown as any
 
@@ -33,7 +35,6 @@ def _parse_python_interface_file(python_interface_file: str):
         contents = f.read()
         tree = ast.parse(source=contents)
         return tree
-
 
 class _PythonFileVisitor(ast.NodeVisitor):
     def __init__(self, current_module: Module, pyi_file=None):
@@ -132,8 +133,10 @@ class _PythonFileVisitor(ast.NodeVisitor):
 
         if not found_hint_in_definition:
             doc_string = ast.get_docstring(node)
+
             param_names = [n for n in name_and_hint_dict.keys()]
             # call find_paramter_hint_in_doc_string()
+            _find_parameter_hint_in_doc_string(param_names, doc_string)
 
         parameter_defaults: List[Any] = [getattr(default, default.__dir__()[0]) for default in node.args.defaults]
         if param_name_and_hint is None:

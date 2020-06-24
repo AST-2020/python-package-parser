@@ -1,6 +1,9 @@
 from src.library.parser import parse_package, parse_packages
 # from library.parser._package_parser import _walk_package
-from tests.library import TestDirectory
+from library.parser import parse_package
+from src.library import parser
+from src.library.parser import parse_package
+
 
 if __name__ == '__main__':
     # pass
