@@ -52,14 +52,12 @@ class Arguments_of_function:
         for k in range(len(self.__kw_arg)):
             print(self.__kw_arg[k].name, ': ', self.__kw_arg[k].value, ': ', self.__kw_arg[k].type )
 
-#f([1,2,3]
 
-
-
+    """
 if __name__ == '__main__':
 
     n = 'hello world'
-    arg = Argument()
+    arg = Arguments_of_function()
 
     arg1 = Arg(n)
     arg2 = Arg('hello')
@@ -79,5 +77,6 @@ if __name__ == '__main__':
     arg.add_kw_arg(kwarg2)
     arg.add_kw_arg(kwarg3)
     arg.add_kw_arg(kwarg4)
-
     arg.print_all()
+    
+    """

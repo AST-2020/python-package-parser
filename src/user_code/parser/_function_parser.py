@@ -119,21 +119,19 @@ class FunctionVisitor(ast.NodeVisitor):
 
     @staticmethod #--
     def _get_keyword_arg(node: ast.Call,  declared_vars) -> List[Kw_arg]:
+        """
+        Returns all keywords arguments as List of kw_arg object.
+
+        """
         kws = []
         for keyword in node.keywords:
-            # print(ast.dump(node))
             if isinstance(keyword.value, ast.Name):
                 value_var_name = keyword.value.id
-                # print(value_var_name)
                 arg_value = FunctionVisitor.find_value(declared_vars, value_var_name, keyword.value.lineno )
-                # print(arg_value)
-                # print(ast.dump(keyword))
             else:
                 arg_value = getattr(keyword.value,keyword.value.__dir__()[0])
-            # print(keyword.arg,getattr(keyword.value,keyword.value.__dir__()[0]))
             a = Kw_arg(keyword.arg, arg_value)
             kws.append(a)
-            # print(a.get_type())
         return kws
 
     @staticmethod
@@ -161,25 +159,21 @@ class FunctionVisitor(ast.NodeVisitor):
 
     @staticmethod #---
     def _get_positional_arg(node: ast.Call, declared_vars) -> List[Arg]:
+        """
+        Returns all positional arguments as List of Arg object.
+
+        """
         args = []
         for arg in node.args:
             if isinstance(arg, ast.Name):
-                # print(ast.dump(arg))
-                # hier sollte eine methode aufgerufen, die in usedvars nach dem wert von arg sucht.
-                # print(arg.id, arg.lineno)
                 a = Arg(FunctionVisitor.find_value(declared_vars, arg.id, arg.lineno ))
-                # a = Arg(arg.id)
-                # print('it is name ', a.value)
                 args.append(a)
             else:
                 if isinstance(arg, ast.Dict):
                     a = Arg(getattr(arg, arg.__dir__()[0]))
                     a.set_typ(type({}))
-                    # print(getattr(arg, arg.__dir__()[0]), type({}))
-                    # print(a.value, ': ', a.type)
                 else:
                     a = Arg(getattr(arg, arg.__dir__()[0]))
-                # print('it is value', a.value)
                 args.append(a)
         return args
 
@@ -232,6 +226,7 @@ class FunctionVisitor(ast.NodeVisitor):
     def _is_top_level_function_call(self, prefix: Optional[str], line: int) -> bool:
         return prefix is None or self.imports.resolve_alias(prefix, line) is not None
 
+
 if __name__ == '__main__':
     with open('..\..\example.py', mode='r') as f:
         contents = f.read()
@@ -252,17 +247,14 @@ if __name__ == '__main__':
     #     k.print_variable()
 
 
-
-
-
     for node in ast.walk(tree):
         if isinstance(node, ast.Call):
-            l = []
-            # kwl: [Kw_arg] = []
-            l.extend(FunctionVisitor._get_positional_arg(node, declared_vars ))
-            # kwl.extend(FunctionVisitor._get_keyword_arg(node, declared_vars))
+            # l = []
+            kwl: [Kw_arg] = []
+            #l.extend(FunctionVisitor._get_positional_arg(node, declared_vars ))
+            kwl.extend(FunctionVisitor._get_keyword_arg(node, declared_vars))
             print('method')
-            for k in l:
-                k.print_arg()
-            # for k0 in l:
-            #     k0.print_kw_arg()
+            #for k in l:
+            #    k.print_arg()
+            for k0 in kwl:
+                k0.print_kw_arg()
