@@ -5,8 +5,8 @@ from user_code.model import FunctionCall
 
 def check_arg_names(call: FunctionCall, message_manager: MessageManager):
     parameters = get_parameters(call.callee_candidates)
-    if parameters is None:
-        return
+    if parameters is None: # and call.keyword_arg_names is None
+        return # this case is not considered:- def f(): if we call it with kwarg e.g. f(a=1).
 
     param_names = [parameter.get_name() for parameter in parameters]
 

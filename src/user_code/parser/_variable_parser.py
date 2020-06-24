@@ -47,3 +47,5 @@ class VariableVisitor(ast.NodeVisitor):
 
     def get_vars(self):
         return self.vars
+
+
