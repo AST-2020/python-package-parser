@@ -49,13 +49,13 @@ if __name__ == '__main__':
 
 
 
-    methods = package.get_methods_with_name("TestPackage_3.UC4_pyi_files", "testFile5", "method_52")
-    for method in methods:
-        print(method)
-        parameters = method.get_parameters()
-        for parameter in parameters:
-            print(parameter)
-        print("############")
+    # methods = package.get_methods_with_name("TestPackage_3.UC4_pyi_files", "testFile5", "method_52")
+    # for method in methods:
+    #     print(method)
+    #     parameters = method.get_parameters()
+    #     for parameter in parameters:
+    #         print(parameter)
+    #     print("############")
     #
     # methods = package.get_top_level_functions_with_name("TestDirectory.file1", "empty_func")
     # for method in methods:

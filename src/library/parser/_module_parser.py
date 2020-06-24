@@ -6,6 +6,8 @@ from ._pyi_parser import _PythonPyiFileVisitor
 from collections import OrderedDict
 from src.library.convert_string_to_type import convert_string_to_type
 
+# discussion: change logic for type_hints, so that if a parameter doesn't have a type_hint, it would be shown as any
+
 
 def parse_module(module_path: str, python_file: str, python_interface_file: str) -> Module:
     if python_interface_file is not None:
@@ -105,6 +107,7 @@ class _PythonFileVisitor(ast.NodeVisitor):
         found_hint_in_definition = False
         # for arg in node.args.args:
         #     if arg.annotation is not None and "id" in arg.annotation.__dir__():
+        # check in py file for type_hint
         for arg in node.args.args:
             type_hint = self.find_type_hint(arg.annotation)
             name_and_hint_dict[arg.arg] = type_hint
@@ -118,17 +121,18 @@ class _PythonFileVisitor(ast.NodeVisitor):
         self.single_type_hints = OrderedDict()
 
         if not found_hint_in_definition and self.__pyi_file is not None:
-            found_hint_in_definition = True
             if self.__current_class is not None:
                 pyi_type_hints = _PythonPyiFileVisitor(self.__current_module.get_name(), node.name, name_and_hint_dict, self.__current_class.get_name())
             else:
                 pyi_type_hints = _PythonPyiFileVisitor(self.__current_module.get_name(), node.name, name_and_hint_dict)
             pyi_type_hints.visit(self.__pyi_file)
             if pyi_type_hints.get_type_hints() is not None:
+                found_hint_in_definition = True
                 param_name_and_hint = pyi_type_hints.get_type_hints()
 
         if not found_hint_in_definition:
             doc_string = ast.get_docstring(node)
+            param_names = [n for n in name_and_hint_dict.keys()]
             # call find_paramter_hint_in_doc_string()
 
         parameter_defaults: List[Any] = [getattr(default, default.__dir__()[0]) for default in node.args.defaults]

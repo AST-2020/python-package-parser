@@ -12,9 +12,14 @@ class testFile5:
                  echte_name):
         pass
 
-    def method_52(self, name: Union[int, Tensor], nachname:Callable[..., Tensor],
-                 echte_name:Callable[['Module'], None]):
-        pass
+    # def method_52(self, name: Union[int, Tensor], nachname:Callable[..., Tensor],
+    #              echte_name:Callable[['Module'], None]):
+    #     pass
+    #
+    # @overload
+    # def method_52(self, name: int, nachname:str,
+    #              echte_name):
+    #     pass
 
     def method_53(self,
                  name:Union[Callable[[int], float], List[Callable[[int], float]]],

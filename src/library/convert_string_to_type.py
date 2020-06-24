@@ -13,6 +13,8 @@ def convert_string_to_type(s: str) -> Type:
             return str
         if s == "boolean":
             return bool
+        if s == "Integer" or s == "integer":
+            return int
 
         match = re.match("^List\\[(.*)]$", s)
         if match is not None:

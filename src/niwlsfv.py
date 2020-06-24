@@ -5,8 +5,8 @@ from src.library.model._function import Function
 from src.library.model._klass import Class
 from typing import *
 
-print(eval("type(None)"))
 
+print(eval("array"))
 
 
 # parameters = []
