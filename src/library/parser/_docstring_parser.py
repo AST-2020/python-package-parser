@@ -236,7 +236,6 @@ def _find_parameter_hint_string_rest_style(doc_string):
     if p != []:
         return p
 
-    # extract type hint from defined position
     return None
 
 
@@ -244,29 +243,17 @@ def _get_param_hint_strings_from_doc_string(doc_string: str):
 
     if _find_parameter_hint_string_numpydoc_style(doc_string) is not None:
         descs = _find_parameter_hint_string_numpydoc_style(doc_string)
-        print('// new func')
-        print(descs)
         hint_list = _find_hint_from_param_desc_numpydoc_style(descs)
-        print(hint_list)
-        print()
         return hint_list
 
     elif _find_parameter_hint_string_google_style(doc_string) is not None:
         descs = _find_parameter_hint_string_google_style(doc_string)
-        # print('// new func')
-        # print(descs)
         hint_list = _find_hint_from_param_desc_google_style(descs)
-        # print(hint_list)
-        # print()
         return hint_list
 
     elif _find_parameter_hint_string_rest_style(doc_string) is not None:
         descs = _find_parameter_hint_string_rest_style(doc_string)
-        # print('// new func')
-        # print(descs)
         hint_list = _find_hint_from_param_desc_rest_style(descs)
-        # print(hint_list)
-        # print()
         return hint_list
 
     # epy style removed because it is not used and there are no examples to work on
