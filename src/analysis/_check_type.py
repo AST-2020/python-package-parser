@@ -29,7 +29,6 @@ def check_type(call: FunctionCall, message_manager: MessageManager):
     #     print(str(p.get_name()), str(p.get_parameters()))
     #     for name in p.get_parameters():
     #         print(str(name.get_name()),': ' ,name.get_type_hint(), name.get_default())
-
     print(name)
     for arg in args:
         print( arg.value ,': ', arg.type)

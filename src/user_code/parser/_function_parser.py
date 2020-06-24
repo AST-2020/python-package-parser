@@ -125,12 +125,19 @@ class FunctionVisitor(ast.NodeVisitor):
         """
         kws = []
         for keyword in node.keywords:
+            arg_type = None
             if isinstance(keyword.value, ast.Name):
                 value_var_name = keyword.value.id
-                arg_value = FunctionVisitor.find_value(declared_vars, value_var_name, keyword.value.lineno )
+                arg_value = FunctionVisitor.find_value(declared_vars, value_var_name, keyword.value.lineno)
+                # print(str(arg_value))
+            elif isinstance(keyword.value, ast.Dict):
+                arg_type = type({})
+                arg_value = getattr(keyword.value,keyword.value.__dir__()[0])
             else:
                 arg_value = getattr(keyword.value,keyword.value.__dir__()[0])
             a = Kw_arg(keyword.arg, arg_value)
+            if arg_type != None:
+                a.set_typ(arg_type)
             kws.append(a)
         return kws
 
