@@ -14,12 +14,13 @@ def check_type(call: FunctionCall, message_manager: MessageManager):
     positional_args = [pos_arg.type for pos_arg in call.positional_arg]
     structure_args = {}
     function_or_method = call.callee_candidates[0]
+
     for parameter in function_or_method.get_parameters():
         structure_args[parameter.get_name()] = parameter.get_type_hint()
 
     for i in range(len(kw_args)):
         if kw_args[i][0] in structure_args.keys():
-            if structure_args.get(kw_args[i][0]) is not None and structure_args.get(kw_args[i][0]) != kw_args[i][1]:
+            if structure_args.get(kw_args[i][0]) is not None and structure_args.get(kw_args[i][0]) == kw_args[i][1]:
                 del structure_args[kw_args[i][0]]
             else:
                 # it means that there is an error in type_hint
@@ -33,7 +34,6 @@ def check_type(call: FunctionCall, message_manager: MessageManager):
     for i in range(min(len(positional_args), len(structure_args))):
         if structure_args[i] is not None and structure_args[i] != positional_args[i]:
             print("error in arg_name or type_hint")
-
 
 
 
