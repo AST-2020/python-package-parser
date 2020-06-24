@@ -71,13 +71,13 @@ class _PythonFileVisitor(ast.NodeVisitor):
                     function = Function(node.name, param_obj)
                     self.__current_class.add_method(function)
 
-    def find_inner_hint(self, subscriptable_object, hint_string=""):
+    def find_type_hint(self, subscriptable_object, hint_string=""):
         if subscriptable_object is None or type(subscriptable_object) is str:
             return subscriptable_object
         if subscriptable_object.__dir__()[0] in ["id", "s"]:
             hint_string += getattr(subscriptable_object, subscriptable_object.__dir__()[0])
         elif subscriptable_object.__dir__()[0] == "value":
-            hint = self.find_inner_hint(subscriptable_object.value)
+            hint = self.find_type_hint(subscriptable_object.value)
             if hint is not None:
                 hint_string += hint
             else:
@@ -86,16 +86,16 @@ class _PythonFileVisitor(ast.NodeVisitor):
             hint_string += "ellipsis"
 
         if "slice" in subscriptable_object.__dir__() and "elts" not in subscriptable_object.slice.value.__dir__():
-            hint_string += "[" + self.find_inner_hint(subscriptable_object.slice.value) + "]"
+            hint_string += "[" + self.find_type_hint(subscriptable_object.slice.value) + "]"
         elif "slice" in subscriptable_object.__dir__():
-            hint_string += self.find_inner_hint(subscriptable_object.slice)
+            hint_string += self.find_type_hint(subscriptable_object.slice)
         elif "elts" in subscriptable_object.__dir__():
             hint_string += "["
             for i in range(len(subscriptable_object.elts)):
                 if i < len(subscriptable_object.elts) - 1:
-                    hint_string += self.find_inner_hint(subscriptable_object.elts[i]) + ", "
+                    hint_string += self.find_type_hint(subscriptable_object.elts[i]) + ", "
                 else:
-                    hint_string += self.find_inner_hint(subscriptable_object.elts[i])
+                    hint_string += self.find_type_hint(subscriptable_object.elts[i])
             hint_string += "]"
         return hint_string
 
@@ -106,7 +106,7 @@ class _PythonFileVisitor(ast.NodeVisitor):
         # for arg in node.args.args:
         #     if arg.annotation is not None and "id" in arg.annotation.__dir__():
         for arg in node.args.args:
-            type_hint = self.find_inner_hint(arg.annotation)
+            type_hint = self.find_type_hint(arg.annotation)
             name_and_hint_dict[arg.arg] = type_hint
             if type_hint is not None:
                 type_hint = convert_string_to_type(type_hint)
