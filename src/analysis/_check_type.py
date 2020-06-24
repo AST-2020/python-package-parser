@@ -1,4 +1,3 @@
-
 from analysis._utils import get_parameters
 from analysis.message import MessageManager, Message
 from user_code.model import FunctionCall
@@ -34,3 +33,15 @@ def check_type(call: FunctionCall, message_manager: MessageManager):
     for i in range(min(len(positional_args), len(structure_args))):
         if structure_args[i] is not None and structure_args[i] != positional_args[i]:
             print("error in arg_name or type_hint")
+
+
+
+
+
+
+
+
+
+
+
+
