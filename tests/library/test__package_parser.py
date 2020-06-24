@@ -20,7 +20,6 @@ class Test(TestCase):
     # def test_parse_packages(self):
     #     self.fail()
 
-
     def test__is_package_installed(self):
         package_installed = _package_parser._is_package_installed("TestPackage")
         package_not_installed = _package_parser._is_package_installed("imaginary_not_installed_package")

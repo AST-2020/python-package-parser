@@ -57,7 +57,7 @@ class _PythonPyiFileVisitor(ast.NodeVisitor):
             if hint is not None:
                 hint_string += hint
             else:
-                hint_string += "NoneType"
+                hint_string += "type(None)"
         elif subscriptable_object is Ellipsis:
             hint_string += "ellipsis"
 

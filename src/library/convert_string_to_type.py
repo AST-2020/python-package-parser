@@ -54,7 +54,8 @@ def convert_string_to_type(s: str) -> Type:
                 match = match[0].rsplit(", ")
             match1 = match[0].split(", ")
             match1 = list(map(convert_string_to_type, match1))
-            match2 = list(map(convert_string_to_type, match[1]))
-            return Callable[match1, match2[0]]
-
+            match2 = convert_string_to_type(match[1])
+            return Callable[match1, match2]
+        # 'Callable[[Module, _grad_t, _grad_t], Union[type(None), Tensor]]'
+        # Callable[['Module'], None]
         return Any

@@ -7,16 +7,6 @@ from collections import OrderedDict
 from src.library.convert_string_to_type import convert_string_to_type
 
 
-# examples for special cases:
-# torch.testing._internal.distributed.rpc.jit.rpc_test
-# None
-# rpc_async_call_remote_torchscript_in_torchscript
-#
-# torch.testing._internal.distributed.rpc.jit.rpc_test
-# None
-# rpc_async_call_remote_torchscript_in_torchscript
-
-
 def parse_module(module_path: str, python_file: str, python_interface_file: str) -> Module:
     if python_interface_file is not None:
         tree = _parse_python_interface_file(python_interface_file)
@@ -91,7 +81,7 @@ class _PythonFileVisitor(ast.NodeVisitor):
             if hint is not None:
                 hint_string += hint
             else:
-                hint_string += "NoneType"
+                hint_string += "type(None)"
         elif subscriptable_object is Ellipsis:
             hint_string += "ellipsis"
 

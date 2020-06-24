@@ -94,7 +94,7 @@ class TestClass(TestCase):
                         self.assertEqual(methods_with_same_name[j].__str__() in self.
                                          expected_result_for_methods_with_same_name["klass" + str(i)][method_name],
                                          True)
-                        
+
                         self.assertEqual(len(methods_with_same_name),
                                          len(self.expected_result_for_methods_with_same_name["klass" + str(i)][
                                                  method_name]))
