@@ -33,3 +33,14 @@ def check_type(call: FunctionCall, message_manager: MessageManager):
     for i in range(len(positional_args)):
         if structure_args[i] is not None and structure_args[i] != positional_args[i]:
             print("error in arg_name or type_hint")
+
+
+  	name = call.name
+    args = call.positional_arg
+    keyargs= call.keyword_arg
+
+    # print(name)
+    # for arg in args:
+    #     print(arg.value, ': ', arg.type)
+    # for kwarg in keyargs:
+    #     print(kwarg.name, ': ', kwarg.value, ': ', kwarg.type)
