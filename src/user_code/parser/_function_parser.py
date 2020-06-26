@@ -175,7 +175,6 @@ class FunctionVisitor(ast.NodeVisitor):
 
         """
         args = []
-
         for arg in node.args:
             if isinstance(arg, ast.Name):
                 arg_value, arg_type = FunctionVisitor.find_value(declared_vars, arg.id, arg.lineno )
