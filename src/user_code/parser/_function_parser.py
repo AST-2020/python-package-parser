@@ -128,8 +128,10 @@ class FunctionVisitor(ast.NodeVisitor):
             arg_type = None
             if isinstance(keyword.value, ast.Name):
                 value_var_name = keyword.value.id
-                arg_value = FunctionVisitor.find_value(declared_vars, value_var_name, keyword.value.lineno)
+                arg_value, var_type = FunctionVisitor.find_value(declared_vars, value_var_name, keyword.value.lineno)
                 # print(str(arg_value))
+                if var_type is not None:
+                    arg_type = var_type
             elif isinstance(keyword.value, ast.Dict):
                 arg_type = type({})
                 arg_value = getattr(keyword.value,keyword.value.__dir__()[0])
@@ -145,6 +147,7 @@ class FunctionVisitor(ast.NodeVisitor):
     def find_value(var: AllVariableVisitor, var_name, var_lineno) -> Any:
         vars:[Variable] = []
         value = None
+        var_type = None
         last_line_nr = 0
         var = var
         for variable in var:
@@ -152,8 +155,9 @@ class FunctionVisitor(ast.NodeVisitor):
                 # print(vars[name][0], vars[name][1])
                 if var_lineno > variable.lineno and variable.lineno > last_line_nr:
                     value = variable.value
+                    var_type = variable.get_type()
                     last_line_nr = variable.lineno
-        return value
+        return value, var_type
 
     def get_declared_vars(self):
         with open(self.file, mode='r') as f:
@@ -171,9 +175,13 @@ class FunctionVisitor(ast.NodeVisitor):
 
         """
         args = []
+
         for arg in node.args:
             if isinstance(arg, ast.Name):
-                a = Arg(FunctionVisitor.find_value(declared_vars, arg.id, arg.lineno ))
+                arg_value, arg_type = FunctionVisitor.find_value(declared_vars, arg.id, arg.lineno )
+                a = Arg(arg_value)
+                if arg_type is not None:
+                    a.set_typ(arg_type)
                 args.append(a)
             else:
                 if isinstance(arg, ast.Dict):
