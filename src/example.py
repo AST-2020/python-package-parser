@@ -21,4 +21,3 @@ fractional_max_pool3d_with_indices(input=obj, kernel_size="kernel_size", output_
 # x1: Tensor = randn(34, N,  D_in, dtype= 5, device=D_out)       # should give an error
 # x2: Tensor = randn()                                          # should give an error
 # x3: Tensor = randn(N, D_in, dtype=dtype)
-# N = 10

@@ -6,6 +6,15 @@ class Variable:
         self.lineno = lineno
         self.value = value
 
+
+    def set_type(self, type):
+        self.type = type
+
+    def get_type(self):
+        return self.type
+
+
+
     def print_variable(self):
         print(self.name, ': ', self.lineno,': ', self.value)
 if __name__ == '__main__':
