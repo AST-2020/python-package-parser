@@ -5,9 +5,18 @@ class Variable:
         self.name = name
         self.lineno = lineno
         self.value = value
+        self.type = type(value)
+
+    def set_type(self, type):
+        self.type = type
+
+    def get_type(self):
+        return self.type
+
+
 
     def print_variable(self):
-        print(self.name, ': ', self.lineno,': ', self.value)
+        print(self.name, ': ', self.lineno,': ', self.value,': ' ,self.type)
 if __name__ == '__main__':
     var = Variable('N', 13 , 64)
     var2 = Variable('D_in', 13 , 1000)

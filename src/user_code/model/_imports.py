@@ -3,7 +3,7 @@ from __future__ import annotations  # https://www.python.org/dev/peps/pep-0563/
 from dataclasses import dataclass
 from typing import Dict, Optional
 
-from user_code.model._location import Location
+from src.user_code.model._location import Location
 
 
 class Imports:
