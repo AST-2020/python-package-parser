@@ -139,3 +139,5 @@ class UserCodeCase(unittest.TestCase):
         self.assertListEqual(kw_arg_list, exp_args)
 
 
+if __name__ == '__main__':
+    unittest.main()

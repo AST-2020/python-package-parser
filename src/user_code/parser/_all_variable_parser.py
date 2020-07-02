@@ -43,6 +43,7 @@ class AllVariableVisitor(ast.NodeVisitor):
                 self.usedvars.append(var)
                 x = x + 1
 
+    def get_usedvars(self):
         return self.usedvars
 
 if __name__ == '__main__':
@@ -50,14 +51,14 @@ if __name__ == '__main__':
         contents = f.read()
         tree = ast.parse(contents)
 
-    var = AllVariableVisitor()
-    var.visit(tree)
+    vars = AllVariableVisitor()
+    vars.visit(tree)
 
     # for node in ast.walk(tree):
     #     if isinstance(node, ast.Assign):
     #         # print(ast.dump(node))
     #         var.visit(node)
 
-    for var in var.usedvars:
+    for var in vars.usedvars:
         var.print_variable()
         
