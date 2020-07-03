@@ -43,12 +43,12 @@ def _find_hint_from_param_desc_google_style(descriptions):
     for param in param_hints:
         if param != 'Return':
             # remove brackets
-            hint = param_hints[param].lstrip('(').rstrip(')')
+            hint = param_hints[param].strip('()')
             # cut optional part
             hint = re.split(r', optional', hint)[0]
             # split by ' or ' and ', ' and '|' and '/'
             hint = re.split(r'([,\|/]| or )', hint)
-            hint = [item for item in hint if not ((item == ',') or (item ==' or ') or (item == '') or (item == '|') or (item == '/'))]
+            hint = [item for item in hint if not (item in [',', ' or ', '', '|', '/'])]
 
             # reattatch sliced parts within brackets .+[.+]
             h = []
@@ -151,6 +151,7 @@ def _find_hint_from_param_desc_numpydoc_style(descriptions):
             braces = re.findall(r'\{(.+?)\}', hint)
             if braces != []:
                 braces = re.split(r' ?[,/\|] ?', braces[0])
+
             strs = []
             for br in braces:
                 if "'" in br:
@@ -159,10 +160,10 @@ def _find_hint_from_param_desc_numpydoc_style(descriptions):
                 for s in strs:
                     braces.remove(s)
                 braces.append('str')
+
             # split multi hints divided by ',' , '|' and 'or' in list
             hint = re.split(r'\{', hint)[0]
             hint = re.split(r'(, | \| | or |/)', hint)
-            contains_strs = False
             to_remove = []
             to_add = []
             for hnt in hint:
@@ -172,13 +173,14 @@ def _find_hint_from_param_desc_numpydoc_style(descriptions):
                     hnt = re.split(r' in ', hnt)[0]
                     to_add.append(hnt)
                 # find slicing mistakes to remove
-                if ((hnt == ', ') or (hnt == ' or ') or (hnt == ' | ') or (hnt == '') or (hnt == '/')) and hnt not in to_remove:
+                if hnt in [', ', ' or ', ' | ', '', '/'] and hnt not in to_remove:
                     to_remove.append(hnt)
                 # find strings to replace with 'str'
                 if "'" in hnt and hnt not in to_remove:
                     to_remove.append(hnt)
                     if 'str' not in to_add:
                         to_add.append('str')
+
             for item in to_remove:
                 hint.remove(item)
             for item in to_add:
@@ -256,23 +258,18 @@ def _find_hint_from_param_desc_rest_style(descriptions):
                 hint = re.split(r'\((.+)\):', desc)[1]
                 # change that to description for further analysis
                 desc = hint
-            # cut 'of shape ...' and ',if ...'
-            desc = re.split(r'[ ,]of ', desc)[0]
-            desc = re.split(r'[ ,]if ', desc)[0]
+            # cut 'of ...' and ',if ...'
+            desc = re.split(r'[ ,](of|if) ', desc)[0]
 
             # split text by 'or' to seperate multiple types
             hints = re.split(r' +or +', desc)
             for h in hints:
-                # strip a/the normalized ... object
+                # strip a/the normalized (OPTIONAL) ... object
                 hnt = re.split(r'object ?\.?', h)[0]
-                hnt = re.split(r' ?a ', hnt)[-1]
-                hnt = re.split(r' ?the ', hnt)[-1]
-                hnt = re.split(r' ?normalized ', hnt)[-1]
-                hnt = re.split(r' ?\(OPTIONAL\) ', hnt)[-1]
+                hnt = re.split(r' ?(a|the|normalized|\(OPTIONAL\)) ', hnt)[-1]
 
                 # remove , . whitespaces
-                hnt = hnt.strip()
-                hnt = hnt.strip(',.')
+                hnt = hnt.strip(',. ')
 
                 if hnt != '':
                     param_hints[param].append(hnt)
@@ -355,15 +352,3 @@ def _find_parameter_hint_in_doc_string(param_names, doc_string: str):
 
         return [type_hints]
     return None
-
-
-if __name__ == '__main__':
-    doc_string = """
-    Arg:    
-        x (int, str): this is a first param
-        y (int, Tuple[int, Tuple[List[int], Tensor]]): this is a second param
-    
-    Return:
-    """
-
-    print(_find_parameter_hint_in_doc_string(['x', 'y'], doc_string))
