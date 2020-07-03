@@ -13,6 +13,6 @@ def test_func_1(arg_func_1, arg_func_2):
     pass
 
 
-def test_func_1():
+def test_func_2():
     pass
 

@@ -8,7 +8,7 @@ if __name__ == '__main__':
     modules_names =[]
     module_functions = {}
     module_classes_names_and_methods = {}
-    package = parse_package("TestPackage_3")
+    # package = parse_package("TestPackage_3")
     # all_modules = package.get_all_modules()
     # for module in all_modules:
     #     module_name = module.get_name()
@@ -48,13 +48,13 @@ if __name__ == '__main__':
     #         print(parameter)
     #     print("############")
 
-    methods = package.get_methods_with_name("TestPackage_3.UC4_pyi_files", "testFile5", "method_52")
-    for method in methods:
-        print(method)
-        parameters = method.get_parameters()
-        for parameter in parameters:
-            print(parameter)
-        print("############")
+    # methods = package.get_methods_with_name("TestPackage_3.UC4_pyi_files", "testFile5", "method_52")
+    # for method in methods:
+    #     print(method)
+    #     parameters = method.get_parameters()
+    #     for parameter in parameters:
+    #         print(parameter)
+    #     print("############")
 
     # methods = package.get_top_level_functions_with_name("TestDirectory.file1", "empty_func")
     # for method in methods:
@@ -71,3 +71,15 @@ if __name__ == '__main__':
     #     for parameter in parameters:
     #         print(parameter)
     #     print("############")
+    result_package = parse_package("tests.library.TestDirectory.TestPackage_2")
+    # methods_with_same_name = result_package.get_methods_with_name(
+    #     "tests.library.TestDirectory.TestPackage_2.UC2_and_3", "test_class2", "test_func_2")
+    # for method in methods_with_same_name:
+    #     print(method)
+
+    methods_with_same_name = result_package.get_top_level_functions_with_name(
+        "tests.library.TestDirectory.TestPackage_2.UC2_and_3", "test_func_1")
+    for method in methods_with_same_name:
+        for parameter in method.get_parameters():
+            print(parameter)
+
