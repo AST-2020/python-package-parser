@@ -16,15 +16,15 @@ def convert_string_to_type(s: str) -> Type:
         if s == "Integer" or s == "integer":
             return int
 
-        match = re.match("^List\\[(.*)]$", s)
+        match = re.match("^[Ll]ist\\[(.*)]$", s)
         if match is not None:
             return List[convert_string_to_type(match.group(1))]
 
-        match = re.match("^Optional\\[(.*)]$", s)  # Optional[X] as a shorthand for Union[X, None]
+        match = re.match("^[Oo]ptional\\[(.*)]$", s)  # Optional[X] as a shorthand for Union[X, None]
         if match is not None:
             return Optional[convert_string_to_type(match.group(1))]
 
-        matches = re.match("^Union\\[(.*)]$", s)
+        matches = re.match("^[Uu]nion\\[(.*)]$", s)
         if matches is not None:
             matches = matches.group(1).split(", ")
             matches = list(map(convert_string_to_type, matches))
@@ -33,23 +33,38 @@ def convert_string_to_type(s: str) -> Type:
                 unions = Union[unions, matches[i]]
             return unions
 
-        matches = re.match("^Tuple\\[(.*)]$", s)
+        matches = re.match("^[Tt]uple\\[(.*)]$", s)
         if matches is not None:
+            n = 0
+            index = 0
             matches = matches.group(1).split(", ")
+            while index < len(matches):
+                for chary in matches[index]:
+                    if chary == "[":
+                        n += 1
+                    elif chary == "]":
+                        n -= 1
+                if n != 0:
+                    while n != 0:
+                        n = merge_strings(n, matches[index + 1])
+                        matches[index] += ", " + matches[index + 1]
+                        del matches[index + 1]
+                index += 1
             matches = list(map(convert_string_to_type, matches))
             unions = matches[0]
             for i in range(1, len(matches)):
                 unions = Tuple[unions, matches[i]]
             return unions
+        # Tuple[List[Callable[[int], float]], str, float, obj]
 
-        matches = re.match("^Dict\\[(.*)]$", s)
+        matches = re.match("^[Dd]ict\\[(.*)]$", s)
         if matches is not None:
             matches = matches.group(1).split(", ")
             return Dict[convert_string_to_type(matches[0]), convert_string_to_type(matches[1])]
 
-        match = re.match("^Callable\\[\\[(.*)]$", s)
+        match = re.match("^[Cc]allable\\[\\[(.*)]$", s)
         if match is None:
-            match = re.match("^Callable\\[(.*)]$", s)
+            match = re.match("^[Cc]allable\\[(.*)]$", s)
         if match is not None:
             match = match.group(1).rsplit("], ")
             if len(match) == 1:
@@ -59,3 +74,12 @@ def convert_string_to_type(s: str) -> Type:
             match2 = convert_string_to_type(match[1])
             return Callable[match1, match2]
         return Any
+
+def merge_strings(n:int, hint: str):
+    for chary in hint:
+        if chary == "[":
+            n +=1
+        elif chary == "]":
+            n -= 1
+    return n
+

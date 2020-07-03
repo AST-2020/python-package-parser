@@ -78,8 +78,9 @@ if __name__ == '__main__':
     #     print(method)
 
     methods_with_same_name = result_package.get_top_level_functions_with_name(
-        "tests.library.TestDirectory.TestPackage_2.UC2_and_3", "test_func_1")
+        "tests.library.TestDirectory.TestPackage_2.UC4_pyi_files", "testFunc52")
     for method in methods_with_same_name:
+        print(method)
         for parameter in method.get_parameters():
-            print(parameter)
-
+            print(parameter.__str__())
+        print("###########")
