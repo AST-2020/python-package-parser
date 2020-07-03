@@ -2,6 +2,9 @@ import re
 from typing import *
 from torch import Tensor
 
+# union and optional will not be handled in the except part (meaning if the whole expression included is not composed of
+# types that we support), as type_hints of the form (Optional[typing.any]) or (Union[typing.any, ...])
+
 
 def convert_string_to_type(s: str) -> Type:
     try:
@@ -20,45 +23,18 @@ def convert_string_to_type(s: str) -> Type:
         if match is not None:
             return List[convert_string_to_type(match.group(1))]
 
-        match = re.match("^[Oo]ptional\\[(.*)]$", s)  # Optional[X] as a shorthand for Union[X, None]
-        if match is not None:
-            return Optional[convert_string_to_type(match.group(1))]
-
-        matches = re.match("^[Uu]nion\\[(.*)]$", s)
-        if matches is not None:
-            matches = matches.group(1).split(", ")
-            matches = list(map(convert_string_to_type, matches))
-            unions = matches[0]
-            for i in range(1, len(matches)):
-                unions = Union[unions, matches[i]]
-            return unions
-
-        matches = re.match("^[Tt]uple\\[(.*)]$", s)
-        if matches is not None:
-            n = 0
-            index = 0
-            matches = matches.group(1).split(", ")
-            while index < len(matches):
-                for chary in matches[index]:
-                    if chary == "[":
-                        n += 1
-                    elif chary == "]":
-                        n -= 1
-                if n != 0:
-                    while n != 0:
-                        n = merge_strings(n, matches[index + 1])
-                        matches[index] += ", " + matches[index + 1]
-                        del matches[index + 1]
-                index += 1
-            matches = list(map(convert_string_to_type, matches))
-            unions = Tuple[matches]
-            return unions
-        # Tuple[List[Callable[[int], float]], str, float, obj]
-
         matches = re.match("^[Dd]ict\\[(.*)]$", s)
         if matches is not None:
             matches = matches.group(1).split(", ")
             return Dict[convert_string_to_type(matches[0]), convert_string_to_type(matches[1])]
+
+        matches = re.match("^[Tt]uple\\[(.*)]$", s)
+        if matches is not None:
+            matches = matches.group(1).split(", ")
+            matches = correct_splitting(matches)
+            matches = list(map(convert_string_to_type, matches))
+            unions = Tuple[matches]
+            return unions
 
         match = re.match("^[Cc]allable\\[\\[(.*)]$", s)
         if match is None:
@@ -68,16 +44,28 @@ def convert_string_to_type(s: str) -> Type:
             if len(match) == 1:
                 match = match[0].rsplit(", ")
             match1 = match[0].split(", ")
+            match1 = correct_splitting(match1)
             match1 = list(map(convert_string_to_type, match1))
             match2 = convert_string_to_type(match[1])
             return Callable[match1, match2]
         return Any
 
-def merge_strings(n:int, hint: str):
-    for chary in hint:
-        if chary == "[":
-            n +=1
-        elif chary == "]":
-            n -= 1
-    return n
+
+def calculate_n(n: int, hint: str):
+    return n + hint.count("[") - hint.count("]")
+
+
+def correct_splitting(matches):
+    index = 0
+    while index < len(matches):
+        n = calculate_n(0, matches[index])
+        while n != 0:
+            # concatenate string_part with the next one in List
+            # ex: ["List[int,", "str]"] -> "List[int, str]" (which is what we want)
+            matches[index] += ", " + matches.pop(index + 1)
+            n = calculate_n(n, matches[index + 1])
+        index += 1
+        return matches
+
+
 
