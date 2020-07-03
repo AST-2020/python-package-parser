@@ -26,11 +26,11 @@ def analyze_file(file_to_analyze: str, package: Package, message_manager: Messag
     calls = parse_function_calls(file_to_analyze, package)
 
     for call in calls:
-        # check_function_exists(call, message_manager)
-        # check_arg_names(call, message_manager)
-        # check_arg_number(call, message_manager)
+        check_function_exists(call, message_manager)
+        check_arg_names(call, message_manager)
+        check_arg_number(call, message_manager)
         check_default_value(call, message_manager)
-        # check_type(call, message_manager)
+        check_type(call, message_manager)
     return message_manager
 
 
