@@ -51,9 +51,7 @@ def convert_string_to_type(s: str) -> Type:
                         del matches[index + 1]
                 index += 1
             matches = list(map(convert_string_to_type, matches))
-            unions = matches[0]
-            for i in range(1, len(matches)):
-                unions = Tuple[unions, matches[i]]
+            unions = Tuple[matches]
             return unions
         # Tuple[List[Callable[[int], float]], str, float, obj]
 

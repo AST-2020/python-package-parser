@@ -29,6 +29,5 @@ def testFunc51(num, my_list, my_bool, my_double, my_obj):
     pass
 
 
-def testFunc52(arg0: Dict, arg1: str, arg2: Tuple[List[Callable[[int], float]], str, float, obj], arg3:str):
-    # typing.Tuple[typing.List[typing.Callable[[int], float]], str, float, int]
+def testFunc52(arg0: Dict, arg1: str, arg2: Tuple[List[Callable[[int], float]], str], arg3:str):
     pass
