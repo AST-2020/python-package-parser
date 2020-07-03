@@ -285,6 +285,7 @@ def _find_hint_from_param_desc_rest_style(descriptions):
                 # remove , . whitespaces
                 hnt = hnt.strip()
                 hnt = hnt.strip(',.')
+
                 if hnt != '':
                     param_hints[param].append(hnt)
 
@@ -316,9 +317,9 @@ def _get_param_hint_strings_from_doc_string(doc_string: str):
     if _find_parameter_hint_string_numpydoc_style(doc_string) is not None:
         # print('numpy')
         descs = _find_parameter_hint_string_numpydoc_style(doc_string)
-        print(descs)
+        # print(descs)
         hint_list = _find_hint_from_param_desc_numpydoc_style(descs)
-        print(hint_list)
+        # print(hint_list)
         return hint_list
 
     elif _find_parameter_hint_string_google_style(doc_string) is not None:
@@ -327,7 +328,9 @@ def _get_param_hint_strings_from_doc_string(doc_string: str):
         return hint_list
 
     elif _find_parameter_hint_string_rest_style(doc_string) is not None:
+        print(doc_string)
         descs = _find_parameter_hint_string_rest_style(doc_string)
+        print(doc_string)
         hint_list = _find_hint_from_param_desc_rest_style(descs)
         return hint_list
 
@@ -348,21 +351,10 @@ def _find_parameter_hint_in_doc_string(param_names, doc_string: str):
             param_name = param
             param_hints = param_list[param]
 
-            if param_name in param_names:
-                for i in range(len(param_hints)):
-                    hint = param_hints[i]
-                    # change strings to str
-                    if "'" in hint:
-                        hint = 'str'
-                    # remove outer whitespace
-                    hint = hint.strip(',')
-                    hint = hint.strip(' ')
-                    # remove numbers
-                    hint = re.split(r'[0-9]+-*', hint)[-1]
-                    # print(hint)
-                    hint = convert_string_to_type(hint)
-                    param_hints[i] = hint
-                    # print(hint)
+            # reformat multiple hints for one param
+                # in the same way they are formated in pyi hints and hints in function head
+
+            # convert hint to type
 
             if param_hints == []:
                 param_hints = None
