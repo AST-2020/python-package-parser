@@ -1,11 +1,7 @@
 import unittest
 from unittest import TestCase
 import library.parser._docstring_parser as dp
-import typing
-import torch
-from collections import OrderedDict
 
-from src.library.convert_string_to_type import convert_string_to_type
 
 class Test(TestCase):
     def test__find_parameter_hint_string_epy_style(self):
@@ -285,25 +281,13 @@ class Test(TestCase):
 
         input11 = [('grads', 'list, length = len(params)')]
         output11 = {'grads': ['list']}
-        # self.assertDictEqual(output11, dp._find_hint_from_param_desc_numpydoc_style(input11))
+        self.assertDictEqual(output11, dp._find_hint_from_param_desc_numpydoc_style(input11))
         # do not know how to differentiate from hint separator except comparing for length
 
         input12 = [('X',
                     'BallTree, KDTree or {array-like, sparse matrix} of shape (n_samples, n_features) or (n_samples, n_samples)')]
         output12 = {'X': ['BallTree', 'KDTree', 'array-like', 'sparse matrix']}
         self.assertDictEqual(output12, dp._find_hint_from_param_desc_numpydoc_style(input12))
-
-    def test_find_parameter_hint_in_doc_string(self):
-        doc_string = """
-            Arg:    
-                x (int, str): this is a first param
-                y (int, Tuple[int, Tuple[List[int], Tensor]]): this is a second param
-
-            Return:
-            """
-        output = [OrderedDict([('x', typing.Union[int, str]), ('y', typing.Union[int, typing.Tuple[int, typing.Tuple[typing.List[int], torch.Tensor]]])])]
-
-        self.assertListEqual(output, dp._find_parameter_hint_in_doc_string(['x', 'y'], doc_string))
 
 
 if __name__ == '__main__':

@@ -137,13 +137,9 @@ def _find_hint_from_param_desc_numpydoc_style(descriptions):
         if len(item) == 2:
             param = item[0]
             hint = item[1]
-            # cut optional part
-            hint = re.split(r',? \(?optional\)?', hint)[0]
-            # cut default part
-            hint = re.split(r',? ?default', hint)[0]
-            # cut of shape ... part
+            # cut unwanted extra information
             hint = re.split(r' of ', hint)[0]
-            hint = re.split(r', (shape)', hint)[0]
+            hint = re.split(r',? (\(?optional\)?|default|shape|length)', hint)[0]
             # cut limitations like >x,  greater than, equals, ...
             hint = re.split(r' ?[!<>=]+ ? [0-9a-z]+', hint)[0]
             hint = re.split(r' (greater|equal|less)s? ', hint)[0]
@@ -181,6 +177,7 @@ def _find_hint_from_param_desc_numpydoc_style(descriptions):
                     if 'str' not in to_add:
                         to_add.append('str')
 
+            # make changes to hint
             for item in to_remove:
                 hint.remove(item)
             for item in to_add:
