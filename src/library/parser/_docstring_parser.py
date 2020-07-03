@@ -1,4 +1,7 @@
 import re
+from collections import OrderedDict
+
+from src.library.convert_string_to_type import convert_string_to_type
 
 # epy style is not used in current libraries and
 # therefore will not be further edited, because of lack of examples
@@ -43,21 +46,50 @@ def _find_hint_from_param_desc_google_style(descriptions):
             hint = param_hints[param].lstrip('(').rstrip(')')
             # cut optional part
             hint = re.split(r', optional', hint)[0]
-            # split by ' or ' and ', '
-            hint = re.split(r'(,| or )', hint)
-            for item in hint:
-                if (item == ',') or (item ==' or ') or (item == ''):
-                    hint.remove(item)
+            # split by ' or ' and ', ' and '|' and '/'
+            hint = re.split(r'([,\|/]| or )', hint)
+            hint = [item for item in hint if not ((item == ',') or (item ==' or ') or (item == '') or (item == '|') or (item == '/'))]
 
+            # reattatch sliced parts within brackets .+[.+]
+            h = []
+            i = 0
+            while i in range(len(hint)):
+                if '[' in hint[i]:
+                    j = i
+                    while ']' not in hint[j]:
+                        j += 1
+                    if ']' in hint[j]:
+                        h.append(','.join(hint[i:j+1]))
+                        i = j
+                    i += 1
+                else:
+                    h.append(hint[i])
+                    i += 1
+            hint = h
+            '''
+            to_remove = []
+            for i in range(len(hint)):
+                if '[' in hint[i] and ']' not in hint:
+                    hint_to_add = hint[i]
+                    to_remove.append(i)
+                    j = i+1
+                    while j < len(hint) and ']' not in hint[j]:
+                        to_remove.append(j)
+                        hint_to_add = hint_to_add + ',' + hint[j]
+
+                    hint.append(hint_to_add)
+            # remove the unwanted parts
+            for i in to_remove[::-1]:
+                hint.pop(i)'' \
+            '''
             for i in range(len(hint)):
                 # extract type from ...'type'...
-                if '`' in hint[i]:
-                    hint[i] = re.findall(r':.+?:`(.+?)`', hint[i])[0]
                 # remove 'of ...'
                 hint[i] = re.split(r' of ', hint[i])[0]
                 # remove '/...'
                 hint[i] = re.split(r'/', hint[i])[0]
 
+                hint[i] = hint[i].strip(' ,~/\\')
         param_hints[param] = hint
 
     if param_hints != {}:
@@ -102,7 +134,7 @@ def _find_parameter_hint_string_google_style(doc_string):
 
     # extract params
     if param_section is not None:
-        expr = r'^\s+(.+?)\s?(\(.+?\))?:\s(.+)'  # type info in front of : within ()
+        expr = r'^\s+(.+?)\s?(\(.+?\))?:\s(.+)'  # type info in front of : , within ()
         params = re.compile(expr, re.M)
         p = params.findall(param_section)
         return p
@@ -118,43 +150,63 @@ def _find_hint_from_param_desc_numpydoc_style(descriptions):
             param = item[0]
             hint = item[1]
             # cut optional part
-            hint = re.split(r', optional', hint)[0]
+            hint = re.split(r',? \(?optional\)?', hint)[0]
             # cut default part
             hint = re.split(r',? ?default', hint)[0]
             # cut of shape ... part
-            hint = re.split(r' of shape', hint)[0]
-            hint = re.split(r', shape', hint)[0]
-            # cut limitations like >x, ...
-            hint = re.split(r' ?[!<>=]+ ? [0-9]+', hint)[0]
+            hint = re.split(r' of ', hint)[0]
+            hint = re.split(r', (shape)', hint)[0]
+            # cut limitations like >x,  greater than, equals, ...
+            hint = re.split(r' ?[!<>=]+ ? [0-9a-z]+', hint)[0]
+            hint = re.split(r' (greater|equal|less)s? ', hint)[0]
             # handle {...} set of possible types/ strings/ ...
             braces = re.findall(r'\{(.+?)\}', hint)
             if braces != []:
-                braces = re.split(r' ?[,\|] ', braces[0])
+                braces = re.split(r' ?[,/\|] ?', braces[0])
             strs = []
             for br in braces:
-                if br.strip("'") != br:
+                if "'" in br:
                     strs.append(br)
             if strs != []:
                 for s in strs:
                     braces.remove(s)
                 braces.append('str')
-            # print(braces)
             # split multi hints divided by ',' , '|' and 'or' in list
             hint = re.split(r'\{', hint)[0]
-            hint = re.split(r'(, | \| | or )', hint)
+            hint = re.split(r'(, | \| | or |/)', hint)
+            contains_strs = False
+            to_remove = []
+            to_add = []
             for hnt in hint:
-                if (hnt == ', ') or (hnt == ' or ') or (hnt == ' | ') or (hnt == ''):
-                    hint.remove(hnt)
+                # slice by ' in ' :
+                if re.split(r' in ', hnt)[0] != hnt:
+                    to_remove.append(hnt)
+                    hnt = re.split(r' in ', hnt)[0]
+                    to_add.append(hnt)
+                # find slicing mistakes to remove
+                if ((hnt == ', ') or (hnt == ' or ') or (hnt == ' | ') or (hnt == '') or (hnt == '/')) and hnt not in to_remove:
+                    to_remove.append(hnt)
+                # find strings to replace with 'str'
+                if "'" in hnt and hnt not in to_remove:
+                    to_remove.append(hnt)
+                    if 'str' not in to_add:
+                        to_add.append('str')
+            for item in to_remove:
+                hint.remove(item)
+            for item in to_add:
+                if (item == 'str' and 'string' not in hint) or (item != 'str' and item not in hint):
+                    hint.append(item)
             for br in braces:
                 if br not in hint:
                     hint.append(br)
 
             # clean up hints
-            for h in hint:
-                h.strip(',')
-                h.strip(' ')
+            for i in range(len(hint)):
+                hint[i] = hint[i].strip(', ')
 
-        param_hints[param] = hint
+        # params like '.. asdfe' are comments so ignore them
+        if '.. ' not in param:
+            param_hints[param] = hint
 
     if param_hints != {}:
         return param_hints
@@ -193,9 +245,9 @@ def _find_parameter_hint_string_numpydoc_style(doc_string):
             # store found sections and contents in a dict
             param_section = splits[i + 1].lstrip('\n')
 
-    # --- divide param_section in list of (param_name, type_info) touples---
+    # divide param_section in list of (param_name, type_info) tuples
     if param_section is not None:
-        expr = r'\n*\s*(.+?) ?: (.*?)\n'
+        expr = r'\n*\s*(.+?) ?: ?(.*?)?\n'
         params = re.compile(expr, re.MULTILINE)
         p = params.findall(param_section)
         return p
@@ -206,15 +258,35 @@ def _find_hint_from_param_desc_rest_style(descriptions):
     param_hints = {}
     for item in descriptions:
         param = item[0]
+        desc = item[1]
 
-        if param != 'return_type':
+        if 'return' not in param:
             param_hints[param] = []
 
+            # if (...): then there lies the type hint
+            if re.search(r'\(.+\):', desc):
+                hint = re.split(r'\((.+)\):', desc)[1]
+                # change that to description for further analysis
+                desc = hint
+            # cut 'of shape ...' and ',if ...'
+            desc = re.split(r'[ ,]of ', desc)[0]
+            desc = re.split(r'[ ,]if ', desc)[0]
+
             # split text by 'or' to seperate multiple types
-            splited = re.split(r' +or +', item[1])
-            for sp in splited:
-                if sp != '':
-                    param_hints[param].append(sp)
+            hints = re.split(r' +or +', desc)
+            for h in hints:
+                # strip a/the normalized ... object
+                hnt = re.split(r'object ?\.?', h)[0]
+                hnt = re.split(r' ?a ', hnt)[-1]
+                hnt = re.split(r' ?the ', hnt)[-1]
+                hnt = re.split(r' ?normalized ', hnt)[-1]
+                hnt = re.split(r' ?\(OPTIONAL\) ', hnt)[-1]
+
+                # remove , . whitespaces
+                hnt = hnt.strip()
+                hnt = hnt.strip(',.')
+                if hnt != '':
+                    param_hints[param].append(hnt)
 
     return param_hints
 
@@ -242,8 +314,11 @@ def _find_parameter_hint_string_rest_style(doc_string):
 def _get_param_hint_strings_from_doc_string(doc_string: str):
 
     if _find_parameter_hint_string_numpydoc_style(doc_string) is not None:
+        # print('numpy')
         descs = _find_parameter_hint_string_numpydoc_style(doc_string)
+        print(descs)
         hint_list = _find_hint_from_param_desc_numpydoc_style(descs)
+        print(hint_list)
         return hint_list
 
     elif _find_parameter_hint_string_google_style(doc_string) is not None:
@@ -265,10 +340,33 @@ def _get_param_hint_strings_from_doc_string(doc_string: str):
         return None
 
 
-def _find_parameter_hint_in_doc_string(doc_string: str):
+def _find_parameter_hint_in_doc_string(param_names, doc_string: str):
+    type_hints = OrderedDict()
     param_list = _get_param_hint_strings_from_doc_string(doc_string)
     if param_list is not None:
-        # hints = _convert_hint_to_type(param_list)
-        # return hints
-        return param_list           # remove if str -> type conversion is implemented
+        for param in param_list:
+            param_name = param
+            param_hints = param_list[param]
+
+            if param_name in param_names:
+                for i in range(len(param_hints)):
+                    hint = param_hints[i]
+                    # change strings to str
+                    if "'" in hint:
+                        hint = 'str'
+                    # remove outer whitespace
+                    hint = hint.strip(',')
+                    hint = hint.strip(' ')
+                    # remove numbers
+                    hint = re.split(r'[0-9]+-*', hint)[-1]
+                    # print(hint)
+                    hint = convert_string_to_type(hint)
+                    param_hints[i] = hint
+                    # print(hint)
+
+            if param_hints == []:
+                param_hints = None
+
+            type_hints[param_name] = param_hints
+        return [type_hints]
     return None
