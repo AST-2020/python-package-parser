@@ -66,22 +66,7 @@ def _find_hint_from_param_desc_google_style(descriptions):
                     h.append(hint[i])
                     i += 1
             hint = h
-            '''
-            to_remove = []
-            for i in range(len(hint)):
-                if '[' in hint[i] and ']' not in hint:
-                    hint_to_add = hint[i]
-                    to_remove.append(i)
-                    j = i+1
-                    while j < len(hint) and ']' not in hint[j]:
-                        to_remove.append(j)
-                        hint_to_add = hint_to_add + ',' + hint[j]
 
-                    hint.append(hint_to_add)
-            # remove the unwanted parts
-            for i in to_remove[::-1]:
-                hint.pop(i)'' \
-            '''
             for i in range(len(hint)):
                 # extract type from ...'type'...
                 # remove 'of ...'
@@ -116,10 +101,10 @@ def _find_parameter_hint_string_google_style(doc_string):
     """
     param_section = None
     # used keywords to references sections within the docstings
-    wanted_sections = ["Args", "Arg", "Parameter", "Param", "Parameters"]
-    unwanted_sections = ['Returns', 'Notes', 'See also', 'Examples', 'References', 'Yields', 'Raises', 'Warns']
+    wanted_sections = ['Args', 'Arg', 'Parameter', 'Param', 'Parameters']
+    unwanted_sections = ['Returns', 'Return', 'Notes', 'See also', 'Examples', 'References', 'Yields', 'Raises', 'Warns', 'Usage']
     # create regex compiler
-    expr = r'^\s*:?({}):?\n+'.format('|'.join(wanted_sections + unwanted_sections))
+    expr = r'^\s*:?({}):?\s*\n+'.format('|'.join(wanted_sections + unwanted_sections))
     sections = re.compile(expr, re.M | re.S)
 
     if doc_string is None:
@@ -131,12 +116,15 @@ def _find_parameter_hint_string_google_style(doc_string):
         for i in range(len(section) - 1):
             if section[i] in wanted_sections:
                 param_section = section[i + 1]
-
     # extract params
     if param_section is not None:
         expr = r'^\s+(.+?)\s?(\(.+?\))?:\s(.+)'  # type info in front of : , within ()
         params = re.compile(expr, re.M)
         p = params.findall(param_section)
+        # strip whitespaces
+        for i in range(len(p)):
+            (name, hint, desc) = p[i]
+            p[i] = (name.strip(' '), hint.strip('() '), desc.strip(' '))
         return p
 
     return None
@@ -204,9 +192,9 @@ def _find_hint_from_param_desc_numpydoc_style(descriptions):
             for i in range(len(hint)):
                 hint[i] = hint[i].strip(', ')
 
-        # params like '.. asdfe' are comments so ignore them
-        if '.. ' not in param:
-            param_hints[param] = hint
+            # params like '.. asdfe' are comments so ignore them
+            if '.. ' not in param:
+                param_hints[param] = hint
 
     if param_hints != {}:
         return param_hints
@@ -313,32 +301,37 @@ def _find_parameter_hint_string_rest_style(doc_string):
 
 
 def _get_param_hint_strings_from_doc_string(doc_string: str):
-
+    hint_list = None
     if _find_parameter_hint_string_numpydoc_style(doc_string) is not None:
-        # print('numpy')
+        # print(doc_string)
         descs = _find_parameter_hint_string_numpydoc_style(doc_string)
         # print(descs)
         hint_list = _find_hint_from_param_desc_numpydoc_style(descs)
         # print(hint_list)
         return hint_list
 
-    elif _find_parameter_hint_string_google_style(doc_string) is not None:
+    elif _find_parameter_hint_string_google_style(doc_string) is not None and hint_list is None:
+        # print(doc_string)
         descs = _find_parameter_hint_string_google_style(doc_string)
+        # print(descs)
         hint_list = _find_hint_from_param_desc_google_style(descs)
+        # print(hint_list)
         return hint_list
 
-    elif _find_parameter_hint_string_rest_style(doc_string) is not None:
-        print(doc_string)
+    elif _find_parameter_hint_string_rest_style(doc_string) is not None and hint_list is None:
+        # print(doc_string)
         descs = _find_parameter_hint_string_rest_style(doc_string)
-        print(doc_string)
+        # print(doc_string)
         hint_list = _find_hint_from_param_desc_rest_style(descs)
+        # print(hint_list)
         return hint_list
 
     # epy style removed because it is not used and there are no examples to work on
     # elif _find_parameter_hint_string_epy_style(doc_string) is not None:
     #     descs = _find_parameter_hint_string_epy_style(doc_string)
     #     return _find_hint_from_param_desc_epy_style(descs)
-
+    # if hint_list is not None:
+    #     return hint_list
     else:
         return None
 
@@ -351,14 +344,26 @@ def _find_parameter_hint_in_doc_string(param_names, doc_string: str):
             param_name = param
             param_hints = param_list[param]
 
-            # reformat multiple hints for one param
-                # in the same way they are formated in pyi hints and hints in function head
+            if len(param_hints) == 1:
+                param_hints = convert_string_to_type(param_hints[0])
 
-            # convert hint to type
+            else:
+                param_hints = convert_string_to_type('Union[{}]'.format(', '.join(param_hints)))
 
-            if param_hints == []:
-                param_hints = None
+            if param_name in param_names:
+                type_hints[param_name] = param_hints
 
-            type_hints[param_name] = param_hints
         return [type_hints]
     return None
+
+
+if __name__ == '__main__':
+    doc_string = """
+    Arg:    
+        x (int, str): this is a first param
+        y (int, Tuple[int, Tuple[List[int], Tensor]]): this is a second param
+    
+    Return:
+    """
+
+    print(_find_parameter_hint_in_doc_string(['x', 'y'], doc_string))
