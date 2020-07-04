@@ -25,11 +25,10 @@ d = {'a':3}
 N, D_in, H, D_out = 64, 1000, 100, 10
 N = 5
 # funktion
-# fractional_max_pool3d_with_indices(g = oblist, input=obj, kernel_size="kernel_size", output_size="output_size=None",
-#                                        output_ratio=None, return_indices=False, _random_samples=None)
+fractional_max_pool3d_with_indices(1,2,3,4,return_indices = 5.5,b= 6)
 
-max_pool2d_with_indices('input', 'kernel_size', 'None', padding=5, dilation='str',
-                        ceil_mode=True, return_indices=5.2)
+# max_pool2d_with_indices(None, padding=0, dilation=1,
+#                             ceil_mode=False)
 # x1: Tensor = randn(34, N,  D_in, dtype= 5, device=D_out)       # should give an error
 # x2: Tensor = randn()                                          # should give an error
 # x3: Tensor = randn(N, D_in, dtype=dtype)
