@@ -1,26 +1,18 @@
 import re
 from typing import *
-
 import typing
 from torch import Tensor
 
-# union and optional will not be handled in the except part (meaning if the whole expression included is not composed of
-# types that we support), as type_hints of the form (Optional[typing.any]) or (Union[typing.any, ...])
+# enumeration in the form ["donde", "esta", "la", "biblioteca"] is supported, in general only strings are supported
 
 
-# use the second approach: which returns only the name of the type, ex: 'Dict' instead of 'Dict[typing.Any, int]'
-# reasons:
-# 1- with really big inputs ,like in dictionaries for example, we will probably not go through all the key-value-pair
-#     which can be in the millions, espicially if one of them is typing.Any
-#     counter argument: program will take really long, so why not wait a couple of minutes to figure our errors
-
-def convert_string_to_type(s: str) -> Type:
+def convert_string_to_type(s: str, internally_called=True) -> Type:
     try:
         if "ellipsis" in s:
             s = s.replace("ellipsis", "...")
         return eval(s)
     except (NameError, SyntaxError) as e:
-        if s == "string" or s == "str":
+        if s == "string":
             return str
         elif s == "boolean":
             return bool
@@ -30,10 +22,13 @@ def convert_string_to_type(s: str) -> Type:
         match = re.match("^(.*?)\\[(.*)]$", s)
         if match is not None:
             match = re.match("^(.*?)\\[(.*)]$", s).group(1)
+            match = match.capitalize()  # bec. in doc_strings, some types begin with small letters
             match2 = re.match("^(.*?)\\[(.*)]$", s).group(2)
+            if not internally_called and len(match) == 0:
+                match2 = match2.split(", ")
+                return match2
             matches = find_obj_for_str_parts(match2)
             return find_obj_type_hint(match, matches)
-
         return Any
 
 
@@ -69,6 +64,5 @@ def find_obj_type_hint(outer_type, matches):
 
 
 def remove_illegal_types(s):
-    return s.replace("<class '", "").replace("'>", "")
+    return s.replace("<class '", "").replace("'>", "").replace("NoneType", "None")
 
-# 'Tuple[List[Callable[[int], float]], device]'

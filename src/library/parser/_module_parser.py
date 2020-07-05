@@ -115,7 +115,7 @@ class _PythonFileVisitor(ast.NodeVisitor):
             type_hint = self.find_type_hint(arg.annotation)
             name_and_hint_dict[arg.arg] = None
             if type_hint is not None:
-                type_hint = convert_string_to_type(type_hint)
+                type_hint = convert_string_to_type(type_hint, False)
                 name_and_hint_dict[arg.arg] = type_hint
                 found_hint_in_definition = True
 
