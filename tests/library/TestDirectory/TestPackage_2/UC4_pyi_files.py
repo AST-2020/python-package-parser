@@ -39,6 +39,9 @@ from torch import Tensor
 #                arg3:Callable[[Tuple[int, Exception, device]], None]):
 # def testFunc52(arg0, arg1, arg2,
 #                arg3:Callable[[Tuple[int, Exception, device], device], device]):
-def testFunc52(arg0, arg1, arg2,
+# def testFunc52(arg0: Tuple[List[Callable[[int], float]], str, float, obj], arg1: Callable[..., device], arg2,
+#                    arg3: Callable[[Tuple[int, Exception, device], device], int]):
+#     pass
+def testFunc52(arg0, arg1:[int,device, str], arg2,
                    arg3: Callable[[Tuple[int, Exception, device], device], int]):
     pass

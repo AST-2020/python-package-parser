@@ -27,35 +27,12 @@ def convert_string_to_type(s: str) -> Type:
         elif s == "Integer" or s == "integer":
             return int
 
-        match = re.match("^[Ll]ist\\[(.*)]$", s)
+        match = re.match("^(.*?)\\[(.*)]$", s)
         if match is not None:
-            matches = find_obj_for_str_parts(match)
-            return find_obj_type_hint("Tuple", matches)
-
-        matches = re.match("^[Tt]uple\\[(.*)]$", s)
-        if matches is not None:
-            matches = find_obj_for_str_parts(matches)
-            return find_obj_type_hint("Tuple", matches)
-
-        matches = re.match("^[Dd]ict\\[(.*)]$", s)
-        if matches is not None:
-            matches = find_obj_for_str_parts(matches)
-            return find_obj_type_hint("Dict", matches)
-
-        matches = re.match("^[Cc]allable\\[(.*)]$", s)
-        if matches is not None:
-            matches = find_obj_for_callable_parts(matches)
-            if matches[0] == Ellipsis:
-                matches[1] = remove_illegal_types(matches[1])
-                return eval("Callable[[ellipsis]," + matches[1] + "]")
-            else:
-                print("Callable[[" + matches[0] + "]," + matches[1] + "]")
-                result = ''
-                for element in matches[0]:
-                    result += str(element)
-                result = result.replace("'", "")
-                print(result)
-                return eval("Callable[" + result + "," + matches[1] + "]")
+            match = re.match("^(.*?)\\[(.*)]$", s).group(1)
+            match2 = re.match("^(.*?)\\[(.*)]$", s).group(2)
+            matches = find_obj_for_str_parts(match2)
+            return find_obj_type_hint(match, matches)
 
         return Any
 
@@ -78,25 +55,8 @@ def correct_splitting(matches):
         return matches
 
 
-def find_obj_for_callable_parts(matches):
-    matches = matches.group(1).split(", ")
-    matches = correct_splitting(matches)
-    if matches[0][0] == "[" and matches[0][-1] == "]":
-        matches[0] = matches[0][1: -1]
-    matches[0] = correct_splitting(matches[0].split(", "))
-    matches[0] = list(map(convert_string_to_type, matches[0]))
-    matches[1] = correct_splitting(matches[1].split(", "))
-    matches[1] = list(map(convert_string_to_type, matches[1]))
-    for i in range(len(matches[0])):
-        matches[0][i] = remove_illegal_types(matches[0][i].__str__())
-
-    matches[1] = matches[1].__str__().rsplit("]", 1)[0].split("[", 1)[1]
-    matches[1] = remove_illegal_types(matches[1])
-    return [matches[0].__str__(), matches[1].__str__()]
-
-
 def find_obj_for_str_parts(matches):
-    matches = matches.group(1).split(", ")
+    matches = matches.split(", ")
     matches = correct_splitting(matches)
     matches = list(map(convert_string_to_type, matches))
     return matches
