@@ -71,11 +71,8 @@ if __name__ == '__main__':
     #     for parameter in parameters:
     #         print(parameter)
     #     print("############")
+
     result_package = parse_package("tests.library.TestDirectory.TestPackage_2")
-    # methods_with_same_name = result_package.get_methods_with_name(
-    #     "tests.library.TestDirectory.TestPackage_2.UC2_and_3", "test_class2", "test_func_2")
-    # for method in methods_with_same_name:
-    #     print(method)
 
     methods_with_same_name = result_package.get_top_level_functions_with_name(
         "tests.library.TestDirectory.TestPackage_2.UC4_pyi_files", "testFunc52")

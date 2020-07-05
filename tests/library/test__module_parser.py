@@ -12,26 +12,26 @@ class Test_PythonFileVisitor(TestCase):
         methods_with_same_name = self.result_package.get_methods_with_name("tests.library.TestDirectory.TestPackage_2.UC1",
                                                                            "test_class1", "method_uc1")
         for method in methods_with_same_name:
-            self.assertEqual(method.__str__(), "def method_uc1(arg_method_3, arg_method_4)")
+            self.assertEqual("def method_uc1(arg_method_3, arg_method_4)", method.__str__())
 
     def test_UC1_method_without_parameter(self):
         methods_with_same_name = self.result_package.get_methods_with_name(
             "tests.library.TestDirectory.TestPackage_2.UC1",
             "test_class1", "method2_uc1")
         for method in methods_with_same_name:
-            self.assertEqual(method.__str__(), "def method2_uc1()")
+            self.assertEqual("def method2_uc1()", method.__str__())
 
     def test_UC1_function_with_parameter(self):
         functions_with_same_name = self.result_package.get_top_level_functions_with_name(
             "tests.library.TestDirectory.TestPackage_2.UC1", "test_func_1")
         for function in functions_with_same_name:
-            self.assertEqual(function.__str__(), "def test_func_1(arg_func_1, arg_func_2)")
+            self.assertEqual("def test_func_1(arg_func_1, arg_func_2)", function.__str__())
 
     def test_UC1_function_without_parameter(self):
         functions_with_same_name = self.result_package.get_top_level_functions_with_name(
             "tests.library.TestDirectory.TestPackage_2.UC1", "test_func_2")
         for function in functions_with_same_name:
-            self.assertEqual(function.__str__(), "def test_func_2()")
+            self.assertEqual("def test_func_2()", function.__str__())
 
     # UC2_and_3
     def test_UC2_and_3_method_with_parameter(self):
@@ -42,14 +42,14 @@ class Test_PythonFileVisitor(TestCase):
                                                                            "test_class1", "method_uc1")
         for method in methods_with_same_name:
             for i in range(len(method.get_parameters())):
-                self.assertEqual(method.get_parameters()[i].__str__(), expected[i+1])
+                self.assertEqual(expected[i+1], method.get_parameters()[i].__str__())
 
     def test_UC2_and_3_method_without_parameter(self):
         methods_with_same_name = self.result_package.get_methods_with_name(
             "tests.library.TestDirectory.TestPackage_2.UC2_and_3",
             "test_class1", "method2_uc2")
         for method in methods_with_same_name:
-            self.assertEqual(method.__str__(), "def method2_uc2()")
+            self.assertEqual("def method2_uc2()", method.__str__())
 
     def test_UC2_and_3_function_with_parameter(self):
         expected =["arg_func_0", "arg_func_1 = 2", "arg_func_2 = 10.4", "arg_func_3 = True", "arg_func_4 = []",
@@ -59,13 +59,13 @@ class Test_PythonFileVisitor(TestCase):
 
         for function in functions_with_same_name:
             for i in range(len(function.get_parameters())):
-                self.assertEqual(function.get_parameters()[i].__str__(), expected[i])
+                self.assertEqual(expected[i], function.get_parameters()[i].__str__())
 
     def test_UC2_and_3_function_without_parameter(self):
         functions_with_same_name = self.result_package.get_top_level_functions_with_name(
             "tests.library.TestDirectory.TestPackage_2.UC2_and_3", "test_func_2")
         for function in functions_with_same_name:
-            self.assertEqual(function.__str__(), "def test_func_2()")
+            self.assertEqual("def test_func_2()", function.__str__())
 
     # UC4 (type hints in py)
     def test_UC4_primitive_py_type_hints_in_methods(self):
@@ -75,7 +75,7 @@ class Test_PythonFileVisitor(TestCase):
             "tests.library.TestDirectory.TestPackage_2.UC4_pi_files", "testFile4", "__init__")
         for method in methods_with_same_name:
             for i in range(len(method.get_parameters())):
-                self.assertEqual(method.get_parameters()[i].__str__(), expected[i])
+                self.assertEqual(expected[i], method.get_parameters()[i].__str__())
 
     def test_UC4_py_type_hints_from_typing_in_methods(self):
         expected = ["my_union: typing.Union[int, bool]", "my_optional: typing.Union[int, NoneType]",
@@ -84,17 +84,18 @@ class Test_PythonFileVisitor(TestCase):
             "tests.library.TestDirectory.TestPackage_2.UC4_pi_files", "testFile4", "method_for_testFile4")
         for method in methods_with_same_name:
             for i in range(len(method.get_parameters())):
-                self.assertEqual(method.get_parameters()[i].__str__(), expected[i])
+                self.assertEqual(expected[i], method.get_parameters()[i].__str__())
 
     def test_UC4_primitive_py_type_hints_in_functions(self):
-        expected = ["param_0: typing.Union[typing.Any, str, int, NoneType]", "param_1: typing.Union[int, NoneType]",
+        expected = ["param_0: typing.Any",
+                    "param_1: typing.Union[int, NoneType]",
                     "param_2: typing.Callable[[torch.Tensor, torch.Tensor, int], torch.Tensor]",
                     "param_3: typing.Callable[..., torch.Tensor]"]
         methods_with_same_name = self.result_package.get_top_level_functions_with_name(
             "tests.library.TestDirectory.TestPackage_2.UC4_pi_files", "testFunc4")
         for method in methods_with_same_name:
             for i in range(len(method.get_parameters())):
-                self.assertEqual(method.get_parameters()[i].__str__(), expected[i])
+                self.assertEqual(expected[i], method.get_parameters()[i].__str__())
 
     def test_UC4_py_type_hints_from_typing_in_functions(self):
         expected = ["param_0: typing.Dict[float, typing.Any]",
@@ -103,7 +104,7 @@ class Test_PythonFileVisitor(TestCase):
             "tests.library.TestDirectory.TestPackage_2.UC4_pi_files", "testFunc41")
         for method in methods_with_same_name:
             for i in range(len(method.get_parameters())):
-                self.assertEqual(method.get_parameters()[i].__str__(), expected[i])
+                self.assertEqual(expected[i], method.get_parameters()[i].__str__())
 
     # UC4 (type_hints_from_pyi_files)
     def test_UC4_pyi_type_hints_ex1_in_methods(self):
@@ -114,7 +115,7 @@ class Test_PythonFileVisitor(TestCase):
             "tests.library.TestDirectory.TestPackage_2.UC4_pyi_files", "__init__")
         for method in methods_with_same_name:
             for i in range(len(method.get_parameters())):
-                self.assertEqual(method.get_parameters()[i].__str__(), expected[i])
+                self.assertEqual(expected[i], method.get_parameters()[i].__str__())
 
     def test_UC4_pyi_type_hints_ex2_in_methods(self):
         expected = ["num: <class 'int'>", "my_list: typing.List", "my_bool: <class 'bool'>",
@@ -124,7 +125,7 @@ class Test_PythonFileVisitor(TestCase):
             "tests.library.TestDirectory.TestPackage_2.UC4_pyi_files", "testFile5", "method_50")
         for method in methods_with_same_name:
             for i in range(len(method.get_parameters())):
-                self.assertEqual(method.get_parameters()[i].__str__(), expected[i])
+                self.assertEqual(expected[i], method.get_parameters()[i].__str__())
 
     def test_UC4_pyi_type_hints_ex3_in_methods(self):
         expected = ["name: typing.Dict[float, typing.Any]",
@@ -134,7 +135,7 @@ class Test_PythonFileVisitor(TestCase):
             "tests.library.TestDirectory.TestPackage_2.UC4_pyi_files", "testFile5", "method_51")
         for method in methods_with_same_name:
             for i in range(len(method.get_parameters())):
-                self.assertEqual(method.get_parameters()[i].__str__(), expected[i])
+                self.assertEqual(expected[i], method.get_parameters()[i].__str__())
 
     def test_UC4_pyi_type_hints_ex4_in_methods(self):
         expected = [["name: typing.Union[int, torch.Tensor]", "nachname: typing.Callable[..., torch.Tensor]",
@@ -147,7 +148,7 @@ class Test_PythonFileVisitor(TestCase):
             "tests.library.TestDirectory.TestPackage_2.UC4_pyi_files", "testFile5", "method_52")
         for i in range(len(methods_with_same_name)):
             for j in range(len(methods_with_same_name[i].get_parameters())):
-                self.assertEqual(methods_with_same_name[i].get_parameters()[j].__str__(), expected[i][j])
+                self.assertEqual(expected[i][j], methods_with_same_name[i].get_parameters()[j].__str__())
 
     def test_hint_already_found_in_py(self):
         expected = ["name", "nachname: <class 'str'> = yoyoyo", "echte_name = kein Witz"]
@@ -156,7 +157,7 @@ class Test_PythonFileVisitor(TestCase):
             "tests.library.TestDirectory.TestPackage_2.UC4_pyi_files", "testFile5", "method_53")
         for method in methods_with_same_name:
             for i in range(len(method.get_parameters())):
-                self.assertEqual(method.get_parameters()[i].__str__(), expected[i])
+                self.assertEqual(expected[i], method.get_parameters()[i].__str__())
 
     def test_UC4_pyi_type_hints_ex1_in_functions(self):
         expected = [["num: <class 'str'>", "my_list: typing.List", "my_bool: <class 'bool'>",
@@ -169,6 +170,13 @@ class Test_PythonFileVisitor(TestCase):
             "tests.library.TestDirectory.TestPackage_2.UC4_pyi_files", "testFunc51")
         for i in range(len(functions_with_same_name)):
             for j in range(len(functions_with_same_name[i].get_parameters())):
-                self.assertEqual(functions_with_same_name[i].get_parameters()[j].__str__(), expected[i][j])
+                self.assertEqual(expected[i][j], functions_with_same_name[i].get_parameters()[j].__str__())
 
-        def test_UC4_pyi_type_hints_ex2_in_functions(self):
+    def test_UC4_pyi_type_hints_ex2_in_functions(self):
+
+
+        functions_with_same_name = self.result_package.get_top_level_functions_with_name(
+            "tests.library.TestDirectory.TestPackage_2.UC4_pyi_files", "testFunc52")
+        for i in range(len(functions_with_same_name)):
+            for j in range(len(functions_with_same_name[i].get_parameters())):
+                self.assertEqual(expected[i][j], functions_with_same_name[i].get_parameters()[j].__str__())
