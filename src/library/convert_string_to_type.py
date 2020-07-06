@@ -3,10 +3,7 @@ from typing import *
 import typing
 from torch import Tensor
 
-# enumeration in the form ["donde", "esta", "la", "biblioteca"] is supported, in general only strings are supported
-
-
-def convert_string_to_type(s: str, internally_called=True) -> Type:
+def convert_string_to_type(s: str) -> Type:
     try:
         if "ellipsis" in s:
             s = s.replace("ellipsis", "...")
@@ -24,9 +21,6 @@ def convert_string_to_type(s: str, internally_called=True) -> Type:
             match = re.match("^(.*?)\\[(.*)]$", s).group(1)
             match = match.capitalize()  # bec. in doc_strings, some types begin with small letters
             match2 = re.match("^(.*?)\\[(.*)]$", s).group(2)
-            if not internally_called and len(match) == 0:
-                match2 = match2.split(", ")
-                return match2
             matches = find_obj_for_str_parts(match2)
             return find_obj_type_hint(match, matches)
         return Any

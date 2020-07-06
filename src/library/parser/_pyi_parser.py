@@ -36,7 +36,7 @@ class _PythonPyiFileVisitor(ast.NodeVisitor):
                     break
                 type_hint = self.find_inner_hint(arg.annotation)
                 if type_hint is not None:
-                    type_hint = convert_string_to_type(type_hint, False)
+                    type_hint = convert_string_to_type(type_hint)
 
                 # print("the type hint", type_hint)
                 self.single_type_hints[arg.arg] = type_hint

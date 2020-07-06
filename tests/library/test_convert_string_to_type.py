@@ -65,3 +65,8 @@ class Test_Convert_String_To_Obj(TestCase):
 
     def test_method_with_parameter_ex18(self):
         self.assertEqual("typing.Tuple[torch.Tensor, ...]", str(convert_string_to_type("Tuple[Tensor, ...]")))
+
+    def test_method_with_parameter_ex19(self):
+        self.assertEqual("['donde', 'esta', 'la', 'biblioteca', 3.14]",
+                         str(convert_string_to_type("['donde', 'esta', 'la', 'biblioteca', 3.14]")))
+
