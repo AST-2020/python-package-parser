@@ -2,6 +2,8 @@ import re
 from typing import *
 import typing
 from torch import Tensor
+import torch
+
 
 def convert_string_to_type(s: str) -> Type:
     try:
@@ -41,7 +43,7 @@ def correct_splitting(matches):
             matches[index] += ", " + matches.pop(index + 1)
             n = calculate_n(matches[index])
         index += 1
-        return matches
+    return matches
 
 
 def find_obj_for_str_parts(matches):
@@ -54,9 +56,11 @@ def find_obj_for_str_parts(matches):
 def find_obj_type_hint(outer_type, matches):
     matches = matches.__str__().rsplit("]", 1)[0].split("[", 1)[1]
     matches = remove_illegal_types(matches)
-    return eval(outer_type + "[" + matches + "]")
+    try:
+        return eval(outer_type + "[" + matches + "]")
+    except NameError:
+        return Any
 
 
 def remove_illegal_types(s):
     return s.replace("<class '", "").replace("'>", "").replace("NoneType", "None")
-

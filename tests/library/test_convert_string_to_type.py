@@ -56,8 +56,8 @@ class Test_Convert_String_To_Obj(TestCase):
                          str(convert_string_to_type("Tuple[List[Callable[[int], float]], device]")))
 
     def test_method_with_parameter_ex16(self):
-        self.assertEqual("typing.Callable[[typing.Any, typing.Any, typing.Any], typing.Any]",
-                         str(convert_string_to_type("Callable[[Module, _grad_t, _grad_t], Tensor]]")))
+        self.assertEqual("typing.Callable[[typing.Any, typing.Any, typing.Any], torch.Tensor]",
+                         str(convert_string_to_type("Callable[[Module, _grad_t, _grad_t], Tensor]")))
 
     def test_method_with_parameter_ex17(self):
         self.assertEqual("typing.Callable[[torch.Tensor, torch.Tensor, int], torch.Tensor]",
@@ -69,4 +69,9 @@ class Test_Convert_String_To_Obj(TestCase):
     def test_method_with_parameter_ex19(self):
         self.assertEqual("['donde', 'esta', 'la', 'biblioteca', 3.14]",
                          str(convert_string_to_type("['donde', 'esta', 'la', 'biblioteca', 3.14]")))
+
+    def test_method_with_parameter_ex20(self):
+        self.assertEqual(
+            "typing.Callable[[ForwardRef('Module'), typing.Any, typing.Any], typing.Union[NoneType, torch.Tensor]]",
+            str(convert_string_to_type("Callable[['Module', _grad_t, _grad_t], Union[None, Tensor]]")))
 

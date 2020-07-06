@@ -2,6 +2,7 @@ from analysis._utils import get_parameters
 from analysis.message import MessageManager, Message
 from user_code.model import FunctionCall
 
+
 # self.keyword_arg: List[Kw_arg] = keyword_arg  # -- User mit arg_name
 # self.positional_arg: List[Arg] = positional_arg  # -- User ohne arg_name
 # Callee Candidate List[methoden oder Funktionen] wenn : len > 1 --> break
@@ -34,10 +35,9 @@ def check_type(call: FunctionCall, message_manager: MessageManager):
         if structure_args[i] is not None and structure_args[i] != positional_args[i]:
             print("error in arg_name or type_hint")
 
-
-  	name = call.name
+    name = call.name
     args = call.positional_arg
-    keyargs= call.keyword_arg
+    keyargs = call.keyword_arg
 
     # print(name)
     # for arg in args:
