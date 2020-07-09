@@ -1,6 +1,6 @@
 import ast
 from typing import Any
-from user_code.model import Variable
+from src.user_code.model import Variable
 
 
 class AllVariableVisitor(ast.NodeVisitor):
@@ -13,10 +13,15 @@ class AllVariableVisitor(ast.NodeVisitor):
         line = node.lineno
         names_list= []
         values_list= []
+        var_type = None
         for node in ast.walk(node):
             if isinstance(node, ast.Name):
                 names_list.append(node.id)
             if isinstance(node, ast.Assign):
+                # print(ast.dump(node))
+                # print(node.value)
+                if isinstance(node.value, ast.Dict):
+                    var_type = type({})
                 node = node.value
                 if isinstance(node, ast.Tuple):
                     len = node.elts.__len__()
@@ -33,25 +38,27 @@ class AllVariableVisitor(ast.NodeVisitor):
             x = 0
             while x < names_list.__len__():
                 var = Variable(names_list[x], line, values_list[x])
+                if var_type is not None:
+                    var.set_type(var_type)
                 self.usedvars.append(var)
                 x = x + 1
 
+    def get_usedvars(self):
         return self.usedvars
-"""
+
 if __name__ == '__main__':
     with open('..\..\example.py', mode='r') as f:
         contents = f.read()
         tree = ast.parse(contents)
 
-    var = AllVariableVisitor()
-    var.visit(tree)
+    vars = AllVariableVisitor()
+    vars.visit(tree)
 
     # for node in ast.walk(tree):
     #     if isinstance(node, ast.Assign):
     #         # print(ast.dump(node))
     #         var.visit(node)
 
-    for var in var.usedvars:
+    for var in vars.usedvars:
         var.print_variable()
         
- """
