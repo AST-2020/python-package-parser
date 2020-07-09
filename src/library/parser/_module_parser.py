@@ -36,6 +36,7 @@ def _parse_python_interface_file(python_interface_file: str):
         tree = ast.parse(source=contents)
         return tree
 
+
 class _PythonFileVisitor(ast.NodeVisitor):
     def __init__(self, current_module: Module, pyi_file=None):
         self.__current_module = current_module
@@ -130,10 +131,20 @@ class _PythonFileVisitor(ast.NodeVisitor):
             if pyi_type_hints.get_type_hints() is not None:
                 found_hint_in_definition = True
                 param_name_and_hint = pyi_type_hints.get_type_hints()
+                # print(self.__current_module.get_name(), " ",  self.__current_class, " ", node.name, " ", param_name_and_hint)
+
+        # torch.nn.functional
+        # None
+        # fractional_max_pool3d_with_indices
+        # [OrderedDict([('input', <class 'torch.Tensor'> ), ('kernel_size', typing.Any), ('output_size', typing.Union[typing.Any, NoneType]), ('output_ratio', typing.Union[typing.Any, NoneType]), ('return_indices', < class 'bool' > ), ('_random_samples', typing.Union[torch.Tensor, NoneType])])]
+
+        # torch.nn.functional
+        # None
+        # max_pool1d_with_indices
+        # [OrderedDict([('input', < class 'torch.Tensor' > ), ('kernel_size', typing.Any), ('stride', typing.Union[typing.Any, NoneType]), ('padding', typing.Any), ('dilation', typing.Any), ('ceil_mode', < class 'bool' > ), ('return_indices', < class 'bool' > )])]
 
         if not found_hint_in_definition:
             doc_string = ast.get_docstring(node)
-
             param_names = [n for n in name_and_hint_dict.keys()]
             # call find_paramter_hint_in_doc_string()
             # _find_parameter_hint_in_doc_string(param_names, doc_string)

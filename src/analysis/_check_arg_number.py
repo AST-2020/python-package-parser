@@ -9,7 +9,8 @@ from user_code.model import FunctionCall
 def check_arg_number(call: FunctionCall, message_manager: MessageManager):
     parameters = get_parameters(call.callee_candidates)
     if parameters is None:
-        return
+        return  # this case is not considered:- def f(): if we call it with kwarg e.g. f(a=1).
+                # here the maximum number of parameters is 0, but the given arguments are more
 
     # Actual comparison
     given_args = _given_number_of_arguments(call)

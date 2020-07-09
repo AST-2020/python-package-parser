@@ -1,9 +1,7 @@
 import sys
 from typing import List
 
-import torch
-
-from analysis import check_function_exists, check_arg_names, check_arg_number
+from analysis import check_function_exists, check_arg_names, check_arg_number, check_type, check_default_value
 from analysis.message import MessageManager
 from library.model import Package
 from library.parser import parse_packages, parse_package
@@ -31,13 +29,14 @@ def analyze_file(file_to_analyze: str, package: Package, message_manager: Messag
         check_function_exists(call, message_manager)
         check_arg_names(call, message_manager)
         check_arg_number(call, message_manager)
-
+        check_default_value(call, message_manager)
+        check_type(call, message_manager)
     return message_manager
 
 
 if __name__ == '__main__':
     if len(sys.argv) >= 2:
-        package = parse_packages(["torch", "sklearn"])
+        # package = parse_packages(["torch", "sklearn"])
     #     # for module in package.get_all_modules():
     #     #     print(module.get_name())
     #     #
@@ -54,6 +53,6 @@ if __name__ == '__main__':
     #         for parameter in parameters:
     #             print(parameter)
 
-        # analyze_files(sys.argv[1:], parse_packages(['torch', 'sklearn'])).print_messages()
+        analyze_files(sys.argv[1:], parse_packages(['torch', 'sklearn'])).print_messages()
     else:
         print('Usage: python code_analyzer.py <files_to_analyze*>')
