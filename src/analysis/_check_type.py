@@ -22,7 +22,6 @@ def check_type(call: FunctionCall, message_manager: MessageManager):
     print(structure_args)
 
     primitiv_type = [eval("int"), eval("str"), eval("float"), eval("bool"), eval("Any"), eval("dict")]
-    primitiv_type = ["int", "str", "float", "bool", "Any", "dict"]
     index = 0
     # print(structure_args[0])
     for arg in args:
