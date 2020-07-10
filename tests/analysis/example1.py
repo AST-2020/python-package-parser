@@ -25,7 +25,7 @@ d = {'a':3}
 N, D_in, H, D_out = 64, 1000, 100, 10
 N = 5
 # funktion
-fractional_max_pool3d_with_indices(1,2,3,4,return_indices = 5.5,b= 6)
+fractional_max_pool3d_with_indices(1,2,output_size=None,return_indices = 5.5,b= 6)
 
 # max_pool2d_with_indices(None, padding=0, dilation=1,
 #                             ceil_mode=False)
