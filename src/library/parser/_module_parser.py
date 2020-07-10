@@ -1,7 +1,7 @@
 import ast
 from typing import Dict, Optional, Any, List
 
-from src.library.model import Class, Function, Module, Parameter
+from src.library.model import Module
 from ._pyi_parser import _PythonPyiFileVisitor
 from collections import OrderedDict
 from src.library.convert_string_to_type import convert_string_to_type
@@ -103,7 +103,7 @@ class _PythonFileVisitor(ast.NodeVisitor):
             hint_string += "]"
         return hint_string
 
-    def __create_parameter_lists(self, node: ast.FunctionDef) -> List[Parameter]:
+    def __create_parameter_lists(self, node: ast.FunctionDef) -> List[List[Parameter]]:
         # variable, where we can save multiple (name_and_hint_dict) insatnces incase of overloaded functions or methods
         list_of_name_and_hint_dict = []
 
@@ -118,6 +118,7 @@ class _PythonFileVisitor(ast.NodeVisitor):
                 type_hint = convert_string_to_type(type_hint)
                 name_and_hint_dict[arg.arg] = type_hint
                 found_hint_in_definition = True
+
 
         # to test, if length of single_type_hints is equal to length of searched_args
         # if not, then the type hints belong to a different function
@@ -134,9 +135,13 @@ class _PythonFileVisitor(ast.NodeVisitor):
                 found_hint_in_definition = True
                 list_of_name_and_hint_dict = pyi_type_hints.get_type_hints()
 
+
         if not found_hint_in_definition:
             doc_string = ast.get_docstring(node)
             param_names = [n for n in name_and_hint_dict.keys()]
+            if doc_string is not None:
+                print(self.__current_module.get_name(), " ", self.__current_class, " ", node.name)
+
             # list_of_name_and_hint_dict = _find_parameter_hint_in_doc_string(param_names, doc_string)
 
         parameter_defaults: List[Any] = [getattr(default, default.__dir__()[0]) for default in node.args.defaults]
@@ -145,22 +150,8 @@ class _PythonFileVisitor(ast.NodeVisitor):
         else:
             return self.__create_parameter_objects(list_of_name_and_hint_dict, parameter_defaults)
 
-        # torch.nn.functional
-        # None
-        # fractional_max_pool3d_with_indices
-        # [OrderedDict([('input', <class 'torch.Tensor'> ), ('kernel_size', typing.Any), ('output_size',
-        # typing.Union[typing.Any, NoneType]), ('output_ratio', typing.Union[typing.Any, NoneType]),
-        # ('return_indices', < class 'bool' > ), ('_random_samples', typing.Union[torch.Tensor, NoneType])])]
-
-        # torch.nn.functional
-        # None
-        # max_pool1d_with_indices
-        # [OrderedDict([('input', < class 'torch.Tensor' > ), ('kernel_size', typing.Any), ('stride',
-        # typing.Union[typing.Any, NoneType]), ('padding', typing.Any), ('dilation', typing.Any),
-        # ('ceil_mode', < class 'bool' > ), ('return_indices', < class 'bool' > )])]
-
-    def __create_parameter_objects(self, hints: List[Dict], defaults: List):
-        result: List[Parameter] = []
+    def __create_parameter_objects(self, hints: List[Dict], defaults: List) -> List[List[Parameter]]:
+        result = []
         one_function_param = []
         for hint in hints:
             hint_as_list = [(name, type) for name, type in hint.items()]

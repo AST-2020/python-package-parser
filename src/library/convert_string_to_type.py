@@ -62,4 +62,5 @@ def find_obj_type_hint(outer_type, matches):
 
 
 def remove_illegal_types(s):
-    return s.replace("<class '", "").replace("'>", "").replace("NoneType", "None").replace("torch.Tensor", "Tensor")
+    return s.replace("<class '", "").replace("'>", "").replace("NoneType", "None").replace("torch.Tensor", "Tensor").\
+        replace("<built-in function ", "").replace(">", "")

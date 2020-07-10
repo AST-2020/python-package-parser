@@ -36,7 +36,6 @@ def check_type(call: FunctionCall, message_manager: MessageManager):
             print("error in arg_name or type_hint")
 
     name = call.name
-||||||| merged common ancestors
     function_or_method = call.callee_candidates[0]
     kw_args = [(kw_arg.name, kw_arg.type) for kw_arg in call.keyword_arg]
     positional_args = [pos_arg.type for pos_arg in call.positional_arg]
@@ -61,8 +60,7 @@ def check_type(call: FunctionCall, message_manager: MessageManager):
         if structure_args[i] is not None and structure_args[i] != positional_args[i]:
             print("error in arg_name or type_hint")
 
-
-  	name = call.name
+        name = call.name
     # function_or_method = call.callee_candidates[0]
     # kw_args = [(kw_arg.name, kw_arg.type) for kw_arg in call.keyword_arg]
     # positional_args = [pos_arg.type for pos_arg in call.positional_arg]
@@ -87,10 +85,9 @@ def check_type(call: FunctionCall, message_manager: MessageManager):
     #     if structure_args[i] is not None and structure_args[i] != positional_args[i]:
     #         print("error in arg_name or type_hint")
 
-
     name = call.name
     args = call.positional_arg
-    keyargs= call.keyword_arg
+    keyargs = call.keyword_arg
 
     print(name)
     for arg in args:
