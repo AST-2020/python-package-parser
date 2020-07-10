@@ -8,6 +8,9 @@ class testFile5:
                  echte_name:Callable[[Tensor, Tensor, int], Tensor]):
         pass
 
+    def method_50(self, num: int, my_list: List, my_bool: bool, my_double: float, stringy: str, my_obj: obj) -> int:
+        pass
+
     def method_51(self, name: Dict[float, _device], nachname:Callable[[Tensor, Tensor, int], Tensor],
                  echte_name):
         pass
@@ -16,10 +19,11 @@ class testFile5:
                  echte_name:Callable[['Module'], None]):
         pass
 
-    def method_53(self,
-                 name:Union[Callable[[int], float], List[Callable[[int], float]]],
-                 nachname: Callable[[Tensor, Tensor, int], Tensor]="yoyoyo",
-                 echte_name:List[Callable[[int], float]]="kein Witz"):
+    @overload
+    def method_52(self, name: int, nachname:Tensor, echte_name:None):
+        pass
+
+    def method_53(self, name:int, nachname, echte_name):
         pass
 
 
@@ -33,5 +37,12 @@ def testFunc51(num:str, my_list:Dict, my_bool:bool, my_double:Double, my_obj:obj
     pass
 
 
-def testFunc52(arg0:Dict, arg1:str, arg2:Tuple[List[Callable[[int], float]], str, float, obj]):
+def testFunc52(arg0: Callable[[Tuple[int, Exception, device], device], int],
+               arg1: Tuple[int, Tensor],
+               arg2: Tuple[List[Callable[[int], float]], str, float, obj]):
     pass
+
+@overload
+def testFunc52(arg0:Callable[..., device], arg1:Callable[[Tuple[int, Exception, device]], None], arg2):
+    pass
+

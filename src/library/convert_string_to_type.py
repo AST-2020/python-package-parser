@@ -1,5 +1,6 @@
 import re
 from typing import *
+import typing
 from torch import Tensor
 
 
@@ -9,53 +10,57 @@ def convert_string_to_type(s: str) -> Type:
             s = s.replace("ellipsis", "...")
         return eval(s)
     except (NameError, SyntaxError) as e:
-        if s == "string" or s == "str":
+        if s == "string":
             return str
-        if s == "boolean":
+        elif s == "boolean":
             return bool
-        if s == "Integer" or s == "integer":
+        elif s == "Integer" or s == "integer":
             return int
 
-        match = re.match("^List\\[(.*)]$", s)
+        match = re.match("^(.*?)\\[(.*)]$", s)
         if match is not None:
-            return List[convert_string_to_type(match.group(1))]
-
-        match = re.match("^Optional\\[(.*)]$", s)  # Optional[X] as a shorthand for Union[X, None]
-        if match is not None:
-            return Optional[convert_string_to_type(match.group(1))]
-
-        matches = re.match("^Union\\[(.*)]$", s)
-        if matches is not None:
-            matches = matches.group(1).split(", ")
-            matches = list(map(convert_string_to_type, matches))
-            unions = matches[0]
-            for i in range(1, len(matches)):
-                unions = Union[unions, matches[i]]
-            return unions
-
-        matches = re.match("^Tuple\\[(.*)]$", s)
-        if matches is not None:
-            matches = matches.group(1).split(", ")
-            matches = list(map(convert_string_to_type, matches))
-            unions = matches[0]
-            for i in range(1, len(matches)):
-                unions = Tuple[unions, matches[i]]
-            return unions
-
-        matches = re.match("^Dict\\[(.*)]$", s)
-        if matches is not None:
-            matches = matches.group(1).split(", ")
-            return Dict[convert_string_to_type(matches[0]), convert_string_to_type(matches[1])]
-
-        match = re.match("^Callable\\[\\[(.*)]$", s)
-        if match is None:
-            match = re.match("^Callable\\[(.*)]$", s)
-        if match is not None:
-            match = match.group(1).rsplit("], ")
-            if len(match) == 1:
-                match = match[0].rsplit(", ")
-            match1 = match[0].split(", ")
-            match1 = list(map(convert_string_to_type, match1))
-            match2 = convert_string_to_type(match[1])
-            return Callable[match1, match2]
+            match = re.match("^(.*?)\\[(.*)]$", s).group(1)
+            match = match.capitalize()  # bec. in doc_strings, some types begin with small letters
+            match2 = re.match("^(.*?)\\[(.*)]$", s).group(2)
+            matches = find_obj_for_str_parts(match2)
+            return find_obj_type_hint(match, matches)
         return Any
+
+
+def calculate_n(hint: str):
+    return hint.count("[") - hint.count("]")
+
+
+# to check if splitting using "," only was correct or not
+def correct_splitting(matches):
+    index = 0
+    while index < len(matches):
+        n = calculate_n(matches[index])
+        while n != 0:
+            # concatenate string_part with the next one in List
+            # ex: ["List[int,", "str]"] -> "List[int, str]" (which is what we want)
+            matches[index] += ", " + matches.pop(index + 1)
+            n = calculate_n(matches[index])
+        index += 1
+    return matches
+
+
+def find_obj_for_str_parts(matches):
+    matches = matches.split(", ")
+    matches = correct_splitting(matches)
+    matches = list(map(convert_string_to_type, matches))
+    return matches
+
+
+def find_obj_type_hint(outer_type, matches):
+    matches = matches.__str__().rsplit("]", 1)[0].split("[", 1)[1]
+    matches = remove_illegal_types(matches)
+    try:
+        return eval(outer_type + "[" + matches + "]")
+    except NameError:
+        return Any
+
+
+def remove_illegal_types(s):
+    return s.replace("<class '", "").replace("'>", "").replace("NoneType", "None").replace("torch.Tensor", "Tensor").\
+        replace("<built-in function ", "").replace(">", "")
