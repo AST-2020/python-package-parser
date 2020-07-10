@@ -26,3 +26,5 @@ class AllVariableCase(unittest.TestCase):
         usedvars = vars.get_usedvars()
         list_usedvars = AllVariableCase.convert_vars_to_List(usedvars)
         self.assertListEqual(list_usedvars, exp_usedvars)
+if __name__ == '__main__':
+    unittest.main()
