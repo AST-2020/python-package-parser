@@ -10,7 +10,6 @@ class Class:
             methods = []
         self.__methods={}
         self.__name: str = name
-        # self.__methods: Dict[str, List[Function]] = _list_to_dict(methods)
         for method in methods:
             if method.get_name() not in self.__methods.keys():
                 self.__methods[method.get_name()] = []

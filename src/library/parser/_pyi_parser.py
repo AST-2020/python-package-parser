@@ -4,19 +4,12 @@ from typing import Any, Dict
 from src.library.convert_string_to_type import convert_string_to_type
 
 
-# differences:
-# 1- lr_scheduler.pyi(in file: (scale_fn): Optional[Callable[[float], float]] vs
-#       from code: Optional[Callable[float, float]])
-# 2- opimizer.pyi (in file: (step): Optional[Callable[[], float]] vs
-#         from code: Optional[Callable[, float]]
-
 class _PythonPyiFileVisitor(ast.NodeVisitor):
-    def __init__(self, module, function_name, searched_args: OrderedDict, searched_cls_name=None):
-        self.__module = module
+    def __init__(self, function_name, searched_args: OrderedDict, searched_cls_name=None):
         self.function_name = function_name
         self.searched_cls_name = searched_cls_name
         self.searched_args = searched_args
-        self.single_type_hints = OrderedDict() # represent the type hints for a single occurence of function
+        self.single_type_hints = OrderedDict()  # represent the type hints for a single occurence of function
         # list that represent all occurences of the function in the Module (multiple in case of overloaded functions)
         self.returned_type_hints = []
         self.cls_name = None
