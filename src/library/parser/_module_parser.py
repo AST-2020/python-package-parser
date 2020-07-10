@@ -104,56 +104,60 @@ class _PythonFileVisitor(ast.NodeVisitor):
         return hint_string
 
     def __create_parameter_lists(self, node: ast.FunctionDef) -> List[Parameter]:
-        param_name_and_hint = []
+        # variable, where we can save multiple (name_and_hint_dict) insatnces incase of overloaded functions or methods
+        list_of_name_and_hint_dict = []
+
+        # dict that saves the type hints for one function or method declaration with name
         name_and_hint_dict = OrderedDict()
+
         found_hint_in_definition = False
-        # for arg in node.args.args:
-        #     if arg.annotation is not None and "id" in arg.annotation.__dir__():
-        # check in py file for type_hint
         for arg in node.args.args:
             type_hint = self.find_type_hint(arg.annotation)
-            name_and_hint_dict[arg.arg] = type_hint
+            name_and_hint_dict[arg.arg] = None
             if type_hint is not None:
                 type_hint = convert_string_to_type(type_hint)
+                name_and_hint_dict[arg.arg] = type_hint
                 found_hint_in_definition = True
 
         # to test, if length of single_type_hints is equal to length of searched_args
         # if not, then the type hints belong to a different function
-        param_name_and_hint.append(name_and_hint_dict)
-        self.single_type_hints = OrderedDict()
+        list_of_name_and_hint_dict.append(name_and_hint_dict)
 
         if not found_hint_in_definition and self.__pyi_file is not None:
             if self.__current_class is not None:
-                pyi_type_hints = _PythonPyiFileVisitor(self.__current_module.get_name(), node.name, name_and_hint_dict, self.__current_class.get_name())
+                pyi_type_hints = _PythonPyiFileVisitor(self.__current_module.get_name(), node.name, name_and_hint_dict,
+                                                       self.__current_class.get_name())
             else:
                 pyi_type_hints = _PythonPyiFileVisitor(self.__current_module.get_name(), node.name, name_and_hint_dict)
             pyi_type_hints.visit(self.__pyi_file)
             if pyi_type_hints.get_type_hints() is not None:
                 found_hint_in_definition = True
-                param_name_and_hint = pyi_type_hints.get_type_hints()
-                # print(self.__current_module.get_name(), " ",  self.__current_class, " ", node.name, " ", param_name_and_hint)
-
-        # torch.nn.functional
-        # None
-        # fractional_max_pool3d_with_indices
-        # [OrderedDict([('input', <class 'torch.Tensor'> ), ('kernel_size', typing.Any), ('output_size', typing.Union[typing.Any, NoneType]), ('output_ratio', typing.Union[typing.Any, NoneType]), ('return_indices', < class 'bool' > ), ('_random_samples', typing.Union[torch.Tensor, NoneType])])]
-
-        # torch.nn.functional
-        # None
-        # max_pool1d_with_indices
-        # [OrderedDict([('input', < class 'torch.Tensor' > ), ('kernel_size', typing.Any), ('stride', typing.Union[typing.Any, NoneType]), ('padding', typing.Any), ('dilation', typing.Any), ('ceil_mode', < class 'bool' > ), ('return_indices', < class 'bool' > )])]
+                list_of_name_and_hint_dict = pyi_type_hints.get_type_hints()
 
         if not found_hint_in_definition:
             doc_string = ast.get_docstring(node)
             param_names = [n for n in name_and_hint_dict.keys()]
-            # call find_paramter_hint_in_doc_string()
-            # _find_parameter_hint_in_doc_string(param_names, doc_string)
+            # list_of_name_and_hint_dict = _find_parameter_hint_in_doc_string(param_names, doc_string)
 
         parameter_defaults: List[Any] = [getattr(default, default.__dir__()[0]) for default in node.args.defaults]
-        if param_name_and_hint is None:
+        if list_of_name_and_hint_dict is None:
             return []
         else:
-            return self.__create_parameter_objects(param_name_and_hint, parameter_defaults)
+            return self.__create_parameter_objects(list_of_name_and_hint_dict, parameter_defaults)
+
+        # torch.nn.functional
+        # None
+        # fractional_max_pool3d_with_indices
+        # [OrderedDict([('input', <class 'torch.Tensor'> ), ('kernel_size', typing.Any), ('output_size',
+        # typing.Union[typing.Any, NoneType]), ('output_ratio', typing.Union[typing.Any, NoneType]),
+        # ('return_indices', < class 'bool' > ), ('_random_samples', typing.Union[torch.Tensor, NoneType])])]
+
+        # torch.nn.functional
+        # None
+        # max_pool1d_with_indices
+        # [OrderedDict([('input', < class 'torch.Tensor' > ), ('kernel_size', typing.Any), ('stride',
+        # typing.Union[typing.Any, NoneType]), ('padding', typing.Any), ('dilation', typing.Any),
+        # ('ceil_mode', < class 'bool' > ), ('return_indices', < class 'bool' > )])]
 
     def __create_parameter_objects(self, hints: List[Dict], defaults: List):
         result: List[Parameter] = []

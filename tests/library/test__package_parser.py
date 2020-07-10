@@ -11,7 +11,7 @@ class Test(TestCase):
         for module_path, python_file, python_interface_file in parsed_package:
             if "TestPackage.UC4_pyi_files.py" in python_file:
                 self.assertEqual("TestPackage.UC4_pyi_files.pyi" in python_interface_file, True)
-            elif "TestPackage.UC4_pi_files.py" in python_file:
+            elif "TestPackage.UC4_py_files.py" in python_file:
                 self.assertEqual(python_interface_file, None)
 
     def test_parse_package(self):
