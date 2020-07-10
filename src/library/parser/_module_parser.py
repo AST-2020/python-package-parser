@@ -126,22 +126,18 @@ class _PythonFileVisitor(ast.NodeVisitor):
 
         if not found_hint_in_definition and self.__pyi_file is not None:
             if self.__current_class is not None:
-                pyi_type_hints = _PythonPyiFileVisitor(self.__current_module.get_name(), node.name, name_and_hint_dict,
+                pyi_type_hints = _PythonPyiFileVisitor(node.name, name_and_hint_dict,
                                                        self.__current_class.get_name())
             else:
-                pyi_type_hints = _PythonPyiFileVisitor(self.__current_module.get_name(), node.name, name_and_hint_dict)
+                pyi_type_hints = _PythonPyiFileVisitor(node.name, name_and_hint_dict)
             pyi_type_hints.visit(self.__pyi_file)
             if pyi_type_hints.get_type_hints() is not None:
                 found_hint_in_definition = True
                 list_of_name_and_hint_dict = pyi_type_hints.get_type_hints()
 
-
         if not found_hint_in_definition:
             doc_string = ast.get_docstring(node)
             param_names = [n for n in name_and_hint_dict.keys()]
-            if doc_string is not None:
-                print(self.__current_module.get_name(), " ", self.__current_class, " ", node.name)
-
             # list_of_name_and_hint_dict = _find_parameter_hint_in_doc_string(param_names, doc_string)
 
         parameter_defaults: List[Any] = [getattr(default, default.__dir__()[0]) for default in node.args.defaults]

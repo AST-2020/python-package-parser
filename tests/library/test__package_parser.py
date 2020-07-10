@@ -35,7 +35,8 @@ class Test_package_parser(TestCase):
                 tested_python_interface_file = "tests/" + python_interface_file.rsplit("/tests/")[1]
             else:
                 tested_python_interface_file = "None"
-            self.assertEqual(expected[index][2], tested_python_interface_file)
+            self.assertIn(tested_python_interface_file, expected[index])
+            expected[index].remove(tested_python_interface_file)
             index += 1
 
     def test_parse_package_not_included(self):
