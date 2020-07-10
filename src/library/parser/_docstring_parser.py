@@ -77,7 +77,6 @@ def _find_hint_from_param_desc_google_style(descriptions):
                 # remove numbers in front of types
                 hint[i] = re.split(r'[0-9]+-', hint[i])[-1]
                 hint[i] = hint[i].strip(' ,~/\\')
-                # print(hint[i])
                 if ('[' in hint[i] and ']' not in hint[i]) or ('(' in hint[i] and ')' not in hint[i]):
                     hint[i] = hint[i].strip('[(')
                 if (']' in hint[i] and '[' not in hint[i]) or (')' in hint[i] and '(' not in hint[i]):
@@ -90,8 +89,6 @@ def _find_hint_from_param_desc_google_style(descriptions):
         return param_hints
 
     return None
-
-# hints which are not marked as hints via brackets are ignored
 
 def _find_parameter_hint_string_google_style(doc_string):
     """
@@ -146,7 +143,6 @@ def _find_hint_from_param_desc_numpydoc_style(descriptions):
         if len(item) == 2:
             param = item[0]
             hint = item[1]
-            # print(param, hint)
             # cut unwanted extra information
             hint = re.split(r' of ', hint)[0]
             hint = re.split(r',? (\(?optional\)?|\(?default|shape|length|range)', hint)[0]
@@ -154,11 +150,9 @@ def _find_hint_from_param_desc_numpydoc_style(descriptions):
             hint = re.split(r' ?[!<>=]+ ? [0-9a-z]+', hint)[0]
             hint = re.split(r' (greater|equal|less)s? ', hint)[0]
             # remove extra size annotations
-            # print(hint)
             hint = re.split(r'\([a-zA-Z\_]+?(samples|features|row|col)[a-zA-Z_]*?, [a-zA-Z\_]+?(samples|features|row|col)[a-zA-Z\_]*?\)', hint)[0]
             hint = re.split(r'\[[a-zA-Z\_]+?(samples|features|row|col)[a-zA-Z_]*?, [a-zA-Z\_]+?(samples|features|row|col)[a-zA-Z\_]*?\]', hint)[0]
             hint = re.split(r'\( ?either.+?\)', hint)[0]
-            # print(hint)
             # handle {...} set of possible types/ strings/ ...
             braces = re.findall(r'\{(.+?)\}', hint)
             if braces != []:
@@ -285,7 +279,6 @@ def _find_hint_from_param_desc_rest_style(descriptions):
                 # strip a/the normalized (OPTIONAL) ... object
                 hnt = re.split(r'object ?\.?', h)[0]
                 hnt = re.split(r' ?(a|the|normalized|\(OPTIONAL\)) ', hnt)[-1]
-
                 # remove , . whitespaces
                 hnt = hnt.strip(',. ')
 
@@ -318,30 +311,18 @@ def _find_parameter_hint_string_rest_style(doc_string):
 def _get_param_hint_strings_from_doc_string(doc_string: str):
     hint_list = None
     if _find_parameter_hint_string_numpydoc_style(doc_string) is not None:
-        # print('numpy')
-        # print(doc_string)
         descs = _find_parameter_hint_string_numpydoc_style(doc_string)
-        # print(descs)
         hint_list = _find_hint_from_param_desc_numpydoc_style(descs)
-        # print(hint_list)
         return hint_list
 
     elif _find_parameter_hint_string_google_style(doc_string) is not None and hint_list is None:
-        # print('google')
-        # print(doc_string)
         descs = _find_parameter_hint_string_google_style(doc_string)
-        # print(descs)
         hint_list = _find_hint_from_param_desc_google_style(descs)
-        # print(hint_list)
         return hint_list
 
     elif _find_parameter_hint_string_rest_style(doc_string) is not None and hint_list is None:
-        # print('rest')
-        # print(doc_string)
         descs = _find_parameter_hint_string_rest_style(doc_string)
-        # print(doc_string)
         hint_list = _find_hint_from_param_desc_rest_style(descs)
-        # print(hint_list)
         return hint_list
 
     # epy style removed because it is not used and there are no examples to work on
@@ -367,18 +348,11 @@ def _find_parameter_hint_in_doc_string(param_names, doc_string: str):
 
             else:
                 try:
-                    # print(doc_string)
-                    # print(param_list)
-                    # print(param_hints)
                     param_hints = convert_string_to_type('Union[{}]'.format(', '.join(param_hints)))
                 except TypeError:
-                    # print(param_hints)
                     param_hints = convert_string_to_type(', '.join(param_hints))
                     if param_hints is not typing.Any:
                         param_hints = list(param_hints)
-                    # pass
-                    # print(param_list)
-                    # print(param_hints)
                 except SyntaxError:
                     param_hints = typing.Any
 
