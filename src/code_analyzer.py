@@ -53,6 +53,6 @@ if __name__ == '__main__':
     #         for parameter in parameters:
     #             print(parameter)
 
-        analyze_files(sys.argv[1:], parse_packages(['sklearn'])).print_messages()
+        analyze_files(sys.argv[1:], parse_packages(['sklearn', 'torch'])).print_messages()
     else:
         print('Usage: python code_analyzer.py <files_to_analyze*>')
