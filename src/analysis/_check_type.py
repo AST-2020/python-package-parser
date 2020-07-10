@@ -18,8 +18,7 @@ def check_type(call: FunctionCall, message_manager: MessageManager):
     function_or_method = call.callee_candidates[0]
     structure_args = [(par.get_name(), par.get_type_hint()) for par in function_or_method.get_parameters()]
 
-    primitiv_type = [int, str, float, bool, Any, None]
-
+    primitiv_type = [int, str, float, bool, Any, None, dict]
     index = 0
     for arg in args:
         # print(structure_args[index][1], '  ', arg.get_type())
