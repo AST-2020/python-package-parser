@@ -26,10 +26,10 @@ def analyze_file(file_to_analyze: str, package: Package, message_manager: Messag
     calls = parse_function_calls(file_to_analyze, package)
 
     for call in calls:
-        check_function_exists(call, message_manager)
-        check_arg_names(call, message_manager)
-        check_arg_number(call, message_manager)
-        check_default_value(call, message_manager)
+        # check_function_exists(call, message_manager)
+        # check_arg_names(call, message_manager)
+        # check_arg_number(call, message_manager)
+        # check_default_value(call, message_manager)
         check_type(call, message_manager)
     return message_manager
 
@@ -53,6 +53,6 @@ if __name__ == '__main__':
     #         for parameter in parameters:
     #             print(parameter)
 
-        analyze_files(sys.argv[1:], parse_packages(['torch', 'sklearn'])).print_messages()
+        analyze_files(sys.argv[1:], parse_packages(['sklearn', 'torch'])).print_messages()
     else:
         print('Usage: python code_analyzer.py <files_to_analyze*>')

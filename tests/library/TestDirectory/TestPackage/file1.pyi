@@ -1,22 +1,12 @@
-class file1_testClass1:
-    def __init__(self):
-        pass
+from typing import *
 
-    def file1_testmethode1(self, args):
-        pass
-
-
-def file1_testFunc1(num):
+def foo1(param1:int, param2:str, param3:dict):
     pass
 
 
-class file1_testClass2:
-    def __init__(self):
+class Klass_foo2:
+    def __init__(self, param1:tuple, param2:Union[int, str]):
         pass
 
-    def file1_testmethode2(self, args):
+    def foo2(self, param4:float, param5:None, param6:Optional[int]):
         pass
-
-
-def file1_testFunc2(num):
-    pass

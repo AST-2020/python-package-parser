@@ -6,9 +6,6 @@ from src.library.model._function import Function
 from src.library.model._klass import Class
 
 
-# def __init__(self, name: str, methods: List[Function] = None):
-
-
 class TestClass(TestCase):
     def __init__(self, *args, **kwargs):
         self.klasses = []

@@ -75,3 +75,12 @@ class Test_Convert_String_To_Obj(TestCase):
             "typing.Callable[[ForwardRef('Module'), typing.Any, typing.Any], typing.Union[NoneType, torch.Tensor]]",
             str(convert_string_to_type("Callable[['Module', _grad_t, _grad_t], Union[None, Tensor]]")))
 
+    def test_method_with_parameter_ex21(self):
+        self.assertEqual("typing.Any", str(convert_string_to_type("Model[int]")))
+
+    def test_method_with_parameter_ex22(self):
+        self.assertEqual("typing.Union[str, <built-in function callable>, int]",
+                         str(convert_string_to_type("Union[string, callable, int]")))
+
+
+
