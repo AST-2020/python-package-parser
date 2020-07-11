@@ -1,11 +1,11 @@
 import car
 
 myCar = car.Car("Toyota", "Supra", "red")
-myCar = car.Car(make="VW", modell="Golf", color="blue")
+myCar = car.Car(make="VW", model="Golf", color="blue")
 
 myCar.get_info()
-myCar.get_info(haha=10)
-myCar.gett_info()
+myCar.get_info()
+myCar.get_info()
 myCar.drive(speed=50)
 myCar.drive(speed=150)
 myCar.drive(speed=200, bla=1)
