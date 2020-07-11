@@ -138,7 +138,7 @@ class _PythonFileVisitor(ast.NodeVisitor):
         if not found_hint_in_definition:
             doc_string = ast.get_docstring(node)
             param_names = [n for n in name_and_hint_dict.keys()]
-            # list_of_name_and_hint_dict = _find_parameter_hint_in_doc_string(param_names, doc_string)
+            list_of_name_and_hint_dict = _find_parameter_hint_in_doc_string(param_names, doc_string)
 
         parameter_defaults: List[Any] = [getattr(default, default.__dir__()[0]) for default in node.args.defaults]
         if list_of_name_and_hint_dict is None:

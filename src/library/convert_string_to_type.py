@@ -28,21 +28,24 @@ def convert_string_to_type(s: str) -> Type:
 
 
 def calculate_n(hint: str):
-    return hint.count("[") - hint.count("]")
+    return hint.count("[") - hint.count("]") + hint.count("(") - hint.count(")")
 
 
 # to check if splitting using "," only was correct or not
 def correct_splitting(matches):
     index = 0
-    while index < len(matches):
-        n = calculate_n(matches[index])
-        while n != 0:
-            # concatenate string_part with the next one in List
-            # ex: ["List[int,", "str]"] -> "List[int, str]" (which is what we want)
-            matches[index] += ", " + matches.pop(index + 1)
+    try:
+        while index < len(matches):
             n = calculate_n(matches[index])
-        index += 1
-    return matches
+            while n != 0:
+                # concatenate string_part with the next one in List
+                # ex: ["List[int,", "str]"] -> "List[int, str]" (which is what we want)
+                matches[index] += ", " + matches.pop(index + 1)
+                n = calculate_n(matches[index])
+            index += 1
+        return matches
+    except IndexError:
+        return Any
 
 
 def find_obj_for_str_parts(matches):

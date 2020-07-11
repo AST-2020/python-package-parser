@@ -114,7 +114,7 @@ def _get_module_path(module_base_path: str, filename: str) -> str:
         return module_base_path + "." + Path(filename).stem
 
 
-# create two filaes with same name, but different extensions (true)
+# create two files with same name, but different extensions (true)
 # 1 file without another pyi file with same name
 def _get_python_interface_file(dirpath: str, filenames: List[str], python_file: str) -> Optional[str]:
     pyi_file = python_file.replace(".py", ".pyi")

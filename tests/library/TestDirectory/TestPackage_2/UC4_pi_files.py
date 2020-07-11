@@ -11,11 +11,15 @@ class testFile4:
         pass
 
 
-def testFunc4(param_0: Optional[Union[_device, str, int]], param_1: Optional[int],
-                 param_2: Callable[[Tensor, Tensor, int], Tensor], param_3: Callable[..., Tensor]):
+def testFunc4(name: Optional[Union[_device, str, int]], nachname:Optional[int],
+                 echte_name:Callable[[Tensor, Tensor, int], Tensor]):
     pass
 
 
-def testFunc41(param_0: Dict[float, _device], param_1: Callable[[Tensor, Tensor, int], Tensor],
-                 param_2):
+def testFunc41(name: Dict[float, _device], nachname:Callable[[Tensor, Tensor, int], Tensor],
+                 echte_name):
     pass
+
+
+
+
