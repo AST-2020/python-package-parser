@@ -19,7 +19,7 @@ def check_type(call: FunctionCall, message_manager: MessageManager):
 
     function_or_method = call.callee_candidates[0]
     structure_args = [(par.get_name(), par.get_type_hint()) for par in function_or_method.get_parameters()]
-    print(structure_args)
+    # print(structure_args)
 
     primitiv_type = [eval("int"), eval("str"), eval("float"), eval("bool"), eval("Any"), eval("dict")]
     index = 0
@@ -42,11 +42,11 @@ def check_type(call: FunctionCall, message_manager: MessageManager):
         for pa in structure_args:
             # print(pa[0], " ", pa[1], " ", kw.name," ", kw.type)
             if pa[1] in primitiv_type and pa[0] == kw.name:
-                print(pa[0],'  ', pa[1],'  ' ,arg.get_type())
+                # print(pa[0],'  ', pa[1],'  ' ,arg.get_type())
                 if kw.get_type() != pa[1] and pa[1] is not Any:
                     pass
                     # print('hier sollt eine fffff')
-                    # message_manager.add_message(_unknown_parameter_error(call, structure_args[index][0]))
+                    message_manager.add_message(_unknown_parameter_error(call, structure_args[index][0]))
             else:
                 continue
 

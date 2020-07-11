@@ -9,7 +9,7 @@ def convert_string_to_type(s: str) -> Type:
         if "ellipsis" in s:
             s = s.replace("ellipsis", "...")
         return eval(s)
-    except (NameError, SyntaxError) as e:
+    except (NameError, SyntaxError, TypeError) as e:
         if s == "string":
             return str
         elif s == "boolean":

@@ -289,6 +289,29 @@ class Test(TestCase):
         output12 = {'X': ['BallTree', 'KDTree', 'array-like', 'sparse matrix']}
         self.assertDictEqual(output12, dp._find_hint_from_param_desc_numpydoc_style(input12))
 
+    def test__find_parameter_hint_in_doc_string(self):
+        doc_string = """Splits the tensor into chunks. Each chunk is a view of the original tensor.
+
+            If :attr:`split_size_or_sections` is an integer type, then :attr:`tensor` will
+            be split into equally sized chunks (if possible). Last chunk will be smaller if
+            the tensor size along the given dimension :attr:`dim` is not divisible by
+            :attr:`split_size`.
+
+            If :attr:`split_size_or_sections` is a list, then :attr:`tensor` will be split
+            into ``len(split_size_or_sections)`` chunks with sizes in :attr:`dim` according
+            to :attr:`split_size_or_sections`.
+
+            Arguments:
+                tensor (Tensor): tensor to split.
+                split_size_or_sections (int) or (list(int)): size of a single chunk or
+                    list of sizes for each chunk
+                dim (int): dimension along which to split the tensor.
+            """
+        from library.convert_string_to_type import convert_string_to_type
+
+        print(convert_string_to_type('list[Tensor]'))
+
+        print (dp._find_parameter_hint_in_doc_string(['tensor', 'split_size_or_sections', 'dim'], doc_string))
 
 if __name__ == '__main__':
     unittest.main()

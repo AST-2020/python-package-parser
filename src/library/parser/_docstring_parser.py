@@ -107,7 +107,7 @@ def _find_parameter_hint_string_google_style(doc_string):
     """
     param_section = None
     # used keywords to references sections within the docstings
-    wanted_sections = ['Args', 'Arg', 'Parameter', 'Param', 'Parameters']
+    wanted_sections = ['Args', 'Arg', 'Parameter', 'Param', 'Parameters', 'Argument', 'Arguments']
     unwanted_sections = ['Returns', 'Return', 'Notes', 'See also', 'Examples', 'References', 'Yields', 'Raises', 'Warns', 'Usage']
     # create regex compiler
     expr = r'^\s*:?({}):?\s*\n+'.format('|'.join(wanted_sections + unwanted_sections))

@@ -12,10 +12,10 @@ from torch.autograd.grad_mode  import  set_grad_enabled # für pyi_datei
 t = Tensor()
 # assorted_types_args_kwargs(tensor_arg: Tensor, str_arg: str, int_arg: int, tensor_kwarg: Tensor = torch.tensor([2, 2]),str_kwarg: str = "str_kwarg",
 # int_kwarg: int = 2,)
-assorted_types_args_kwargs(t, str_arg =True, int_arg = 3.5 , tensor_kwarg = t ,str_kwarg = "str_kwarg",int_kwarg = '2') # für py_datei
+# assorted_types_args_kwargs(t, str_arg =True, int_arg = 3.5 , tensor_kwarg = t ,str_kwarg = "str_kwarg",int_kwarg = '2') # für py_datei
 # fehlrer für str_arg, int_arg, int_kwarg
-# split(t, 3.3, dim = True) # für docstring
-# lu_unpack(t, t, True, True)   # für doc string
+split(t, 3.3, dim = True) # für docstring
+lu_unpack(t, t, 5, 'string')   # für doc string
 
 
 
