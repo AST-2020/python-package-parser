@@ -16,7 +16,7 @@ def convert_string_to_type(s: str) -> Type:
             return bool
         elif s == "Integer" or s == "integer":
             return int
-        elif s == 'None' or 'none':
+        elif s == 'None' or s == 'none':
             return None
 
         match = re.match("^(.*?)\\[(.*)]$", s)

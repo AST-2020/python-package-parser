@@ -2,6 +2,7 @@ import ast
 from collections import OrderedDict
 from typing import Any, Dict
 from src.library.convert_string_to_type import convert_string_to_type
+from src.library.parser.utils import find_type_hint
 
 
 class _PythonPyiFileVisitor(ast.NodeVisitor):
@@ -27,7 +28,7 @@ class _PythonPyiFileVisitor(ast.NodeVisitor):
                 if arg.arg not in self.searched_args:
                     self.single_type_hints = OrderedDict()
                     break
-                type_hint = self.find_inner_hint(arg.annotation)
+                type_hint = find_type_hint(arg.annotation)
                 if type_hint is not None:
                     type_hint = convert_string_to_type(type_hint)
 
@@ -39,34 +40,6 @@ class _PythonPyiFileVisitor(ast.NodeVisitor):
         if len(self.single_type_hints) != 0 and len(self.single_type_hints) == len(self.searched_args):
             self.returned_type_hints.append(self.single_type_hints)
             self.single_type_hints = OrderedDict()
-
-    def find_inner_hint(self, subscriptable_object, hint_string=""):
-        if subscriptable_object is None or type(subscriptable_object) is str:
-            return subscriptable_object
-        if subscriptable_object.__dir__()[0] in ["id", "s"]:
-            hint_string += getattr(subscriptable_object, subscriptable_object.__dir__()[0])
-        elif subscriptable_object.__dir__()[0] == "value":
-            hint = self.find_inner_hint(subscriptable_object.value)
-            if hint is not None:
-                hint_string += hint
-            else:
-                hint_string += "type(None)"
-        elif subscriptable_object is Ellipsis:
-            hint_string += "ellipsis"
-
-        if "slice" in subscriptable_object.__dir__() and "elts" not in subscriptable_object.slice.value.__dir__():
-            hint_string += "[" + self.find_inner_hint(subscriptable_object.slice.value) + "]"
-        elif "slice" in subscriptable_object.__dir__():
-            hint_string += self.find_inner_hint(subscriptable_object.slice)
-        elif "elts" in subscriptable_object.__dir__():
-            hint_string += "["
-            for i in range(len(subscriptable_object.elts)):
-                if i < len(subscriptable_object.elts) - 1:
-                    hint_string += self.find_inner_hint(subscriptable_object.elts[i]) + ", "
-                else:
-                    hint_string += self.find_inner_hint(subscriptable_object.elts[i])
-            hint_string += "]"
-        return hint_string
 
     def get_type_hints(self):
         if len(self.returned_type_hints) != 0:
