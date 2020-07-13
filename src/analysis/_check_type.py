@@ -46,7 +46,7 @@ def check_type(call: FunctionCall, message_manager: MessageManager):
                 if kw.get_type() != pa[1] and pa[1] is not Any:
                     pass
                     # print('hier sollt eine fffff')
-                    message_manager.add_message(_unknown_parameter_error(call, pa[1], kw.get_type(), pa[1]))
+                    message_manager.add_message(_unknown_parameter_error(call, pa[0], kw.get_type(), pa[1]))
             else:
                 continue
 
@@ -101,5 +101,5 @@ def check_type(call: FunctionCall, message_manager: MessageManager):
 def _unknown_parameter_error(call: FunctionCall, argument_name: str, given: str ,exp: str):
     return Message(
         call.location,
-        f"Function '{call.name}' the type of  '{argument_name}' is not correct. expected: {exp} given: {given}"
+        f"Function '{call.name}' the type of  '{argument_name}' is not correct. expected: '{exp.__name__}', given: '{given.__name__}'"
     )
