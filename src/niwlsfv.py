@@ -4,9 +4,9 @@ from src.library.model._parameter import Parameter
 from src.library.model._function import Function
 from src.library.model._klass import Class
 from typing import *
+from typing import Any
 
-
-print(eval("array"))
+print(eval("Callable[[Any], int]"))
 
 
 # parameters = []

@@ -60,6 +60,8 @@ def find_obj_for_str_parts(matches):
 def find_obj_type_hint(outer_type, matches):
     matches = matches.__str__().rsplit("]", 1)[0].split("[", 1)[1]
     matches = remove_illegal_types(matches)
+    if outer_type == "Callable" and "]" not in matches:
+        matches = "[" + matches.split(",")[0] + "], " + ", ".join(matches.split(",")[1:])
     try:
         return eval(outer_type + "[" + matches + "]")
     except NameError:
@@ -68,4 +70,4 @@ def find_obj_type_hint(outer_type, matches):
 
 def remove_illegal_types(s):
     return s.replace("<class '", "").replace("'>", "").replace("NoneType", "None").replace("torch.Tensor", "Tensor").\
-        replace("<built-in function ", "").replace(">", "")
+        replace("<built-in function ", "").replace(">", "").replace("typing.", "")
