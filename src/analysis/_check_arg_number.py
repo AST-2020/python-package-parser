@@ -19,6 +19,8 @@ def check_arg_number(call: FunctionCall, message_manager: MessageManager):
         message_manager.add_message(
             _wrong_number_of_arguments_error(call, min_expected_args, max_expected_args, given_args)
         )
+        return -1
+    return 0
 
 
 def _given_number_of_arguments(call: FunctionCall):
